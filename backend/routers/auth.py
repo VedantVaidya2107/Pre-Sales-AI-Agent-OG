@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from datetime import datetime, timezone
 from utils.supabase_client import supabase
 
-router = APIRouter(prefix="/api/auth", tags=["Auth"])
+router = APIRouter(prefix="/api/users", tags=["Auth"])
 
 class LoginRequest(BaseModel):
     email: str

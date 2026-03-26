@@ -16,9 +16,9 @@ async function request(method, path, body = null) {
 
 /* ── Auth ── */
 export const auth = {
-  check:       (email) => request('GET', `/api/auth/check?email=${encodeURIComponent(email)}`),
-  login:       (email, password) => request('POST', '/api/auth/login/', { email, password }),
-  setPassword: (email, password) => request('POST', '/api/auth/set-password/', { email, password }),
+  check:       (email) => request('GET', `/api/users/check?email=${encodeURIComponent(email)}`),
+  login:       (email, password) => request('POST', '/api/users/login/', { email, password }),
+  setPassword: (email, password) => request('POST', '/api/users/set-password/', { email, password }),
 };
 
 /* ── Clients ── */
