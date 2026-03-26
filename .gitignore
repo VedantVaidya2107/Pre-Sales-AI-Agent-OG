@@ -1,0 +1,27 @@
+node_modules
+dist
+.DS_Store
+*.log
+models_diag.json
+.env
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+
+# Test outputs
+backend/test_out.txt
+backend/pyright_output.txt

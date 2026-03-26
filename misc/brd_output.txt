@@ -1,0 +1,39 @@
+Comprehensive Summary & Key Highlights (Pages 1–164)
+SFSL – Business Requirement Document (BRD)
+----------------Page (0) Break----------------
+Part 1: Introduction and Project Vision (Pages 1–10)
+Section                                                           Key Information and Highlights
+Business Objectives                                                Improve lead-to-conversion rates, establish accountability, enable a unified Customer 360 view, and standardize processes across all products and
+branches.
+Products Covered                                                   Locker Services, Mutual Funds (Distributor), Financial Resource Products including Fixed Deposits (FD), Non-Convertible Debentures (NCD), and
+Structured Deposits (SD).
+Stakeholders & Roles                                             Relationship Managers (RM), Customer Development (CD) Staff, Branch Managers, Marketing Managers, and Product Managers.
+As-Is Challenges                                                     Manual dependency on Excel sheets, physical registers, and WhatsApp resulting in poor accountability, duplicate follow-ups, lack of ROI/CAC visibility,
+and inconsistent onboarding.
+Part 2: Marketing, Pre-Sales, and Lead Management (Pages 11–57)
+Section                                                           To-Be Vision & Capabilities
+Marketing Automation                                             Automated drip campaigns, campaign approval workflows, and structured ROI tracking with all digital channels feeding directly into the CRM.
+Lead Scoring                                                           Automated scoring framework based on demographics, product interest, and lead source to classify leads as Hot, Warm, or Cold.
+Lead Routing & Assignment                                   Automatic routing using Pincode/Branch and product interest with round-robin or weight-based distribution logic.
+Customer Profiling (CLV & RFM)                            Capture and leverage Customer Lifetime Value (CLV) and RFM metrics for segmentation, personalization, and retention strategies.
+Part 3: Sales, Onboarding, and Activity Management (Pages 58–80)
+----------------Page (1) Break----------------
+Section                                                           Sales & Activity Requirements
+Sales Lifecycle                                                        Defined opportunity stages from S0 (Enquiry) to S4 (Loss/Discard) ensuring complete lifecycle visibility.
+Activity Management                                               CRM-driven Permanent Journey Plans (PJP), daily task management, and geo-tagged field visit check-in/check-out.
+Onboarding & QDE                                                 Standardized Quick Data Entry (QDE) with mandatory digital document uploads and configurable folder structures.
+Part 4: Product-Specific Process Flows (Pages 81–140)
+Product                                                          Key CRM Flow Requirements
+Locker Services                                                      Integration with Locker Management System (LMS) to check availability, reserve lockers, and track agreement and booking status.
+Financial Resources (FD, NCD, SD)                      Payment-stage tracking, interest payout frequency capture, and bank/PAN/Aadhaar validation during onboarding.
+Mutual Funds Distribution                                       Integration with Mutual Fund platforms (MWB/Redvision) for KYC, folio creation, scheme selection, and SIP/Lumpsum execution.
+Part 5: Service, Integration, and System Requirements (Pages 141–164)
+Section                                                           Key System and Service Requirements
+Service & Support (Zoho Desk)                              Centralized ticketing with automated assignment, SLA tracking, resolution monitoring, and structured query categorization.
+Customer Portal (SFSL One)                                  Branded portal for customers and partners to track application status, upload documents, and view reports.
+Integration Footprint                                                Locker Management System, Mutual Fund Apps, SFL Core System, and third-party e-Sign services.
+System Security                                                      SAML/OAuth-based Single Sign-On (SSO) using corporate credentials.
+Reporting (MIS)                                                       MIS dashboards covering sales productivity, marketing ROI, and service SLA adherence.
+----------------Page (2) Break----------------
+
+----------------Page (3) Break----------------

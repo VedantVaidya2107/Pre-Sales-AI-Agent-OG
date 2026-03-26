@@ -1,0 +1,36 @@
+{
+  "FRIST001": [
+    {
+      "client_id": "FRIST001",
+      "event": "bot_accessed",
+      "note": null,
+      "timestamp": "2026-03-15T16:53:50.795Z"
+    },
+    {
+      "client_id": "FRIST001",
+      "event": "conversation_started",
+      "note": null,
+      "timestamp": "2026-03-15T16:53:55.207Z"
+    },
+    {
+      "client_id": "FRIST001",
+      "event": "proposal_generated",
+      "note": null,
+      "timestamp": "2026-03-15T17:16:03.038Z"
+    },
+    {
+      "client_id": "FRIST001",
+      "event": "proposal_submitted",
+      "note": null,
+      "timestamp": "2026-03-15T17:16:03.387Z"
+    }
+  ],
+  "FRIST002": [
+    {
+      "client_id": "FRIST002",
+      "event": "bot_sent",
+      "note": null,
+      "timestamp": "2026-03-16T04:07:31.713Z"
+    }
+  ]
+}

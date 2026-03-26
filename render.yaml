@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: presales-backend
+    env: python
+    plan: free
+    rootDir: .
+    buildCommand: cd backend && pip install -r requirements.txt
+    startCommand: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: ENV
+        value: production
+      - key: FRONTEND_URL
+        value: https://vedantvaidya2107.github.io
+      # Make sure to set GEMINI_API_KEY, EMAIL_USER, and EMAIL_PASS manually in the Render Dashboard!

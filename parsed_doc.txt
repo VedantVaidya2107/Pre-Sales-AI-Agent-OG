@@ -1,0 +1,1200 @@
+Zoho Implementation Proposal For CCMS
+24 Dec 2025      
+               Created By:
+Priyam Modi
++91 8591044966
+priyam@fristinetech.com
+About Fristine Infotech
+Fristine Infotech is India's leading Premium Zoho Partner helping clients across markets, industries & geographies solve complex business problems through bespoke consultation, implementation, and adoption of various Zoho Applications.
+We have been a strategic partner for Zoho for the last 9 years and have successfully completed over 300+ implementations across Marketing, Sales, Operations, Finance, and Support Functions.
+For More Information, Please Visit: Fristine Infotech Website
+Our Recent Awards:
+Our Clients
+Executive Summary
+PurposeTata Steel intends to implement a unified Customer Complaint Management System (CCMS) on Zoho CRM Plus to digitise and streamline the end-to-end complaint lifecycle, starting from complaint intake (via TSL Cares / Email / Manual) through investigation, approvals, settlement, returns, financial closure, and final customer communication. 
+FRD/Business Requirements at a glanceThe requirements define a complete, traceable complaint journey with:
+Digital complaint intake with invoice/batch/quantity selection, evidence uploads, and immediate acknowledgement.
+Routing & ownership starting with PAG Tech Desk screening, followed by FRT investigation (including site visit tracking, checklists, evidence, and Promise TAT).
+Parallel CAPA initiation when criteria are met, with root cause analysis, countermeasures, effectiveness tracking and PPM allocation.
+CIR (Complaint Investigation Report) creation with Delegation of Power (DOP) approval workflows and full auditability.
+Settlement pathways including No Claim, Salvage, and Return & Take Back, with end-to-end logistics tracking and quantity controls.
+SAP integration for invoice/batch/master data validation and downstream financial processes such as RE/GRN/STR/STO, and credit/debit memo creation and status sync.
+Recovery and liquidation/refund workflows where applicable.
+Customer communications across stages (acknowledgement, progress updates, pickup prompts, settlement intimation, closure) and hold scenarios where TAT is paused until dependencies are cleared.
+Dashboards & analytics for operational, financial, quality and SLA metrics.
+Proposed solution (Fristine Infotech)Fristine will implement CCMS using:
+Zoho CRM as the system of record for complaints, investigation workflows, CIR, CAPA, recovery, liquidation/refund and approvals.
+Zoho Desk for complaint-related ticketing, SLA visibility, notifications and escalations, synchronised with CRM.
+Zoho Survey to capture structured feedback post-closure and map responses back to complaint records.
+Zoho Analytics to consolidate CRM/Desk/Survey data into management dashboards and reports.
+Integrations & migration
+Integrations include TSL Cares with Zoho, SAP S/4HANA, IPCA, and SMS/WhatsApp gateways (vendor selection/credentials provided by Tata Steel).
+Data migration covers legacy customers, materials, historical complaints and attachments as per agreed mapping and final migration plan.
+Delivery model (high level)
+Requirement workshops — FRD/FSD sign-off — configuration & development — UAT — go-live — 30 days hypercare, followed by an optional run/managed services model.
+Indicative timeline & commercials
+Project initiation: within 21 days of PO; delivery: 140 Working days / 6.5 Calendar Months.
+Key dependenciesFinalisation of SLA/FRT/Promise TAT rules, defect checklists and acceptance criteria, DOP thresholds, field mappings, and availability of stable integration APIs/environments are required to finalise and deliver the solution.
+Process Flow (click here)FRT Process 
+CIR Process
+Material Return Process
+   CAPA Process
+Project Plan:
+Timeline:  
+Project kick-off: Within 21 days of receiving the duly signed Purchase Order (PO).
+Project duration: Approximately 136 working days (about 6.5 calendar months).
+Timeline dependency: This timeline is based on the assumption that all involved parties provide required inputs and deliverables on time; any delays in dependencies may impact the schedule.
+Project Team
+Sr .no
+Role 
+Role Description
+1.
+Delivery Lead
+Accountable for the Architecture Plan and Risk Mitigation.
+2.
+Project Manager
+Accountable for overall project outcomes.Day-to-day control and management of progress & Status.
+3.
+Sr Business Analyst 
+‌ Accountable for overall Business/functional requirements and User Training. 
+Responsible for creating Business Process/Product Backlog.
+4.
+Junior Business Analyst
+‌ Accountable for Helping in the documentation of Business/Functional requirements.
+5.
+Sr Developer 
+Accountable for Quality Development.Responsible for Completion of development/Implementationtask.
+6.
+QA/Software Test
+‌ Accountable for QA/Testing of the application.Responsible for Test planning and execution.
+Escalation Process 
+However, from time to time, there might be project issues/dependencies that can impact progress and result in an overall impact on timelines, with, if not addressed on time, Cascaded effects on effort and project costs.While the project team will attempt to resolve such issues amicably and in a timely manner, the escalation path below provides a mechanism for the stakeholders, both Tata Steel and Fristine intervene, resolve issues, and attempt to bring the project back on track.
+Sr .no
+Escalation Metrics
+Response  Time(Working Days)
+1.
+Level 1- Delivery Lead
+ 6 Hours
+2.
+Level 2 - Operation Manager 
+2 Day
+3.
+Level 3 - CTO
+4 Days 
+Fristine Infotech Business-day timings are defined as 10:00 AM to 6:00 PM, Monday to Friday, excluding public holidays.
+Project Governance & Checkpoints
+Sr .no
+Type of Governance and Checkpoint
+1.
+Requirement gathering & process playback 
+2.
+Functional Solution Document  Creation + Review 
+3.
+Functional Solution Document sign-off (scope freeze for build)
+4.
+CRM baseline build + closed group testing + feedback closure
+5.
+Desk & Survey baseline build + closed group testing + feedback closure
+6.
+Data migration readiness + sample data load validation
+7.
+Automation/widgets/custom scripts + reports/dashboards review
+8.
+UAT round + defect triage + UAT closure sign-off
+9.
+Live integration + pilot enablement + pilot closure
+    10.
+Final data load + end-user training + go-live readiness sign-off
+11.
+Go-live approval + hypercare governance + final closure sign-off
+A RACI Matrix will be included at the FSD stage, which will be the cornerstone for Governance and will define the responsibilities of all the involved parties as per the RACI framework.
+Change Request & CAB Governance
+Baseline Freeze: The signed-off FRD/FSD will be treated as the approved baseline scope for delivery.
+What constitutes a Change Request (CR): Any request made after FRD/FSD sign-off that adds, removes, modifies, or clarifies the approved requirements/processes shall be treated as a Change Request—including (but not limited to) changes in workflows, modules, fields, layouts, templates, integrations, reports/dashboards, roles/permissions, data migration approach, acceptance criteria, assumptions, timelines, or non-functional requirements—irrespective of size (minor or major).
+CR initiation (mandatory): All CRs must be raised in writing (email/CR form) with sufficient details to assess impact. Verbal requests or informal directions will not be treated as approval to proceed.
+Change Advisory Board (CAB): All CRs will be reviewed only through a Change Advisory Board (CAB) consisting of nominated representatives from (i) Client, (ii) Zoho, and (iii) Fristine Infotech.
+CAB determination & impact assessment: The CAB will:
+Classify the CR (nature/priority/complexity),
+Determine impact on scope, effort, delivery timelines, dependencies, and commercials, including any additional licenses/credits/API usage/third-party costs, and
+Decide whether the CR is accepted, deferred, or rejected.
+No obligation to proceed without written approval: No CR will be implemented, and Fristine Infotech will have no obligation to commence, continue, or allocate resources for any CR unless and until a written Change Order / CR Approval is executed by the authorised signatories of the parties (or as defined in the authorisation matrix).
+Commercials & schedule revision: Any approved CR will be estimated and billed separately as per the agreed commercial model (e.g., fixed price/time & material/rate card) and will trigger an equitable adjustment to the project plan, milestones, and delivery dates as applicable.
+Work prior to approval (revenue protection): If the Client requests Fristine Infotech to begin CR-related work before a Change Order is executed, such work (if undertaken) will be treated as billable out-of-scope effort on a time & material basis, and Fristine Infotech may pause further CR execution until the Change Order is formally approved.
+Scope control: Only CRs processed through the CAB and approved via a signed Change Order will be considered in scope. Silence, email acknowledgement, or participation in discussions does not constitute approval unless it meets the above approval requirement.
+Detailed Scope Of WorkZoho CRM
+Requirement
+Status
+User Persona
+Fristine Remark
+Organisation Set up
+Configuration
+Admin
+Company Creation
+Hierarchy Configuration
+Currency Configuration
+Timezone Configuration
+Holiday List
+Calendar Setting-up
+Email Authentication
+User & Access Control Management
+Configuration
+Admin
+Roles Creation
+Profiles Creation
+Profiles Permission
+User Creation
+Territory Creation
+Account Management
+Configuration/ Customisation
+Admin / Service Team
+Customise standard fields
+Up to 2 Layout
+Layout Rules
+Approval Processes
+Validations
+Field Rules
+Related Lists
+Contact Management
+Configuration/ Customisation
+Admin / Service Team
+Customise standard fields
+Upto 2 Layout
+Layout Rules
+Approval Processes
+Validations
+Field Rules
+Related Lists
+Activity Management (Meetings, Calls, Tasks)
+Configuration/ Customisation
+Admin / Service Team
+Customise standard fields-
+Layout Rules
+Approval Processes upto 2
+Validations Rule up to 2
+Field Rules up to 4
+Task Rules & Notifications upto 2
+Products (Materials) Module
+Configuration/ Customisation
+Admin / Service Team
+Layout and field customisation as per requirement
+Product templates Creation (up to 1)
+Custom Module Development
+Configuration/ Customisation
+Admin / Service Team
+Design a custom module in CRM based on Business requirements (up to 10 custom modules)
+Workflow Automation 
+Configuration/ Customisation
+Admin / Service Team
+Upto 5 Standard Workflow
+Upto 4 Advance Workflow
+Multi-level Approvals and Review Process
+Upto 2 Blueprints (If required)
+Custom Widget (Only 2)
+Configuration/ Customisation
+Admin / Service Team
+Complaint Batch Widget, 360 Widget (if needed)
+Email Configuration within CRM
+Configuration/ Customisation
+Admin / Service Team
+Upto 10 standard Email notification templates, email workflows, POP/IMAP configuration, email authentication (SPF/DKIM)
+FRT Investigation management
+Configuration/ Customisation
+Admin / Service Team
+Configure FRT workflows for site visit tracking, investigation findings, evidence uploads, Promise TAT calculation and SLA-based escalations.
+CIR Creation & Processing 
+Configuration/ Customisation
+Admin / Service Team
+Configure the CIR module to capture root cause analysis, liability determination, settlement recommendation and financial impact 
+Settlement Computation
+Configuration/ Customisation
+Admin / Service Team
+Configure automated calculation of claim amount, GST impact, salvage value, and recovery
+Material Return Management
+Configuration/ Customisation
+Admin / Service Team
+Configure return workflows including pickup coordination, hub confirmation, RE/GRN status tracking, and SAP synchronisation.
+Credit Note Processing
+Configuration/ Customisation
+Admin / Service Team
+Configure credit note request and tracking workflows post-GRN with SAP status updates and financial closure.
+CAPA Management
+Configuration/ Customisation
+Admin / Service Team
+Implement CAPA workflows, including corrective/preventive actions, effectiveness tracking and closure approvals for quality compliance.
+Recovery Management
+Configuration/ Customisation
+Admin / Service Team
+Configure recovery workflows for debit note initiation, liable party tracking, approvals and recovery closure.
+Liquidation & Refund Processing
+Configuration/ Customisation
+Admin / Service Team
+Configure liquidation workflows including auction tracking, proceeds adjustment, refund calculation and net impact reporting.
+Zoho Desk
+Requirement
+Status
+User Persona
+Fristine Remark
+Organisation Set up
+Configuration / Customisation
+IT / Admin Team
+Configure Zoho Desk organisation, departments, agents, roles and basic operational settings for complaint-related support.
+Ticket Creation & Categorisation
+Configuration/ Customisation
+Admin / Service Team
+Configure ticket intake through email and other supported channels, including categorisation and assignment aligned to CCMS complaint types.
+CRM-Desk Synchronisation
+Configuration/ Customisation
+Admin / Service Team
+Enable synchronisation between Zoho Desk and Zoho CRM to ensure complaint and ticket status alignment and SLA visibility.
+Notifications & Escalations
+Configuration/ Customisation
+Admin / Service Team
+Configure email notifications and escalation rules for overdue or critical complaints.
+Zoho Survey
+Requirement
+Status
+User Persona
+Fristine Remark
+Zoho Survey Design & Configuration
+Configuration / Customisation
+IT / Admin Team
+Design and configure surveys for customer feedback and internal quality assessment linked to complaint resolution.
+(Up to 5 Surveys)
+Survey Distribution
+Configuration / Customisation
+IT / Admin Team
+Configure survey distribution through email or CRM-triggered events post-complaint closure.
+Survey Response Mapping
+Configuration / Customisation
+IT / Admin Team
+Map survey responses back to Zoho CRM complaint records for analysis and reporting.
+Zoho Analytics
+Requirement
+Status
+User Persona
+Fristine Remark
+Data Integration set up
+Configuration / Customisation
+Admin & MIS Team
+Integrate Zoho CRM, Zoho Desk, and Zoho Survey data into Zoho Analytics for centralised reporting.
+Upto 5-6 custom reports (Query, Pivot, Merged reports)
+Operational Dashboards
+Configuration / Customisation
+Admin & MIS Team
+Develop dashboards for complaint volume, SLA compliance, turnaround time, investigation status, and resolution trends.
+Quality & Feedback Analysis
+Configuration / Customisation
+Admin & MIS Team
+Create analytical reports combining complaint data and survey feedback to identify recurring issues and improvement areas.
+Management Reports
+Configuration / Customisation
+Admin & MIS Team
+Build summary-level reports for management review covering complaint trends, performance metrics, and compliance indicators.
+Data Migration
+Requirement
+Status
+User Persona
+Fristine Remark
+Data Migration
+Time & Material
+IT / Admin Team
+Existing customer (1 Lakh), Material (5 lakh), Complaints (Last five approx. 40K), Attachments (5-6 per complaint), and other modules
+Integrations
+Requirement
+Status
+User Persona
+Fristine Remark
+Zoho APIs
+Customization
+IT / Admin Team
+Need to create API documentation and share it with the Tata Steel (CCMS) team to facilitate the creation of a complaint in Zoho from TSL care, as well as to update the DPCR status, CAPA status, and IPCA status.
+SAP S4 Hana APIs
+Customization
+IT / Admin Team
+Zoho need consume the SAP APIs to get invoice-related data, RE creation, GRN creation, credit/debit notes, attachments, and capa status
+IPCA APIs
+Customization
+IT / Admin Team
+Zoho will consume the IPCA APIs to share complaint-related details with IPCA and retrieve the corresponding report details via the Zoho APIs.
+SMS Gateway
+Customization
+IT / Admin Team
+Zoho needs to integrate with the selected SMS gateway to send transactional and notification messages related to complaint creation, status updates, escalations, and closures. The SMS gateway APIs, credentials, templates, and regulatory configurations will be provided by the Tata Steel (CCMS) team.
+(Up to 10 SMS Templates)
+WhatsApp
+Customization
+IT & Admin Team
+Zoho needs to integrate with the selected WhatsApp Business gateway to send complaint-related notifications, acknowledgements, status updates, and alerts. The WhatsApp gateway APIs, approved templates, access credentials, and regulatory approvals will be provided by the Tata Steel (CCMS) team.
+(Up to 10 WhatsApp templates)
+UAT, Training & Help Document
+Requirement
+Status
+User Persona
+Fristine Remark
+UAT, User Training & Help Document
+   Support
+IT / Admin Team
+UAT
+User Training 
+Help Documentation
+Commercials:Software Implementation:
+Sr. No.
+Particulars
+ Commercial Type
+Detail
+  Total Amount (INR)    
+1.
+Requirement Workshop
+T&M
+15 Man Days
+₹ 
+2.
+Solution Design & Architecture
+Project basis
+NA
+₹ 
+3.
+Functional Solution Documentation and playback & sign-offs
+T&M
+15 Man Days
+₹ 
+4.
+Program Management & Governance
+T&M
+26 Man Days
+₹ 
+5.
+Zoho CRM Implementation
+Project basis 
+NA
+₹ 
+6.
+Zoho Desk Implementation
+Project basis 
+NA
+₹ 
+7.
+Zoho Analytics Implementation
+Project basis 
+NA
+₹ 
+8.
+Zoho Survey Implementation
+Project basis 
+NA
+₹
+9.
+Data Migration
+T&M
+15 Man Days
+₹ 
+10.
+Integrations
+Zoho APIs
+SAP APIs
+IPCA APIs
+SMS 
+WhatsApp
+Project basis
+NA
+₹ 
+11.
+QA service / Test Analyst
+Resource based
+6 Months
+₹
+12.
+User enablement services. Developer training not included
+T&M
+7 Man Days
+₹ 
+13.
+30 days of Hyper-care on the delivered item (no new change request)
+Project basis 
+NA
+₹
+14.
+Run Model (Platinum  Plan For 12 Months)
+₹ 
+                        Grand Total with Run Model  [Exclusive of GST]
+     ₹ 
+Note: 
+Taxes: The above pricing is exclusive of GST.
+Zoho licenses: Zoho license/subscription costs are not included in this proposal.
+Post go-live support: A run-model service will be provided post-hyper-care for maintenance, bug fixes, and minor enhancements.
+On-site effort & travel: The above cost includes 30 man-days of on-site visits. Any additional on-site effort will be billed as per the shared rate card. For the included 30 man-days as well, all travel and stay expenses from the consultants’ base location (airfare/transport, local commute, accommodation, per diem, and reasonable living expenses) will be charged to Tata Steel at actuals.
+User enablement: User enablement covers end-user training only; developer training is excluded.
+Caps & completion: Workflow automation and custom modules will be delivered up to the caps specified in the tables, subject to the approved use-cases. If the intended business outcome is achieved within lower effort/limits, the work will be treated as completed and the corresponding milestone/payment will be released.
+Payment Terms:
+The Zoho License cost needs to be paid in full upfront to Zoho in advance.
+60% Implementation Cost Payable in advance.
+40% Implementation Cost Payable after final final UAT Sign-off
+Managed services will be billed quarterly in advance.
+Constraints:
+The actual delivery date may change based on the timely response of various stakeholders.
+All third-party integrations will depend on the technical capabilities & API support of those platforms. 
+Implementation will depend on the Zoho platform's current capability & limitations.
+All Zoho Plans have limits on Records, Storage (both data and file), Custom functions, and API calls. If limits are exceeded during data migration, Integration, or usage, the Tata Steel team will need to purchase additional add-ons to the Zoho plan as and when required.
+The above scope is a basic initial understanding and inputs from the client. Final scope may evolve over time as we discover the requirements details.
+Clarity on the type of automation desired is required, as it needs to be managed within the scope and capabilities of CRM.
+SAP Data Synchronisation
+API Documentation: Well-documented Rest APIs for communication between systems.
+Token Details: Secure authentication tokens for access.
+Server Details: If SAP is on-premise, server access information needs to be provided to ensure a smooth connection.
+Estimation
+These hours will only be aligned if we have information handy from the Tata Steel (CCMS) team side.
+Integration
+All external and internal integrations (SAP, IPCA, SMS, WhatsApp, etc.) assume stable, versioned, and production-ready APIs from the respective system owners.
+The SMS & WhatsApp gateway is yet to be finalised. The Tata Steel (CCMS) team will be responsible for procurement and licensing of the selected SMS & WhatsApp gateway.
+Any additional third-party integrations, including GCP, will be treated as a change request. 
+Data Migration
+(Data migration estimates assume the following)
+Clean, structured, and validated source data is provided in agreed formats.
+Proper mapping between legacy data fields and Zoho CRM modules is finalised before migration execution.
+Large attachment volumes and historical data beyond the defined scope may require phased migration, middleware or additional effort.
+In-Person UAT Training
+In-person UAT and training sessions are subject to stakeholder availability and on-site infrastructure readiness. Any delays or changes may impact the planned timelines.
+SMS WhatsApp
+For SMS and WhatsApp integrations, the Tata Steel (CCMS) must finalise the vendor, gateway, templates, and regulatory approvals (DLT, WhatsApp Business approval, etc.).
+The SMS gateway is yet to be finalised. The Tata Steel (CCMS) team will be responsible for procurement and licensing of the selected SMS gateway.
+The WhatsApp integration partner is yet to be finalised. The Tata Steel (CCMS) team will be responsible for procuring and licensing the WhatsApp integration solution.
+Change Request
+Any functional or process changes requested after FRD/FSD sign-off will be treated as change requests and estimated separately.
+On-Site Resource Commercials:
+Sr. No.
+Resource
+Unit 
+  Total Amount (INR)    
+1.
+Jr . Zoho Developer
+Per Day
+₹ 
+2.
+Sr.Zoho Developer 
+Per Day
+₹ 
+     3.
+Jr.Business Analyst 
+Per Day
+₹ 
+     4.
+Sr.Business Analyst 
+Per Day
+₹ 
+ 5. 
+Solution Architect/Project Lead/CTO 
+Per Day
+₹ 
+ Total (Exclusive Of GST
+On-Site Engagement Terms:
+Definition of a Day: One (1) on-site “day” equals 8 working hours (typically 10:00 AM–6:00 PM, or as mutually agreed in writing).
+Minimum Billing: On-site visits are billed at a minimum of one (1) full day per resource per visit, irrespective of partial utilisation.
+Overtime / Additional Hours: Work beyond 8 hours in a day will be billed as additional hours on a pro-rata basis, only with prior written approval from the Client.
+Scheduling & Authorization: On-site support will be scheduled only upon written confirmation from the Client (email/PO/approved request).
+Travel & Out-of-Pocket Expenses: For travel from the consultant’s base location, all actual, reasonable travel and stay expenses will be charged to Tata Steel at actuals, including (as applicable) airfare/transportation, local commute, accommodation, per diem, and reasonable living expenses, supported by receipts/records where available.
+Run Model: Platinum Plan
+Feature list
+Platinum
+Monthly Fee
+₹ 
+Included Support & Bug-Fix Hours
+80 hrs/mo
+Coverage Window
+16 × 6 (Mon–Sat)
+SLA – First Response
+1 business hr
+SLA – Resolution Target*
+1 bd (P2) / 3 bd (P3)
+Severity 1 (Prod down) Handling
+Included (24 × 7)
+Ticket Channels
+Portal, Phone, WhatsApp
+Scope of Work in Bundle
+L1–L3 support, bug fixes, config/workflow, performance tuning
+Sandbox / UAT Deployment
+Full (incl. rollback)
+Admin / User Training
+1 session / Mo + refresher decks
+Reporting & Governance
+Weekly dashboard + Monthly CXO review
+Named Client-Success Manager
+Dedicated
+Overage (Support) Rate**
+₹
+                                                             Above Pricing Exclusive GST
+Managed Service / “Run Plan” special note: This plan can be used by Tata Steel across their divisions like Digeca, as well, where Zoho is already implemented. 
+Annexure
+ Business Requirements   
+The Customer Complaint Management System (CCMS) must support a complete, unified, and traceable complaint lifecycle for Tata Steel customers. The system must allow customers to register complaints through the Email / Manually / TSL Cares interface by selecting the invoice, batch, quantity under complaint, and uploading supporting evidence. The complaint must be automatically recorded in the CCMS, including customer information, product details, and traceability fields.
+The platform must ensure immediate intake of complaints and must maintain a consistent, transparent, and auditable trail from the moment a customer submits a complaint until its final closure. The system must route each complaint to the appropriate internal teams based on predefined rules and complaint type, beginning with technical validation and screening performed by the Product Application Group (PAG) at the Tech Desk stage. The system must support defect verification, reclassification, batch and invoice validation through integration with SAP, and update of core complaint data in real time.
+Once validated, the complaint must move to the First Response Team (FRT) stage. The PAG must be able to review defect details, decide whether a field visit is required, complete investigation checklists, and document the findings. If additional analysis is required, the system must route the complaint to QA, TG, Logistics, or other specialist groups as defined in the BRD. Promise TAT communication, visit updates, and investigation progress tracking must form part of this stage.
+In parallel to the FRT investigation, the system must support the initiation of a Corrective and Preventive Action (CAPA) process whenever a complaint meets the CAPA criteria (Initiated by PAG where applicable).
+The CAPA stage must include:
+Automatic CAPA creation linked to the complaint
+Agency assignment (TG / SPC / Logistics / Hub Manager) based on defect type
+Documentation of root cause analysis and corrective actions
+Tracking of countermeasure implementation and effectiveness
+PPM allocation upon effective CAPA closure
+The CAPA stage continues independently but remains synchronised with the complaint flow and must be completed before final complaint closure, where applicable
+Following completion of the FRT evaluation, the platform must generate a Complaint Investigation Report (CIR) containing accepted or rejected quantities, scrap quantity (where relevant), settlement recommendation (No Claim, Salvage, Return & Take Back), and supporting justification. The CIR approval cycle must follow the Delegation of Power (DOP) structure defined by the business, routing approval requests to the appropriate roles based on settlement amount thresholds. Parallel approvals and returned approvals must be fully traceable within the system.
+When the settlement includes Return & Take Back, the system must support the complete return logistics workflow, including customer scheduling inputs, pickup details, LR documentation, Hub Manager acknowledgement of received quantity, and GRN updates received from SAP. The system must prevent quantity mismatches, record condition-based classification, and ensure synchronisation between accepted quantity, RE initiation, and final GRN posting by SAP.
+After GRN confirmation, the financial settlement workflow must proceed. The system must generate credit/debit request details, transmit them to SAP for credit/debit memo creation, and store returned credit/debit memo numbers, dates, and posting status. The platform must track each financial event until settlement completion.
+When the failure is attributable to internal departments, logistics providers, SPC, or other agencies, the system must create CAPA records, assign responsibility, track countermeasures, record RCA methodology, and validate effectiveness. PPM values must be auto-calculated and allocated according to BRD-defined rules. Recovery workflows must run in parallel, capturing recoverable amounts, credit/debit note linkage, and closure requirements.
+Returned materials must subsequently undergo liquidation, where the system tracks total returned quantity, material sold, liquidation percentage, and refund eligibility. Refund processing must factor in credit/debit note values and net loss or gain. The system must route the record for required approvals until final refinance closure.
+All complaint lifecycle data must be auditable, with role information, stage transitions, and user actions traceable throughout. SAP integration must provide material, batch, invoice, GRN, and credit/debit note data. The platform must support reporting on operational, financial, quality, and SLA-based metrics.
+Nature of Customer Complaints  
+Tata Steel handles product, service, logistics, IT-related, and dimensional/defect-based complaints from:
+MSMEs
+Dealers
+OEMs
+End consumers
+Complaints are linked to invoice, batch, plant, and dispatch parameters. These determine the further path: acceptance, rejection, investigation, material return, or settlement.
+ 
+Business Goals  
+Ensure 100% digital logging through TSL Cares/Emails
+Introduce First Response Time (FRT) tracking
+Empower PAG as SPOC for all complaint-related interactions
+Reduce stakeholder loops and bring clarity to settlement benchmarks
+Automate repeatable tasks (RE, GRN, STR, STO, Credit Memo)
+Introduce promise TAT, complaint TAT, and stage-wise monitoring
+Enable CAPA & Recovery tracking
+Provide visibility across plants, hubs, sales, and quality teams
+ 
+Key Challenges in Current CCMP  
+Complaint flow is assignment-centric instead of ownership-centric
+Multiple workflows and repeated reassignment increase cycle time
+Manual RE/GRN/STR/STO processes
+No direct customer visibility
+Lack of integrated CAPA and PPM logic
+No material pick-up scheduling feature
+Major Stakeholders  
+PAG Tech Desk
+Application Engineer (AE/PAG)
+Hub Manager
+SPC Manager
+Sales Manager (SM)
+Finance Manager (FM)
+QA / TG teams
+Customer (via TSL Cares)
+SAP Integrations  
+Zoho integrates with SAP HANA to fetch and update critical data.
+Zoho pulls:  
+Invoice details
+Batch data (grade, plant, dispatch info,  etc)
+Customer master
+Material attributes
+Zoho pushes:  
+RE request
+GRN updates
+STR/STO creation
+Credit/Debit memo requests
+Settlement details
+This builds a closed-loop system spanning customer complaints to financial reconciliation.
+Customer Communication Management  
+Zoho automates communication at every complaint stage.
+Acknowledgements
+FRT updates
+Promise TAT notifications
+Material pickup prompts
+Settlement intimation
+Final closure message
+Zoho ensures a uniform customer experience with full transparency.
+ 
+Dashboards, MIS & Analytics  
+Zoho provides Tata Steel with real-time visibility into:
+Operational KPIs   
+FRT performance
+Promise TAT vs actual
+Complaint TAT
+Stage-wise workload
+Volume by category, region, and plant
+Financial Insights  
+Total claim value
+Settlement-wise distribution
+Recovery tracking
+Credit/Debit memo cycle
+Quality Metrics  
+Defect trends
+PPM calculation
+CAPA effectiveness
+Customer Experience  
+Complaint repeat rate
+Feedback scores
+SLA compliance
+This supports leadership decision-making across Sales, Operations, Quality, and Finance.
+ 
+End-to-End Traceability & Audit Control  
+Zoho automatically records:
+All stakeholder actions
+Stage transitions
+User comments
+SAP responses
+Document attachments
+This ensures complete traceability across the entire CCMS lifecycle.
+  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ Process Flow 
+Complaint Handling Process With Zoho Environment  
+FRT Process
+Step 1: Complaint Submission   
+Customer raises a complaint through TSL Care/Email/Manually by SM.
+Customer selects Batch → Invoice → Enters Complaint Quantity.
+The system generates a Complaint ID and sends an acknowledgement to the customer.
+ 
+Zoho Enablement  
+Complaint id will be auto-created in the Zoho environment through integration with the TSL Cares platform and pushed back to the SAP.
+Invoice, batch, material, grade, plant, and customer master details are fetched from SAP in real-time.
+Acknowledgement notification is auto-sent to the customer.
+Complaint enters the “New” stage with metadata and attachments stored centrally.
+Step 2: PAG Tech Desk – Initial Screening  
+PAG Tech Desk receives the newly logged complaint.
+Tech Desk validates mandatory fields:
+Batch No. -> Line Item
+Invoice No.
+Complaint Quantity
+Defect Name
+Photos/Videos
+System checks for repeated batch usage  and flags as needed.
+Complaint is classified as Product / Service / Logistics / IT Issue.
+Missing or incorrect data is updated (invoice, batch, product category, broad complaint type).
+IT-related complaints are routed to IT.
+Screened complaint is forwarded to PAG for detailed review.
+ 
+Zoho Enablement  
+Mandatory field validation rules ensure completeness before progressing.
+Duplicate batch/invoice detection logic flags repeat cases.
+Routing logic moves the complaint to the PAG Tech Desk queue.
+Tech Desk updates missing invoice/batch/product details directly in the system.
+If identified as an IT issue, Zoho routes the case to the IT queue.
+Screening completion moves the record to PAG Review.
+  
+Step 3: PAG Review & Preliminary Investigation  
+PAG reviews all information prepared by PAG Tech Desk
+PAG may engage with  the customer for clarification if required.
+PAG team decides if DPCR is required or not. If required then the complaint data needs to be shared with DPCR
+PAG decides whether an Visit is required or not and also decided if CAPA is required or not.
+Zoho Enablement  
+PAG receives the complaint with all validated data from Tech Desk.
+PAG uses standardized defect masters and guided forms to review details.
+“Visit Required?” decision captured as a system-controlled field.
+For visits, DPCR process initiated
+If clarification is needed, PAG triggers customer communication through automated templates.
+Decision branches:
+Visit Required → Step 4
+No Visit Required → Step 5 or Step 6, depending on defect
+ 
+Step 4: Assignment for Visit (If Required)  
+After PAG review, if a field visit is required, PAG assigns the complaint to the appropriate investigating agency:
+TSG (Technical Services Group) – For product technical evaluation
+Logistics / M&S – For logistics-related investigation
+Relevant PAG team member – For non-product issues
+The assigned agency receives the complaint details and supporting documents.
+The Agency prepares for field investigation based on customer inputs.
+ 
+Zoho Enablement  
+Rule-based assignment chooses the appropriate investigating agency based on:
+Product category
+Complaint type
+Region
+Material
+Assigned team receives:
+Complaint details
+Photos/videos
+Batch & invoice details
+Past complaint history
+The investigation team prepares for the field visit using system-generated checklists.
+ 
+Step 5: Field Visit & Defect-Wise Checklist (Conducted by TSG / Logistics / M&S / PAG Investigator)  
+The investigating agency contacts the customer and schedules the field visit.
+The agency performs an on-site investigation.
+The agency fills the Defect-Wise Checklist based on:
+On-site observations
+Photographs
+Customer interactions
+Physical inspection
+The agency submits its investigation outcome with one of the following decisions:
+Complaint Accepted
+Complaint Rejected
+Causality not established → Needs technical investigation (sample testing)
+Zoho Enablement  
+Checklist adjusts automatically based on:
+Complaint type
+Product vs non-product issue
+Possible outcomes selected:
+Complaint Accepted
+Complaint Rejected
+Causality Not Established (→ triggers sample testing flow)
+Based on the outcome:
+Accepted → Step 8 (Settlement path begins)
+Rejected → Step 7
+Further Investigation → Step 6
+ 
+Step 6: Detailed Investigation (If Required)  
+If the Visit outcome indicates that causality is not established or further investigation is required, the system routes the complaint to the appropriate technical agency:
+TG (Technical Group)
+QA
+Logistics
+M&S
+The assigned agency conducts detailed analysis or sample testing based on the defect category.
+IPCA Integration Trigger
+IPCA receives the investigation request and performs the necessary evaluation.
+IPCA generates an Analysis / Sample Investigation Report.
+The report is returned digitally and attached to the complaint case automatically in Zoho.
+The final Investigation Report is submitted back to PAG for formal review.
+ 
+Zoho Enablement
+System evaluates the visit decision and automatically routes the case to TG/QA/Logistics/M&S based on defect mapping.
+When a deeper technical evaluation is required, PAG triggers IPCA integration and sends investigation parameters.
+Zoho receives the IPCA-generated Analysis Report and attaches it to the complaint record.
+The completed Analysis / Sample Investigation Report moves automatically to PAG for Step 8 review.
+SLA monitoring continues during the investigation; escalations are triggered for any delays. 
+Step 7: Customer Intimation for Rejection (If Applicable) 
+If the investigating agency or PAG indicates that the complaint should be rejected, the system routes the case through the rejection validation workflow.
+IPCA Integration for Rejection Justification
+IPCA generates an Analysis Report supporting or validating the rejection.
+The report is returned and attached to the complaint record.
+AE/PAG Input for Final Rejection
+AE/PAG reviews the IPCA Analysis Report (where applicable).
+AE/PAG enters the final rejection reason and remarks.
+Supporting documents may be attached if required.
+Customer Intimation
+The system sends an automated message to the customer with:
+Rejection decision
+Rejection reason
+Additional remarks (if entered by AE/PAG)
+Complaint Routing
+Complaint moves into the closure path, following DOP approvals if applicable.
+ 
+Zoho Enablement
+System invokes IPCA integration automatically when rejection validation is required.
+The IPCA report is fetched and stored within the complaint record in Zoho.
+AE/PAG enters the rejection reason using predefined fields.
+Zoho maintains full audit tracking for:
+IPCA report received
+AE/PAG rejection inputs
+Customer intimation timestamp
+Forward to the closure stage
+ 
+Step 8: Final PAG Review of Investigation / Visit Report  
+PAG reviews the visit details or the analysis report.
+PAG decides:
+Accept
+Reject
+Return for re-analysis
+If accepted → move to  Settlement Remark
+If rejected → customer is informed.
+If returned → goes back for re-analysis.
+ 
+Zoho Enablement  
+PAG receives consolidated investigation data, visit notes, analysis reports, and recommendations.
+PAG selects:
+Accept
+Reject
+Return for Re-analysis
+If Accepted → Settlement Stage opens.
+If Rejected → Auto intimation to customer.
+If Re-analysis → Complaint returns to the respective agency.
+ Settlement Flow – Detailed Stepwise Explanation  
+Levels: Level 1 – No Commercial Settlement
+Level 2 – Salvaging
+Level 3 – Material Return (Take Back & Refund)  
+CIR Process
+ 
+ 
+Level 1 – No Commercial Settlement  
+Step 9 (From AE/PAG Remark Stage)  
+AE/PAG selects Level 1 – No Commercial Settlement.
+AE/PAG enters Rejected Quantity (if required).
+Case moves directly to CIR creation. 
+Zoho Enablement  
+Zoho captures quantity details and material classification inputs.
+ 
+Step 10 – CIR Creation (SM Stage)  
+SM prepares the CIR indicating No Commercial Settlement.
+SM enters reasoning, defect justification, and evidence.
+Zoho Enablement  
+SM receives an automated task for CIR creation.
+CIR form is dynamically adjusted based on the settlement type:
+No Claim
+Inputs captured:
+Settlement details
+Quantity breakup
+Reasoning
+Attachments
+Loss calculation inputs 
+Step 11 – Complaint Closure Prerequisites  
+CIR approval completed.
+AE/PAG investigation completed.
+No CAPA or Recovery (unless triggered due to defect pattern).
+Level 2 – Salvaging (Credit for Quality Discount)  
+Step 9 – AE/PAG Settlement Remark  
+AE/PAG selects Level 2 – Salvaging.
+AE/PAG checks with the customer whether they agree for salvaging:
+If NO → Level 3 (Material Return)
+If YES → proceed below
+Step 10 – Salvage Assessment  
+Customer confirms willingness to salvage via email.
+Two possible branches:
+A. Salvage Qty Known  
+AE/PAG enters Salvage Quantity.
+The remaining quantity (Rejected Qty Post Salvaging) is entered.
+Disposition for rejected qty: dispose at customer end.
+B. Salvage Qty Not Known / Hold for Salvaging  
+Case waits until customer confirms salvage results.
+AE/PAG updates the salvage quantity once known.
+Zoho Enablement  
+Zoho automatically transitions the complaint into the “Salvage Assessment” stage once AE/PAG selects Level 2 Settlement.
+Customer confirmation for salvaging is captured through a Zoho-triggered communication template (email/SMS) and logged inside the system.
+The system presents AE/PAG with two dynamic paths:
+A. Salvage Quantity Known  
+Zoho displays mandatory input fields for:
+Salvage Quantity
+Rejected Quantity Post Salvaging
+Disposition confirmation (auto-default: “Dispose at Customer End”)
+Validation prevents AE/PAG from entering total quantities exceeding the original complaint quantity.
+Zoho updates complaint metrics in real time and auto-routes the case to SM for CIR creation.
+B - Salvage Quantity Not Known / Hold for Salvaging   (TAT will be put on hold)
+Zoho moves the case to a “Salvage Pending” status.
+Automated reminders are sent to AE/PAG and the customer based on the configured SLA
+System auto-recalculates the remaining rejected quantity and re-routes to SM for CIR creation.
+ 
+Step 11 – CIR Creation for Salvage Cases  
+SM prepares the CIR with settlement = Credit for Quality Discount.
+SM enters:
+Salvage Qty
+Post-salvage rejected qty
+Basis for discount
+CIR goes for DOP approvals.
+ 
+Zoho Enablement  
+Zoho auto-generates a CIR draft populated with all upstream data
+Salvage Qty
+Post-salvage rejected qty
+Defect details
+Investigation notes
+SM selects settlement type as “Credit for Quality Discount” from a standardised dropdown.
+Zoho enforces mandatory entry of:
+Basis for discount
+Justification note
+System automatically:
+Validates claimed quantities
+Estimates potential credit  value (based on configurable pricing logic, if provided)
+Maps the DOP approval hierarchy
+CIR is pushed into the automated DOP workflow, triggering:
+Notifications to approvers
+SLA monitoring
+Escalations if pending beyond the threshold
+Once approved, Zoho transitions the complaint to Credit/debit Note Processing without manual movement.
+ 
+ Step 12 – Credit/Debit Note Processing (No Physical Return)  
+After approval, SM raises a credit/debit Request.
+Finance verifies and releases the Credit/debit Note.
+Credit/debit Note Number is recorded.
+ 
+Zoho Enablement  
+After GRN or salvage confirmation, the system generates a credit/debit Request.
+Finance verifies quantity, settlement type, and documents.
+Finance releases a Credit/debit Note.
+Credit/debit Note number updated back into Zoho via API from SAP.
+Level 3 – Return (Take Back & Refund)  
+Step 9 – AE/PAG Settlement Remark  
+When AE/PAG selects Level 3 – Take Back & Refund, the material can flow through two possible classifications:
+Scrap
+Prime-2
+PAG performs the final classification, but the system collects the required details beforehand.
+ 
+A. Material Classified as Scrap  
+Step 9.1 – Customer Disposal Decision (Scrap Cases)  
+Before proceeding, the PAG team asks the customer via email for disposal:
+Option 1 – Customer Agrees to Dispose at Their End  
+Customer confirms that they can dispose of the scrap at their location.
+AE/PAG records:
+Customer confirmation for disposal
+No material return is needed.
+The case directly moves to the CIR Stage for settlement.
+Option 2 – Customer is not able to dispose of the scrap.
+If the customer is not able to dispose the scrap at their end, then the material must be returned to Tata Steel for further processing.
+Step 9.2 – Transportation Decision for Scrap Return  
+When the complaint is settled under Level 3 – Return (Take Back & Refund) and material is to be returned, the system records how transportation will be managed. The customer is asked about the transportation preference over the mail.
+ 
+Option 1: Transportation Required from Tata Steel  
+When the customer opts for transportation will be arranged by Tata Steel.
+The system captures the following pickup details:
+Pickup Date
+Pickup Time
+Returned Material Quantity
+Material Form
+These details are stored in the system and passed to the Hub Manager for planning and execution of the pickup.
+ 
+Option 2: Transportation Managed by Customer  
+When customer opts that they will manage transportation on their own.
+The system records this preference.
+A formal communication is sent to the customer confirming that:
+Transportation will be arranged by the customer, and
+Material must be delivered to the designated stockyard/location.
+The Hub Manager’s activities begin when the material arrives at the stockyard, where the actual received quantity is recorded.
+ 
+Step 9.3 – Internal Handling for Scrap Returned to Plant  
+Once scrap material reaches Tata Steel:
+Internal teams decide:
+Whether it becomes Scrap or
+Needs further internal evaluation
+The final status is updated in the system.
+The complaint is routed to the CIR Stage.
+ 
+B. Material Classified as Prime-2  
+Step 9.4 – AE/PAG Inputs for Prime-2  
+For Prime-2, AE/PAG must enter:
+Material Form (CTL / Coil)
+Applicable TDCs
+Material Return Quantity
+No customer disposal decision is needed; material must return to the plant.
+Step 9.5 – Forward to CIR Stage  
+Once the material type and settlement details are confirmed, the complaint moves to CIR Creation.
+ Zoho Enablement  
+Zoho automates the end-to-end return flow:
+For Scrap – Customer Agrees to Dispose at Their End
+No return workflow is triggered in Zoho.
+Complaint proceeds directly toward CIR closure.
+For Scrap, Customer Cannot Dispose at Their End, Zoho displays the pickup-related fields:
+Pickup date & time
+Returned material quantity
+Material form
+Transportation option (Tata Steel / Self-transport)
+For Prime-2 Material, Zoho always displays the same pickup-related fields:
+Pickup date & time
+Returned material quantity
+Material form
+All information entered is automatically populated into Zoho for the return workflow.
+HM workflow is triggered whenever material is returned (Scrap return or Prime-2):
+If the customer selects Tata Steel transportation → HM arranges pickup.
+If the customer selects self-transport → HM receives the material when the customer delivers it to the stockyard.
+HM records the actual quantity received at the Stockyard (SY).
+SM verifies the received quantity.
+Once SM verifies the received quantity, Zoho triggers :
+Auto RE creation
+Auto Virtual GRN
+Auto STR/STO
+Auto GRN at destination plant
+Material stored at a designated storage location
+Zoho tracks each step with SAP acknowledgements.
+ Step 10 – CIR Creation (SM Stage)  
+SM prepares the CIR with settlement = Take Back & Refund.
+SM updates the destination location for material return.
+SM enters return qty details as per AE/PAG.
+CIR routed for DOP approval.
+ 
+Zoho Enablement  
+SM generates the CIR inside Zoho using a CIR module/form.
+Zoho routes the CIR automatically for DOP approvals and tracks approval status.
+Material Return Process
+Step 11 – Material Return Workflow
+Customer Pick-Up Scheduling  
+Customer shares:
+Pick-up date
+Time
+Quantity
+Material Form
+Hub Manager (HM) Actions  
+HM arranges Logistics for physical pickup.
+HM enters the actual received quantity at the Stockyard (SY).(Example: Accepted Qty 4T, HM enters Actual Received Qty 2T)
+SM Verification  
+SM verifies the quantity received.
+SM raises Return Entry (RE) based on the actual quantity.
+RETURN ENTRY & GRN LOGIC (Two Cases)  
+Case A – Source ≠ Destination Plant  
+Auto RE created at the source plant.
+Auto Virtual GRN done against RE at the source plant.
+Auto STR/STO generated for movement to the destination plant.
+Actual GRN done at the destination plant.
+Case B – Source = Destination Plant  
+Auto RE created at the destination plant.
+Auto GRN posted directly at the destination.
+Storage Location Assignment  
+Returned material stored at the designated storage location (destination)
+Credit/debit Request Generation  
+Based on GRN, the system generates a Credit/debit Request Number.
+Case moves to Finance.
+ 
+Note: Zoho flow mentioned above in step 9 - Level 3
+ 
+Step 12 – Credit/Debit Note Processing  
+SM verifies GRN, qty, and settlement details.
+SM submits a request for a credit/debit note.
+Finance verifies and approves.
+Finance releases the Credit/debit Note.
+Credit/debit Note Number recorded in the system.
+Note: Zoho flow mentioned above in step 12 - Level 2
+CAPA Process
+Step 13 – CAPA Workflow (Parallel to All Settlement Levels)  
+CAPA is triggered based on the complaint type.
+PAG assigns CAPA agency:
+TG (Product)
+FND/SPC (Service)
+Hub Manager (Logistics)
+The CAPA team implements countermeasures.
+PAG evaluates effectiveness.
+If ineffective → CAPA reassigned.
+If effective → PPM calculated.
+Zoho Enablement  
+CAPA is auto-triggered based on defect patterns.
+Zoho assigns the CAPA agency (TG/SPC/Logistics).
+CAPA tasks are tracked until completed.
+PAG verifies effectiveness.
+Ineffective CAPA loops back for corrective action.
+PPM calculation is system-driven.
+ 
+Step 14 – Recovery Workflow (Parallel)  
+If liability exists on SPC / Logistics / Transporter → Recovery initiated.
+Recovery amount identified.
+Recovery progresses until completion
+Zoho Enablement  
+System identifies recovery requirements for SPC/Logistics/Transporter.
+Recovery tasks initiated and tracked.
+Recovery completion automatically updates the complaint status.
+ 
+Step 15 – Complaint Closure  
+15.1 Closure only when all stages are completed:
+AE/PAG investigation completed
+CIR approved
+Credit /debit note issued
+Material return completed (if applicable)
+CAPA closed (if applicable)
+Recovery completed (if applicable)
+Customer informed.
+Complaint marked Closed.
+Zoho Enablement  
+Complaint is marked Closed only when all conditions are satisfied:
+AE/PAG investigation completed
+CIR approved
+Material return completed (if applicable)
+Credit/debit note issued
+CAPA closed
+Recovery closed (if applicable)
+System triggers closure intimation to the customer.
+Hold Scenarios & SLA Behaviour   
+The system must support Hold states where complaint processing is temporarily paused due to legitimate dependencies. In such cases, the TAT (Turnaround Time) should also be paused until the dependency is resolved. Hold conditions include:
+Waiting for Customer Response:
+If the customer is required to provide additional inputs—such as acceptance for salvaging, confirmation of salvage quantity, pickup details, or supporting documents—the complaint must move to a Hold – Awaiting Customer Response state.During this period, TAT must remain paused.
+Other Dependency-Based Delays:
+Any dependency that prevents Tata Steel from progressing the complaint (e.g., third-party lab test results, QA analysis delays, logistics constraints) should shift the complaint into a  relevant Hold State TAT remains paused until the dependency is cleared.
+Note - The specifications listed are prepared from the current preliminary understanding of the process. Dashboards, Reports, and field-level parameters will be finalized during the implementation phase based on inputs from the Tata Steel team.
+  Additional Requirements & Dependencies for CCMS Implementation     
+To ensure accurate implementation, smooth integration, and end-to-end functional alignment of the CCMS, the following information is required from Tata Steel. These dependencies are critical inputs for finalizing workflows, integrations, automations, and system behavior across the Zoho ecosystem and SAP HANA.
+1. TSL Cares to Zoho Integration Requirements (Two-Way Synchronization)  
+To enable a seamless customer experience and end-to-end visibility, Tata Steel must provide clarity on two-way integration between TSL Cares and Zoho CRM/Desk.
+Required Inputs from Tata Steel  
+Confirm the list of complaint statuses and field updates that must sync from Zoho → TSL Cares
+Confirm which customer actions must sync from TSL Cares → Zoho
+ 
+2. Stakeholders & Governance Framework  
+A clear governance structure is required to define responsibilities, escalation paths, and approval ownership.
+ 
+Required Inputs from Tata Steel  
+List of final stakeholders with:
+Name
+Designation
+Role & responsibilities
+Decision-making authority
+Confirmation of governance cadence:
+Weekly working group meetings
+Monthly steering committee
+Escalation hierarchy and approval workflows
+ 
+3. Defect Acceptance Rules & Checklists  
+To configure defect categorization and automate acceptance conditions, detailed defect validation logic is required.
+ 
+Required Inputs from Tata Steel  
+Defect-wise checklist and acceptance criteria for every defect type.
+Mapping of defect structure:
+Defect to Category to Broad Type to Criticality
+Closure rules:
+Evidence requirements
+Mandatory validations
+Approval conditions
+Criteria for reopening a complaint
+ 
+4. SAP HANA Integration Requirements  
+SAP is the source of truth for master data, RE/GRN flows, and credit/debit memo posting. Technical details are required to complete the integration design.
+ 
+A) API Requirements  
+Tata Steel must provide API specifications for:
+Invoice & Batch Data Retrieval
+Material Return: RE, GRN, STR, STO
+Credit/debit Note Posting & Status Sync
+Details needed:
+Authentication mechanism
+Environment URLs (DEV / QA / PROD)
+Rate limits
+Error codes & retry logic
+ 
+B) SAP Master Data Inputs  
+Complete list of master data objects with update frequency:
+Customer
+Material
+Batch
+Plant / Storage Location
+Pricing / Taxes
+Sales Organisation details
+ 
+C) CRM–SAP Field Mapping  
+Field-to-field mapping sheet (SAP to Zoho)
+Data sync direction for each field:
+SAP to Zoho
+Zoho to SAP
+Bi-directional
+Transformation rules, formats, and mandatory field definitions
+ 
+5. Customer Notification Integrations (SMS / WhatsApp)  
+To configure automated notifications, the following details are required:
+Approved SMS / WhatsApp service provider & API specification
+Notification templates (with placeholders)
+Language variants (if required)
+Opt-in / opt-out policy
+Delivery report or callback mechanism
+ 
+6. Data Management Requirements  
+Clear rules are required to maintain the accuracy of master data synced into Zoho.
+ 
+Required Inputs  
+Frequency of master data refresh (Daily / Weekly / Monthly / Ad-hoc)
+Data ownership and validation process
+Exception handling & failed-sync resolution workflow
+ 
+7. SLA, FRT & Promise, Closure TAT Rule Matrix  
+To implement SLA automation and escalation workflows, Tata Steel must finalize the timing logic for all complaint stages.
+ 
+Required Inputs  
+FRT SLA Definition (e.g., 48 hours, business hours or calendar hours)
+Priority/criticality mapping for SLA (Red / Orange / Yellow)
+Promise TAT Calculation Rules based on:
+Complaint category
+Defect criticality
+Settlement Level (L1/L2/L3)
+Investigation requirement
+Pause Conditions
+Awaiting customer response
+Sample testing is in progress
+Transport dependency
+Escalation Rules
+Who is notified after X hours/days
+Escalation levels (Level 1 → Level 2 → Level 3)
+Communication channels (Email / SMS / WhatsApp / Portal)
+Closure TAT Calculation Rules
+Acceptance
+For Fristine Infotech
+For Tata Steel Limited
+Signature:
+Signature:
+Name:
+Name:
+Designation:
+Designation:
+Date:
+Date:

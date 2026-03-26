@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fristine Infotech · Presales Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+
+    <!-- ══ LOADER ══ -->
+    <div id="ldr" class="ldr hidden">
+        <div class="ldr-particles" id="ldrParticles"></div>
+        <div class="ldr-inner">
+            <div class="ldr-logo-wrap">
+                <div class="ldr-logo">F</div>
+                <div class="ldr-ring"></div>
+                <div class="ldr-ring ldr-ring-2"></div>
+                <div class="ldr-glow"></div>
+            </div>
+            <div class="ldr-brand">Fristine Infotech</div>
+            <div class="ltxt" id="ltxt">Loading…</div>
+            <div class="ldr-pb-wrap"><div id="ldrPb" class="ldr-pb"><div class="ldr-pb-glow"></div></div></div>
+            <div class="ldr-dots">
+                <span class="ldr-dot"></span>
+                <span class="ldr-dot"></span>
+                <span class="ldr-dot"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ SCREEN: LOGIN ══ -->
+    <div id="L" class="screen">
+        <div class="login-grid">
+            <div class="login-left">
+                <div class="ll-noise"></div>
+                <div class="ll-content">
+                    <div class="ll-brand">
+                        <div class="brand-mark">F</div>
+                        <div class="brand-text">
+                            <span class="brand-name">Fristine Infotech</span>
+                            <span class="brand-tag">Zoho Premium Partner</span>
+                        </div>
+                    </div>
+                    <h1 class="ll-headline">Presales<br/><em>Command Centre</em></h1>
+                    <p class="ll-desc">Manage leads, run AI discovery sessions, and generate proposals — all from one intelligent platform.</p>
+                    <div class="ll-stats">
+                        <div class="ll-stat"><span class="ll-stat-num">200+</span><span class="ll-stat-lbl">Implementations</span></div>
+                        <div class="ll-stat-div"></div>
+                        <div class="ll-stat"><span class="ll-stat-num">10yr</span><span class="ll-stat-lbl">Zoho Partner</span></div>
+                        <div class="ll-stat-div"></div>
+                        <div class="ll-stat"><span class="ll-stat-num">50+</span><span class="ll-stat-lbl">Enterprise Clients</span></div>
+                    </div>
+                    <div class="ll-badges">
+                        <div class="ll-badge"><svg viewBox="0 0 20 20" fill="none" width="16"><path d="M4 3a2 2 0 100 4v2a2 2 0 002 2h2m4-8a2 2 0 110 4v2a2 2 0 01-2 2h-2m-4 0h4m-4 0v3a2 2 0 002 2v0a2 2 0 002-2v-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> India's #1 Zoho Premium Partner</div>
+                        <div class="ll-badge"><svg viewBox="0 0 20 20" fill="none" width="16"><rect x="4" y="6" width="12" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M8 10h.01M12 10h.01M7 14h6M10 6V4m-5 4h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> AI-powered client discovery</div>
+                        <div class="ll-badge"><svg viewBox="0 0 20 20" fill="none" width="16"><rect x="5" y="4" width="10" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M8 2h4a1 1 0 011 1v1H7V3a1 1 0 011-1z" stroke="currentColor" stroke-width="1.5"/><path d="M8 10h4M8 14h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Instant proposal generation</div>
+                    </div>
+                </div>
+            </div>
+            <div class="login-right">
+                <button class="icon-btn" id="themeToggleL" title="Toggle Theme" style="position: absolute; top: 24px; right: 24px;"><svg id="themeIconL" viewBox="0 0 20 20" fill="none" width="18" height="18"><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.93 4.93l1.41 1.41M13.66 13.66l1.41 1.41M4.93 15.07l1.41-1.41M13.66 6.34l1.41-1.41" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/></svg></button>
+                <div class="login-card">
+                    <div class="lc-head">
+                        <h2>Agent Sign In</h2>
+                        <p>Use your Fristine email to access the portal</p>
+                    </div>
+                    <div class="conn-status" id="ss">
+                        <div class="cs-dot" id="sdot"></div>
+                        <span id="stxt">Connecting…</span>
+                    </div>
+                    <div class="field">
+                        <label>Email Address</label>
+                        <div class="input-wrap">
+                            <svg class="input-icon" viewBox="0 0 20 20" fill="none" width="20" height="20"><path d="M3 5l7 5 7-5M3 5h14v10H3V5z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            <input type="email" id="em" placeholder="you@fristinetech.com" autocomplete="email"/>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Password</label>
+                        <div class="input-wrap">
+                            <svg class="input-icon" viewBox="0 0 20 20" fill="none" width="20" height="20"><rect x="3" y="9" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M7 9V6a3 3 0 016 0v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                            <input type="password" id="pw" placeholder="••••••••" autocomplete="current-password"/>
+                            <button class="pw-toggle" id="pwToggle" type="button" tabindex="-1">
+                                <svg viewBox="0 0 20 20" fill="none" width="16" height="16"><path d="M10 4C5 4 1.5 10 1.5 10S5 16 10 16s8.5-6 8.5-6S15 4 10 4z" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <button class="btn-primary w-full" id="loginBtn">
+                        <span>Sign In</span>
+                        <svg viewBox="0 0 20 20" fill="none" width="16" height="16"><path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                    <div class="forgot-row"><button id="forgotLink" class="link-btn">Forgot Password?</button></div>
+                    <div class="field-error" id="lerr"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ SCREEN: SET PASSWORD ══ -->
+    <div id="SP" class="screen hidden auth-screen">
+        <div class="auth-card">
+            <div class="auth-icon"><svg viewBox="0 0 24 24" fill="none" width="40" height="40"><rect x="5" y="11" width="14" height="10" rx="2.5" stroke="var(--orange)" stroke-width="1.8"/><path d="M8 11V8a4 4 0 018 0v3" stroke="var(--orange)" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="16" r="1.5" fill="var(--orange)"/></svg></div>
+            <h2>Set Your Password</h2>
+            <p class="auth-sub" id="sp-email-show">First-time login — create a secure password.</p>
+            <div class="field">
+                <label>New Password</label>
+                <div class="input-wrap">
+                    <svg class="input-icon" viewBox="0 0 20 20" fill="none" width="20" height="20"><rect x="3" y="9" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M7 9V6a3 3 0 016 0v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                    <input type="password" id="sp-pw1" placeholder="Minimum 8 characters"/>
+                </div>
+            </div>
+            <div class="field">
+                <label>Confirm Password</label>
+                <div class="input-wrap">
+                    <svg class="input-icon" viewBox="0 0 20 20" fill="none" width="20" height="20"><rect x="3" y="9" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M7 9V6a3 3 0 016 0v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                    <input type="password" id="sp-pw2" placeholder="Re-enter password"/>
+                </div>
+            </div>
+            <button class="btn-primary w-full" id="setPwBtn">Set Password & Sign In →</button>
+            <div class="field-error" id="sp-err"></div>
+        </div>
+    </div>
+
+    <!-- ══ SCREEN: FORGOT PASSWORD ══ -->
+    <div id="FP" class="screen hidden auth-screen">
+        <div class="auth-card">
+            <div class="auth-icon"><svg viewBox="0 0 24 24" fill="none" width="40" height="40"><path d="M15.5 7.5a4.5 4.5 0 11-6.36 6.36L3 20l1.5 1.5 2-2 1.5 1.5 2-2 1.14-1.14A4.5 4.5 0 0115.5 7.5z" stroke="var(--orange)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="15" cy="9" r="1" fill="var(--orange)"/></svg></div>
+            <h2>Reset Password</h2>
+            <p class="auth-sub">Enter your @fristinetech.com email to set a new password.</p>
+            <div id="fp-form-wrap">
+                <div class="field">
+                    <label>Email Address</label>
+                    <div class="input-wrap">
+                        <svg class="input-icon" viewBox="0 0 20 20" fill="none" width="20" height="20"><path d="M3 5l7 5 7-5M3 5h14v10H3V5z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <input type="email" id="fp-em" placeholder="your@fristinetech.com"/>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>New Password</label>
+                    <div class="input-wrap">
+                        <svg class="input-icon" viewBox="0 0 20 20" fill="none" width="20" height="20"><rect x="3" y="9" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M7 9V6a3 3 0 016 0v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                        <input type="password" id="fp-pw1" placeholder="New password"/>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Confirm Password</label>
+                    <div class="input-wrap">
+                        <svg class="input-icon" viewBox="0 0 20 20" fill="none" width="20" height="20"><rect x="3" y="9" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M7 9V6a3 3 0 016 0v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                        <input type="password" id="fp-pw2" placeholder="Re-enter password"/>
+                    </div>
+                </div>
+                <button class="btn-primary w-full" id="resetPwBtn">Reset Password →</button>
+                <div class="field-error" id="fp-err"></div>
+            </div>
+            <div id="fp-success" class="success-state hidden">
+                <div class="success-icon"><svg viewBox="0 0 24 24" fill="none" width="42" height="42"><circle cx="12" cy="12" r="10" stroke="var(--green)" stroke-width="1.8"/><path d="M8 12l3 3 5-5" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                <div class="success-title">Password Reset!</div>
+                <div class="success-sub">Your new password has been saved.</div>
+                <button class="btn-primary" id="backToLoginFromFP">Sign In →</button>
+            </div>
+            <button id="backToLoginBtn2" class="link-btn mt-12">← Back to Sign In</button>
+        </div>
+    </div>
+
+    <!-- ══ SCREEN: STAFF DASHBOARD ══ -->
+    <div id="H" class="screen hidden">
+        <div class="app-layout">
+            <header class="app-header">
+                <div class="header-left">
+                    <div class="app-logo">
+                        <div class="logo-mark">F</div>
+                        <div class="logo-text">Fristine <span>Presales</span></div>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="icon-btn" id="themeToggleH" title="Toggle Theme">
+                        <svg id="themeIconH" viewBox="0 0 20 20" fill="none" width="18" height="18"><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.93 4.93l1.41 1.41M13.66 13.66l1.41 1.41M4.93 15.07l1.41-1.41M13.66 6.34l1.41-1.41" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/></svg>
+                    </button>
+                    <div class="agent-pill" id="agentChip">Agent</div>
+                    <button class="btn-ghost btn-sm" id="staffLogout">Logout</button>
+                </div>
+            </header>
+
+            <main class="dash-main">
+                <div class="dash-topbar">
+                    <div>
+                        <h1 class="dash-title">Client Pipeline</h1>
+                        <p class="dash-sub" id="clientCount">Loading…</p>
+                    </div>
+                    <button class="btn-primary" id="openCreateBtn">
+                        <svg viewBox="0 0 20 20" fill="none" width="16" height="16"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                        Add Lead
+                    </button>
+                </div>
+
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="stat-icon stat-blue">
+                            <svg viewBox="0 0 20 20" fill="none" width="18" height="18"><path d="M9 11a4 4 0 100-8 4 4 0 000 8zM3 19a6 6 0 0112 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                        </div>
+                        <div><div class="stat-num" id="statTotal">—</div><div class="stat-lbl">Total Leads</div></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon stat-amber">
+                            <svg viewBox="0 0 20 20" fill="none" width="18" height="18"><path d="M3 10l7-7 7 7M5 8v7h10V8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </div>
+                        <div><div class="stat-num" id="statSent">—</div><div class="stat-lbl">Bot Sent</div></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon stat-green">
+                            <svg viewBox="0 0 20 20" fill="none" width="18" height="18"><path d="M2 10c0 4.4 3.6 8 8 8s8-3.6 8-8-3.6-8-8-8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </div>
+                        <div><div class="stat-num" id="statActive">—</div><div class="stat-lbl">Active Sessions</div></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon stat-orange">
+                            <svg viewBox="0 0 20 20" fill="none" width="18" height="18"><path d="M4 4h12v12H4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8 9h4M8 12h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                        </div>
+                        <div><div class="stat-num" id="statProposal">—</div><div class="stat-lbl">Proposals Ready</div></div>
+                    </div>
+                </div>
+
+                <div class="table-wrap">
+                    <div class="table-header">
+                        <div class="table-search-wrap">
+                            <svg viewBox="0 0 20 20" fill="none" width="16" height="16"><circle cx="8.5" cy="8.5" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M15 15l-3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                            <input type="text" id="searchInput" placeholder="Search clients…" class="table-search"/>
+                        </div>
+                        <button class="btn-ghost btn-sm" id="refreshBtn">
+                            <svg viewBox="0 0 20 20" fill="none" width="14" height="14"><path d="M4 4a8 8 0 0112 5.5M16 16a8 8 0 01-12-5.5M4 4v4h4M16 16v-4h-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            Refresh
+                        </button>
+                    </div>
+                    <table class="client-table">
+                        <thead>
+                            <tr>
+                                <th>Company</th>
+                                <th>Industry</th>
+                                <th>Email</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clientTableBody">
+                            <tr><td colspan="5" class="tbl-empty">Loading…</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- ══ SCREEN: CLIENT TRACKING ══ -->
+    <div id="T" class="screen hidden">
+        <div class="app-layout">
+            <header class="app-header">
+                <div class="header-left">
+                    <button class="btn-back-icon" id="backToDashBtn">
+                        <svg viewBox="0 0 20 20" fill="none" width="18" height="18"><path d="M13 4l-6 6 6 6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                    <div class="app-logo">
+                        <div class="logo-mark">F</div>
+                        <div class="logo-text">Tracking — <span id="trackingClientName">Client</span></div>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="icon-btn" id="themeToggleT" title="Toggle Theme">
+                        <svg viewBox="0 0 20 20" fill="none" width="18" height="18"><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.93 4.93l1.41 1.41M13.66 13.66l1.41 1.41M4.93 15.07l1.41-1.41M13.66 6.34l1.41-1.41" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/></svg>
+                    </button>
+                    <button class="btn-ghost btn-sm" id="trackLogout">Logout</button>
+                </div>
+            </header>
+
+            <main class="tracking-main">
+                <div class="client-hero">
+                    <div class="client-avatar" id="tClientIco">A</div>
+                    <div class="client-hero-info">
+                        <div class="client-hero-name" id="tClientName">—</div>
+                        <div class="client-hero-meta" id="tClientMeta">—</div>
+                        <div class="client-hero-id" id="tClientId">—</div>
+                    </div>
+                    <div class="client-hero-actions">
+                        <button class="btn-primary btn-sm" id="resendBotBtn">
+                            <svg viewBox="0 0 20 20" fill="none" width="14" height="14"><path d="M3 10l7-7 7 7M5 9v7h10V9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            Resend Bot
+                        </button>
+                        <button class="btn-ghost btn-sm" id="copyLinkBtn">
+                            <svg viewBox="0 0 20 20" fill="none" width="14" height="14"><rect x="7" y="7" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 13V3h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            Copy Link
+                        </button>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <div class="section-title">Discovery Pipeline</div>
+                    <div class="pipeline">
+                        <div class="pipe-step" id="ps0">
+                            <div class="pipe-bubble"><svg viewBox="0 0 20 20" fill="none" width="16"><path d="M3 10l7-7 7 7M5 9v7h10V9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                            <div class="pipe-label">Bot Sent</div>
+                            <div class="pipe-time" id="pt0">—</div>
+                        </div>
+                        <div class="pipe-connector" id="pc01"></div>
+                        <div class="pipe-step" id="ps1">
+                            <div class="pipe-bubble"><svg viewBox="0 0 20 20" fill="none" width="16"><path d="M10 4C5 4 1.5 10 1.5 10S5 16 10 16s8.5-6 8.5-6S15 4 10 4z" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/></svg></div>
+                            <div class="pipe-label">Accessed</div>
+                            <div class="pipe-time" id="pt1">—</div>
+                        </div>
+                        <div class="pipe-connector" id="pc12"></div>
+                        <div class="pipe-step" id="ps2">
+                            <div class="pipe-bubble"><svg viewBox="0 0 20 20" fill="none" width="16"><path d="M2 5h16v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5z" stroke="currentColor" stroke-width="1.5"/><path d="M6 9h8M6 12h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+                            <div class="pipe-label">In Session</div>
+                            <div class="pipe-time" id="pt2">—</div>
+                        </div>
+                        <div class="pipe-connector" id="pc23"></div>
+                        <div class="pipe-step" id="ps3">
+                            <div class="pipe-bubble"><svg viewBox="0 0 20 20" fill="none" width="16"><path d="M4 4h12v12H4z" stroke="currentColor" stroke-width="1.5"/><path d="M8 8h4M8 11h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+                            <div class="pipe-label">Proposal Done</div>
+                            <div class="pipe-time" id="pt3">—</div>
+                        </div>
+                        <div class="pipe-connector" id="pc34"></div>
+                        <div class="pipe-step" id="ps4">
+                            <div class="pipe-bubble"><svg viewBox="0 0 20 20" fill="none" width="16"><path d="M4 10l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                            <div class="pipe-label">Submitted</div>
+                            <div class="pipe-time" id="pt4">—</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-card" id="proposalSection" style="display:none">
+                    <div class="section-title">Generated Proposal</div>
+                    <div class="proposal-banner">
+                        <div class="proposal-banner-icon"><svg viewBox="0 0 20 20" fill="none" width="22" height="22"><rect x="4" y="2" width="12" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M8 6h4M8 9h4M8 12h2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+                        <div class="proposal-banner-text">
+                            <div class="proposal-banner-title">Proposal Ready</div>
+                            <div class="proposal-banner-sub">AI-generated proposal based on discovery session</div>
+                        </div>
+                        <div class="proposal-banner-actions">
+                            <button class="btn-primary btn-sm" id="viewProposalBtn">View Proposal</button>
+                            <button class="btn-success btn-sm" id="markSentBtn">Send to Client</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="two-col-grid">
+                    <div class="section-card">
+                        <div class="section-title">Activity Log</div>
+                        <div class="event-log" id="eventLog">
+                            <div class="event-empty">No activity yet.</div>
+                        </div>
+                    </div>
+                    <div class="section-card" id="clientFilesSection" style="display:none">
+                        <div class="section-title">Uploaded Files</div>
+                        <div id="filesList"></div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- ══ SCREEN: CLIENT BOT ══ -->
+    <div id="A" class="screen hidden">
+        <div class="bot-layout">
+            <header class="bot-header">
+                <div class="header-left">
+                    <div class="app-logo">
+                        <div class="logo-mark">F</div>
+                        <div class="logo-text">Fristine <span>Discovery</span></div>
+                    </div>
+                    <div class="ai-badge">
+                        <svg viewBox="0 0 16 16" fill="none" width="13" height="13"><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.3"/></svg>
+                        AI-Powered
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="phase-chip">
+                        <div class="phase-dot"></div>
+                        <span id="phaseTxt">Initialising…</span>
+                    </div>
+                    <button class="icon-btn" id="themeToggleA">
+                        <svg viewBox="0 0 20 20" fill="none" width="18" height="18"><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.93 4.93l1.41 1.41M13.66 13.66l1.41 1.41M4.93 15.07l1.41-1.41M13.66 6.34l1.41-1.41" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/></svg>
+                    </button>
+                    <button class="btn-ghost btn-sm" id="logoutBtn">Exit</button>
+                </div>
+            </header>
+
+            <div class="bot-body">
+                <aside class="bot-sidebar">
+                    <!-- AI Capabilities -->
+                    <div class="sidebar-section ai-caps-section">
+                        <div class="sidebar-label">AI Capabilities</div>
+                        <div class="ai-cap-list">
+                            <div class="ai-cap-item">
+                                <svg viewBox="0 0 16 16" fill="none" width="14" height="14"><circle cx="8" cy="8" r="6" stroke="var(--orange)" stroke-width="1.3"/><path d="M6 8h4M8 6v4" stroke="var(--orange)" stroke-width="1.3" stroke-linecap="round"/></svg>
+                                <span>Smart requirement extraction</span>
+                            </div>
+                            <div class="ai-cap-item">
+                                <svg viewBox="0 0 16 16" fill="none" width="14" height="14"><rect x="3" y="2" width="10" height="12" rx="1.5" stroke="var(--orange)" stroke-width="1.3"/><path d="M6 5h4M6 8h4M6 11h2" stroke="var(--orange)" stroke-width="1" stroke-linecap="round"/></svg>
+                                <span>Document analysis</span>
+                            </div>
+                            <div class="ai-cap-item">
+                                <svg viewBox="0 0 16 16" fill="none" width="14" height="14"><path d="M2 5h12v7a1.5 1.5 0 01-1.5 1.5h-9A1.5 1.5 0 012 12V5z" stroke="var(--orange)" stroke-width="1.3"/><path d="M5 8h6M5 10.5h3" stroke="var(--orange)" stroke-width="1" stroke-linecap="round"/></svg>
+                                <span>Zoho product mapping</span>
+                            </div>
+                            <div class="ai-cap-item">
+                                <svg viewBox="0 0 16 16" fill="none" width="14" height="14"><path d="M12 14c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM4 6c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM12 10V4H6" stroke="var(--orange)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                <span>Auto proposal generation</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sidebar-section">
+                        <div class="sidebar-label">Active Account</div>
+                        <div class="company-card">
+                            <div class="company-avatar" id="topco-ico">A</div>
+                            <div>
+                                <div class="company-name" id="topco">Loading…</div>
+                                <div class="company-ind" id="sbi">Detecting…</div>
+                            </div>
+                        </div>
+                        <div class="meta-row"><span>Scale</span><strong id="sbs">—</strong></div>
+                        <div class="meta-row"><span>Tech Savvy</span><strong id="sbt">—</strong></div>
+                    </div>
+
+                    <div class="sidebar-section">
+                        <div class="sidebar-label">Discovery Progress</div>
+                        <div class="stage-list">
+                            <div class="stage-item" id="si0"><div class="stage-num" id="s0">1</div><div class="stage-lbl" id="sl0">Company Research</div></div>
+                            <div class="stage-item" id="si1"><div class="stage-num" id="s1">2</div><div class="stage-lbl" id="sl1">Industry Confirmation</div></div>
+                            <div class="stage-item" id="si2"><div class="stage-num" id="s2">3</div><div class="stage-lbl" id="sl2">Requirements Gathering</div></div>
+                            <div class="stage-item" id="si3"><div class="stage-num" id="s3">4</div><div class="stage-lbl" id="sl3">Verification & Review</div></div>
+                            <div class="stage-item" id="si4"><div class="stage-num" id="s4">5</div><div class="stage-lbl" id="sl4">Solution Design</div></div>
+                        </div>
+                    </div>
+
+                    <div class="sidebar-section">
+                        <div class="sidebar-label">Profile Coverage</div>
+                        <div class="coverage-bar-wrap">
+                            <div class="coverage-bar"><div class="coverage-fill" id="cvb" style="width:0%"></div></div>
+                            <span class="coverage-pct" id="cvp">0%</span>
+                        </div>
+                        <div class="coverage-sub">MEDDPICC completed</div>
+                    </div>
+
+                    <div class="sidebar-section" id="rb" style="display:none">
+                        <div class="sidebar-label">Must-Haves Captured</div>
+                        <div id="rl" class="req-chips"></div>
+                    </div>
+                </aside>
+
+                <div class="chat-panel">
+                    <div class="chat-feed" id="feed"></div>
+                    <div class="chat-input-bar">
+                        <input type="file" id="fileIn" style="display:none" accept=".docx,.pdf,.txt,.csv,.xls,.xlsx"/>
+                        <button class="input-action-btn" id="fileBtn" title="Upload requirement document">
+                            <svg viewBox="0 0 20 20" fill="none" width="18" height="18"><path d="M10 4v9M7 7l3-3 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 13v2a2 2 0 002 2h8a2 2 0 002-2v-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                        </button>
+                        <input type="text" id="msgIn" class="chat-input" placeholder="Describe your business needs…"/>
+                        <button class="input-action-btn mic-btn" id="micBtn" title="Voice input">
+                            <svg viewBox="0 0 24 24" fill="none" width="18" height="18"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" fill="currentColor"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" fill="currentColor"/></svg>
+                        </button>
+                        <button class="btn-send" id="sendBtn">
+                            <svg viewBox="0 0 20 20" fill="none" width="16" height="16"><path d="M3 10l14-7-7 14v-7H3z" fill="currentColor"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ MODAL: Add Lead ══ -->
+    <div class="modal-backdrop" id="createLeadModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Add New Lead</h3>
+                <button class="modal-close" id="closeCreateBtn">
+                    <svg viewBox="0 0 20 20" fill="none" width="18"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="field"><label>Company Name *</label>
+                    <input id="nl-co" placeholder="e.g. Acme Corp" oninput="previewClientId()"/>
+                </div>
+                <div class="field"><label>Industry</label>
+                    <input id="nl-ind" placeholder="e.g. Manufacturing"/>
+                </div>
+                <div class="field"><label>Client Email *</label>
+                    <input id="nl-em" type="email" placeholder="client@company.com"/>
+                </div>
+                <div class="id-preview-row">
+                    <span class="id-preview-label">Client ID</span>
+                    <strong class="id-preview-val" id="nl-id-preview">—</strong>
+                    <span class="id-preview-note">Auto-generated</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-ghost" id="cancelCreateBtn">Cancel</button>
+                <button class="btn-primary" id="saveLeadBtn">Create Lead</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ MODAL: Proposal Preview ══ -->
+    <div class="modal-backdrop" id="proposalModal">
+        <div class="modal modal-xl">
+            <div class="modal-header">
+                <h3>Proposal Preview</h3>
+                <button class="modal-close" id="closeProposalBtn">
+                    <svg viewBox="0 0 20 20" fill="none" width="18"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>
+                </button>
+            </div>
+            <div class="modal-body modal-scroll">
+                <div class="iframe-wrap">
+                    <iframe id="proposalIframe" style="width:100%;height:560px;border:none;border-radius:10px;background:#fff;"></iframe>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-ghost" id="closeProposalBtn2">Close</button>
+                <button class="btn-ghost" id="saveProposalEditsBtn">Save Edits</button>
+                <button class="btn-primary" id="downloadDocxBtn">Download DOCX</button>
+                <button class="btn-primary" id="downloadProposalBtn">Download PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ MODAL: Strategy Video ══ -->
+    <div class="modal-backdrop" id="videoModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Strategy Summary</h3>
+            </div>
+            <div class="modal-body">
+                <div class="video-placeholder">
+                    <div class="vp-inner">
+                        <div class="vp-play" id="playBtn">▶</div>
+                        <div class="vp-text">AI-generated discovery summary</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary w-full" id="closeVideoBtn">View Formal Proposal →</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="./src/main.js"></script>
+</body>
+</html>
+
+

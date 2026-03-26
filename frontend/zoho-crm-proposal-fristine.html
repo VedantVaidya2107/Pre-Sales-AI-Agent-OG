@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Zoho CRM Implementation Proposal — Fristine Infotech × Xcut Technologies</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --ink: #0B1120;
+    --ink2: #131E33;
+    --card: #F7F9FF;
+    --white: #FFFFFF;
+    --blue: #1A4FD6;
+    --blue2: #2B72F5;
+    --bluelight: #EEF4FF;
+    --bluemid: #C8DAFF;
+    --accent: #0D3AB5;
+    --teal: #0ABFA3;
+    --amber: #F5A500;
+    --red: #E53E3E;
+    --text: #1A2540;
+    --muted: #4F6282;
+    --sub: #7A91B3;
+    --border: #D8E4F5;
+    --border2: #C0D2EE;
+    --shadow: 0 4px 24px rgba(26,79,214,0.08);
+    --shadow2: 0 12px 48px rgba(26,79,214,0.14);
+    --fn: 'DM Sans', sans-serif;
+    --display: 'Syne', sans-serif;
+    --mono: 'DM Mono', monospace;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 15px; scroll-behavior: smooth; }
+  body { background: #F0F4FB; color: var(--text); font-family: var(--fn); line-height: 1.7; }
+  
+  /* ── PRINT ── */
+  @media print {
+    .no-print { display: none !important; }
+    body { background: white; }
+    .page { box-shadow: none; margin: 0; }
+  }
+
+  /* ── LAYOUT ── */
+  .page-wrap { max-width: 960px; margin: 0 auto; padding: 32px 20px 80px; }
+  .page { background: var(--white); border-radius: 20px; box-shadow: var(--shadow2); overflow: hidden; }
+
+  /* ── COVER ── */
+  .cover {
+    background: linear-gradient(145deg, #0B1120 0%, #0D2050 50%, #0D3AB5 100%);
+    padding: 72px 64px 64px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+  .cover::after {
+    content: '';
+    position: absolute;
+    top: -120px; right: -120px;
+    width: 480px; height: 480px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(43,114,245,0.3) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .cover-inner { position: relative; z-index: 2; }
+  .cover-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 30px; padding: 6px 16px 6px 8px;
+    margin-bottom: 36px;
+  }
+  .cover-badge-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--blue2);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--display); font-weight: 800; font-size: 13px; color: #fff;
+  }
+  .cover-badge span { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.8); letter-spacing: 0.5px; }
+  .cover-label {
+    font-family: var(--mono); font-size: 11px; font-weight: 500;
+    color: rgba(43,114,245,0.9); letter-spacing: 3px; text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .cover-title {
+    font-family: var(--display); font-size: 42px; font-weight: 800;
+    color: #fff; letter-spacing: -1.5px; line-height: 1.1; margin-bottom: 8px;
+  }
+  .cover-title span { color: #5B9BFF; }
+  .cover-subtitle {
+    font-size: 16px; color: rgba(255,255,255,0.55); font-weight: 400; margin-bottom: 56px;
+  }
+  .cover-meta {
+    display: flex; gap: 40px; flex-wrap: wrap;
+  }
+  .cover-meta-item label {
+    display: block; font-size: 10px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 4px;
+  }
+  .cover-meta-item span {
+    font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.85);
+  }
+  .cover-divider {
+    width: 1px; background: rgba(255,255,255,0.1); align-self: stretch;
+  }
+  .cover-chips { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 40px; }
+  .cover-chip {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.5px;
+    padding: 5px 14px; border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.6);
+  }
+
+  /* ── BODY CONTENT ── */
+  .doc-body { padding: 56px 64px; }
+
+  /* ── SECTION ── */
+  .section { margin-bottom: 56px; }
+  .section:last-child { margin-bottom: 0; }
+
+  /* ── SECTION HEADER ── */
+  .sec-hd {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 28px; padding-bottom: 16px;
+    border-bottom: 2px solid var(--border);
+  }
+  .sec-ico {
+    width: 40px; height: 40px; border-radius: 12px;
+    background: var(--bluelight); border: 1px solid var(--bluemid);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .sec-num {
+    font-family: var(--mono); font-size: 11px; font-weight: 500;
+    color: var(--blue2); letter-spacing: 1px;
+  }
+  .sec-title {
+    font-family: var(--display); font-size: 22px; font-weight: 700;
+    color: var(--ink); letter-spacing: -0.5px;
+  }
+
+  /* ── ABOUT CARD ── */
+  .about-card {
+    background: linear-gradient(135deg, var(--bluelight) 0%, #fff 100%);
+    border: 1px solid var(--border2);
+    border-radius: 16px; padding: 28px 32px;
+    position: relative; overflow: hidden;
+  }
+  .about-card::before {
+    content: '';
+    position: absolute; left: 0; top: 0; bottom: 0;
+    width: 4px; background: linear-gradient(to bottom, var(--blue2), var(--teal));
+    border-radius: 4px 0 0 4px;
+  }
+  .about-card p { font-size: 15px; color: var(--text); line-height: 1.75; }
+  .about-stat-row {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 24px;
+  }
+  .about-stat {
+    background: white; border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px 20px; text-align: center;
+  }
+  .about-stat .num {
+    font-family: var(--display); font-size: 28px; font-weight: 800;
+    color: var(--blue); display: block;
+  }
+  .about-stat .lbl { font-size: 12px; color: var(--muted); font-weight: 500; }
+
+  /* ── PROPOSAL BOX ── */
+  .proposal-box {
+    background: linear-gradient(135deg, #0B1120 0%, #132040 100%);
+    border-radius: 16px; padding: 28px 32px; margin-bottom: 32px;
+    border: 1px solid rgba(43,114,245,0.2);
+  }
+  .proposal-box p { color: rgba(255,255,255,0.75); font-size: 14.5px; line-height: 1.75; }
+  .proposal-box strong { color: #fff; }
+
+  /* ── SCOPE LABEL ── */
+  .scope-label {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--display); font-size: 14px; font-weight: 700;
+    color: var(--blue); margin-bottom: 12px;
+    padding: 6px 14px; background: var(--bluelight);
+    border: 1px solid var(--bluemid); border-radius: 8px;
+  }
+
+  /* ── SCOPE TABLE ── */
+  .scope-table { width: 100%; border-collapse: collapse; margin-bottom: 32px; font-size: 13.5px; }
+  .scope-table thead tr {
+    background: var(--ink);
+  }
+  .scope-table thead th {
+    padding: 12px 16px; text-align: left;
+    font-family: var(--display); font-size: 11px; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.7);
+  }
+  .scope-table thead th:first-child { border-radius: 10px 0 0 0; }
+  .scope-table thead th:last-child { border-radius: 0 10px 0 0; }
+  .scope-table tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
+  .scope-table tbody tr:hover { background: var(--bluelight); }
+  .scope-table tbody tr:last-child { border-bottom: none; }
+  .scope-table td { padding: 14px 16px; vertical-align: top; }
+  .scope-table td:first-child { font-weight: 600; color: var(--ink); width: 180px; }
+  .scope-table td:nth-child(2) { width: 140px; }
+  .scope-table td:nth-child(3) { width: 120px; }
+  .status-badge {
+    display: inline-block; font-size: 11px; font-weight: 600;
+    padding: 3px 10px; border-radius: 20px; white-space: nowrap;
+  }
+  .status-badge.config {
+    background: rgba(26,79,214,0.1); color: var(--blue);
+    border: 1px solid rgba(26,79,214,0.2);
+  }
+  .status-badge.custom {
+    background: rgba(10,191,163,0.1); color: #0ABFA3;
+    border: 1px solid rgba(10,191,163,0.2);
+  }
+  .status-badge.req {
+    background: rgba(245,165,0,0.1); color: #C47800;
+    border: 1px solid rgba(245,165,0,0.25);
+  }
+  .status-badge.tm {
+    background: rgba(229,62,62,0.08); color: #c53030;
+    border: 1px solid rgba(229,62,62,0.2);
+  }
+  .persona-tag {
+    font-size: 11px; color: var(--muted); font-weight: 500;
+  }
+  .scope-table ul { padding-left: 16px; margin: 0; }
+  .scope-table li { margin-bottom: 4px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+
+  /* ── TEAM TABLE ── */
+  .team-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .team-table thead tr { background: var(--ink); }
+  .team-table thead th {
+    padding: 12px 16px; text-align: left;
+    font-family: var(--display); font-size: 11px; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.7);
+  }
+  .team-table thead th:first-child { border-radius: 10px 0 0 0; width: 50px; }
+  .team-table thead th:last-child { border-radius: 0 10px 0 0; }
+  .team-table tbody tr { border-bottom: 1px solid var(--border); }
+  .team-table tbody tr:last-child { border-bottom: none; }
+  .team-table td { padding: 14px 16px; vertical-align: top; }
+  .team-num { font-family: var(--mono); font-size: 12px; color: var(--sub); font-weight: 500; }
+  .team-role {
+    font-weight: 700; color: var(--ink); font-size: 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .role-dot {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--blue2); flex-shrink: 0;
+  }
+
+  /* ── ESCALATION TABLE ── */
+  .esc-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .esc-table thead tr { background: var(--ink); }
+  .esc-table thead th {
+    padding: 12px 16px; text-align: left;
+    font-family: var(--display); font-size: 11px; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.7);
+  }
+  .esc-table thead th:first-child { border-radius: 10px 0 0 0; width: 60px; }
+  .esc-table thead th:last-child { border-radius: 0 10px 0 0; }
+  .esc-table tbody tr { border-bottom: 1px solid var(--border); }
+  .esc-table tbody tr:last-child { border-bottom: none; }
+  .esc-table td { padding: 14px 16px; vertical-align: middle; }
+  .esc-level { font-weight: 700; color: var(--ink); }
+  .esc-time {
+    font-family: var(--mono); font-size: 13px; font-weight: 600;
+    color: var(--blue2);
+    background: var(--bluelight); border: 1px solid var(--bluemid);
+    padding: 3px 12px; border-radius: 20px; display: inline-block;
+  }
+
+  /* ── GOVERNANCE LIST ── */
+  .gov-list { list-style: none; padding: 0; }
+  .gov-list li {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 12px 16px; border-bottom: 1px solid var(--border);
+    font-size: 14px; color: var(--text);
+  }
+  .gov-list li:last-child { border-bottom: none; }
+  .gov-num {
+    font-family: var(--mono); font-size: 11px; font-weight: 600;
+    color: var(--blue2); min-width: 24px; margin-top: 2px;
+  }
+
+  /* ── CONSTRAINTS & ASSUMPTIONS ── */
+  .bullet-list { list-style: none; padding: 0; }
+  .bullet-list li {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 9px 0; border-bottom: 1px solid var(--border);
+    font-size: 14px; color: var(--muted); line-height: 1.6;
+  }
+  .bullet-list li:last-child { border-bottom: none; }
+  .bullet-list li::before {
+    content: '↳'; color: var(--blue2); font-size: 13px; flex-shrink: 0; margin-top: 1px;
+  }
+
+  /* ── COMMERCIALS ── */
+  .comm-table { width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 10px; }
+  .comm-table thead tr { background: var(--ink); }
+  .comm-table thead th {
+    padding: 12px 16px; text-align: left;
+    font-family: var(--display); font-size: 11px; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.7);
+  }
+  .comm-table thead th:first-child { border-radius: 10px 0 0 0; }
+  .comm-table thead th:last-child { border-radius: 0 10px 0 0; }
+  .comm-table tbody tr { border-bottom: 1px solid var(--border); }
+  .comm-table tbody tr:last-child { border-bottom: none; }
+  .comm-table tbody tr.total-row { background: var(--bluelight); font-weight: 700; }
+  .comm-table td { padding: 13px 16px; vertical-align: top; }
+  .comm-table td:first-child { font-family: var(--mono); font-size: 12px; color: var(--sub); width: 50px; }
+  .comm-note {
+    background: rgba(245,165,0,0.06); border: 1px solid rgba(245,165,0,0.2);
+    border-radius: 10px; padding: 12px 16px; font-size: 13px; color: var(--muted);
+    margin-top: 10px;
+  }
+  .comm-note strong { color: var(--text); }
+  .inr {
+    font-family: var(--mono); font-size: 13px; color: var(--blue);
+    background: var(--bluelight); border: 1px solid var(--bluemid);
+    padding: 2px 10px; border-radius: 6px;
+  }
+
+  /* ── RUN MODEL TABLE ── */
+  .run-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .run-table thead tr { background: var(--ink); }
+  .run-table thead th {
+    padding: 12px 16px; text-align: left;
+    font-family: var(--display); font-size: 11px; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.7);
+  }
+  .run-table thead th:first-child { border-radius: 10px 0 0 0; }
+  .run-table thead th:last-child { border-radius: 0 10px 0 0; }
+  .run-table tbody tr { border-bottom: 1px solid var(--border); }
+  .run-table tbody tr:last-child { border-bottom: none; }
+  .run-table td { padding: 11px 16px; }
+  .run-table td:first-child { font-weight: 600; color: var(--text); }
+  .run-table td:last-child { color: var(--muted); }
+
+  /* ── NEXT STEPS TABLE ── */
+  .steps-grid {
+    display: grid; grid-template-columns: 1fr 2fr 1fr 1fr;
+    border: 1px solid var(--border); border-radius: 14px; overflow: hidden; font-size: 13.5px;
+  }
+  .steps-grid .hdr {
+    font-family: var(--display); font-size: 11px; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase;
+    color: rgba(255,255,255,0.7); background: var(--ink);
+    padding: 12px 16px;
+  }
+  .steps-grid .cell {
+    padding: 14px 16px; border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border); color: var(--muted); line-height: 1.6;
+  }
+  .steps-grid .cell:nth-child(4n) { border-right: none; }
+  .steps-grid .cell.step-name { font-weight: 600; color: var(--ink); }
+  .steps-grid .cell:nth-last-child(-n+4) { border-bottom: none; }
+
+  /* ── PAYMENT TERMS ── */
+  .payment-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .pay-card {
+    background: var(--bluelight); border: 1px solid var(--bluemid);
+    border-radius: 14px; padding: 20px;
+    text-align: center;
+  }
+  .pay-card .pct {
+    font-family: var(--display); font-size: 32px; font-weight: 800;
+    color: var(--blue); display: block; margin-bottom: 6px;
+  }
+  .pay-card .when { font-size: 12px; color: var(--muted); font-weight: 500; }
+  .pay-card .what { font-size: 13px; color: var(--text); font-weight: 600; margin-top: 4px; }
+
+  /* ── TIMELINE ── */
+  .timeline-box {
+    display: flex; align-items: center; gap: 24px;
+    background: linear-gradient(135deg, #0B1120, #132040);
+    border-radius: 16px; padding: 28px 32px;
+    border: 1px solid rgba(43,114,245,0.2);
+  }
+  .tl-stat { text-align: center; flex: 1; }
+  .tl-stat .big {
+    font-family: var(--display); font-size: 36px; font-weight: 800;
+    color: #5B9BFF; display: block;
+  }
+  .tl-stat .lbl { font-size: 12px; color: rgba(255,255,255,0.5); font-weight: 500; }
+  .tl-div { width: 1px; height: 60px; background: rgba(255,255,255,0.1); }
+
+  /* ── ACCEPTANCE ── */
+  .accept-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .accept-card {
+    border: 1.5px solid var(--border2); border-radius: 14px; padding: 24px 28px;
+  }
+  .accept-card .party {
+    font-family: var(--display); font-size: 13px; font-weight: 700;
+    color: var(--blue); letter-spacing: 0.5px; margin-bottom: 20px;
+    text-transform: uppercase;
+  }
+  .accept-line {
+    margin-bottom: 16px;
+  }
+  .accept-line label {
+    display: block; font-size: 11px; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--sub); margin-bottom: 6px;
+  }
+  .accept-line .sig-box {
+    height: 40px; border-bottom: 1.5px solid var(--border2);
+  }
+
+  /* ── NOTICE BOX ── */
+  .notice {
+    background: rgba(245,165,0,0.06); border: 1px solid rgba(245,165,0,0.25);
+    border-left: 4px solid var(--amber);
+    border-radius: 10px; padding: 14px 18px;
+    font-size: 13px; color: var(--muted); line-height: 1.65;
+    margin-bottom: 16px;
+  }
+  .notice strong { color: var(--text); }
+
+  /* ── SECTION DIVIDER ── */
+  .sec-divider { height: 1px; background: var(--border); margin: 48px 0; }
+
+  /* ── TOC ── */
+  .toc {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 28px 32px; margin-bottom: 0;
+  }
+  .toc-title {
+    font-family: var(--display); font-size: 13px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase; color: var(--muted);
+    margin-bottom: 16px;
+  }
+  .toc ol { list-style: none; padding: 0; counter-reset: toc; }
+  .toc ol li {
+    counter-increment: toc; display: flex; align-items: center;
+    padding: 8px 0; border-bottom: 1px dashed var(--border);
+    font-size: 14px; gap: 12px;
+  }
+  .toc ol li:last-child { border-bottom: none; }
+  .toc ol li::before {
+    content: counter(toc, decimal-leading-zero);
+    font-family: var(--mono); font-size: 11px; color: var(--blue2);
+    font-weight: 600; min-width: 28px;
+  }
+  .toc ol li a { color: var(--text); text-decoration: none; font-weight: 500; }
+  .toc ol li a:hover { color: var(--blue); }
+  .toc ol li .dots { flex: 1; border-bottom: 1px dotted var(--border2); height: 1px; margin: 0 8px; }
+
+  /* ── FOOTER ── */
+  .doc-footer {
+    background: var(--ink);
+    padding: 24px 64px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .doc-footer .left {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .footer-logo {
+    width: 30px; height: 30px; background: var(--blue2);
+    border-radius: 8px; display: flex; align-items: center;
+    justify-content: center; font-family: var(--display);
+    font-weight: 800; font-size: 14px; color: #fff;
+  }
+  .footer-name { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.7); }
+  .doc-footer .right { font-size: 12px; color: rgba(255,255,255,0.3); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 720px) {
+    .doc-body { padding: 32px 24px; }
+    .cover { padding: 48px 24px 40px; }
+    .cover-title { font-size: 28px; }
+    .about-stat-row { grid-template-columns: 1fr 1fr; }
+    .payment-cards { grid-template-columns: 1fr; }
+    .accept-grid { grid-template-columns: 1fr; }
+    .timeline-box { flex-direction: column; gap: 16px; }
+    .tl-div { width: 60px; height: 1px; }
+    .steps-grid { grid-template-columns: 1fr 1fr; }
+    .doc-footer { padding: 20px 24px; flex-direction: column; gap: 8px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-wrap">
+<div class="page">
+
+  <!-- COVER -->
+  <div class="cover">
+    <div class="cover-inner">
+      <div class="cover-badge">
+        <div class="cover-badge-dot">F</div>
+        <span>Fristine Infotech Pvt Ltd — Premium Zoho Partner</span>
+      </div>
+      <div class="cover-label">Implementation Proposal</div>
+      <div class="cover-title">Zoho CRM &<br/><span>Analytics</span></div>
+      <div class="cover-subtitle">Prepared for Xcut Technologies</div>
+      <div class="cover-meta">
+        <div class="cover-meta-item">
+          <label>Date</label>
+          <span>31 December 2025</span>
+        </div>
+        <div class="cover-divider"></div>
+        <div class="cover-meta-item">
+          <label>Prepared by</label>
+          <span>---Name--- · <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="abd8cac6dbc7ceebcdd9c2d8dfc2c5cedfcec8c385c8c4c6">[email&#160;protected]</a></span>
+        </div>
+        <div class="cover-divider"></div>
+        <div class="cover-meta-item">
+          <label>Contact</label>
+          <span>+91 0000000000</span>
+        </div>
+      </div>
+      <div class="cover-chips">
+        <div class="cover-chip">Zoho CRM Enterprise</div>
+        <div class="cover-chip">Zoho Analytics Standard</div>
+        <div class="cover-chip">SAP B1 Integration</div>
+        <div class="cover-chip">Google Maps Integration</div>
+        <div class="cover-chip">10 Weeks + 2 Buffer</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DOCUMENT BODY -->
+  <div class="doc-body">
+
+    <!-- TABLE OF CONTENTS -->
+    <div class="section">
+      <div class="toc">
+        <div class="toc-title">Table of Contents</div>
+        <ol>
+          <li><a href="#about">About Fristine Infotech</a><span class="dots"></span></li>
+          <li><a href="#proposal">Proposal Overview</a><span class="dots"></span></li>
+          <li><a href="#scope-crm">Scope of Work — Zoho CRM</a><span class="dots"></span></li>
+          <li><a href="#scope-analytics">Scope of Work — Zoho Analytics</a><span class="dots"></span></li>
+          <li><a href="#integrations">Integrations</a><span class="dots"></span></li>
+          <li><a href="#training">Training, Help Docs & UAT</a><span class="dots"></span></li>
+          <li><a href="#team">Project Team</a><span class="dots"></span></li>
+          <li><a href="#plan">Project Plan</a><span class="dots"></span></li>
+          <li><a href="#escalation">Escalation Process</a><span class="dots"></span></li>
+          <li><a href="#governance">Project Governance & Checkpoints</a><span class="dots"></span></li>
+          <li><a href="#constraints">Constraints & Assumptions</a><span class="dots"></span></li>
+          <li><a href="#commercials">Commercials</a><span class="dots"></span></li>
+          <li><a href="#runmodel">Run Model — Silver Plan</a><span class="dots"></span></li>
+          <li><a href="#nextsteps">Next Steps</a><span class="dots"></span></li>
+          <li><a href="#acceptance">Acceptance</a><span class="dots"></span></li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="sec-divider"></div>
+
+    <!-- ABOUT -->
+    <div class="section" id="about">
+      <div class="sec-hd">
+        <div class="sec-ico">🏢</div>
+        <div>
+          <div class="sec-num">01</div>
+          <div class="sec-title">About Fristine Infotech</div>
+        </div>
+      </div>
+      <div class="about-card">
+        <p>Fristine Infotech is India's leading Premium Zoho Partner helping clients across markets, industries & geographies solve complex business problems through bespoke consultation, implementation, and adoption of various Zoho Applications.</p>
+        <p style="margin-top:12px">We have been a strategic partner for Zoho for the last 10 years and have successfully completed over 200+ implementations across Marketing, Sales, Operations, Finance, and Support Functions.</p>
+        <div class="about-stat-row">
+          <div class="about-stat"><span class="num">10+</span><span class="lbl">Years as Zoho Partner</span></div>
+          <div class="about-stat"><span class="num">200+</span><span class="lbl">Successful Implementations</span></div>
+          <div class="about-stat"><span class="num">5+</span><span class="lbl">Business Functions Covered</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROPOSAL OVERVIEW -->
+    <div class="section" id="proposal">
+      <div class="sec-hd">
+        <div class="sec-ico">📋</div>
+        <div>
+          <div class="sec-num">02</div>
+          <div class="sec-title">Proposal Overview</div>
+        </div>
+      </div>
+      <div class="proposal-box">
+        <p>Xcut Technologies is looking to implement its entire business processes, such as sales processes, to provide a better and more engaging experience to existing and new customers. It has identified <strong>Zoho CRM & Analytics</strong> as one of the platforms to digitize and optimize these processes.</p>
+      </div>
+    </div>
+
+    <!-- SCOPE: CRM -->
+    <div class="section" id="scope-crm">
+      <div class="sec-hd">
+        <div class="sec-ico">⚙️</div>
+        <div>
+          <div class="sec-num">03</div>
+          <div class="sec-title">Scope of Work — Zoho CRM</div>
+        </div>
+      </div>
+      <div class="scope-label">📦 Zoho CRM</div>
+      <table class="scope-table">
+        <thead>
+          <tr>
+            <th>Requirement</th>
+            <th>Status</th>
+            <th>User Persona</th>
+            <th>Fristine Remark</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Requirement Gathering & FSD Creation</td>
+            <td><span class="status-badge req">Requirement Analysis</span></td>
+            <td><span class="persona-tag">BA / Functional Consultant</span></td>
+            <td><ul>
+              <li>Conduct structured requirement workshops with Sales, Channel Partner, MIS, and Management teams</li>
+              <li>Document AS-IS and TO-BE workflows covering lead generation, visit execution, opportunity progression, and follow-ups</li>
+              <li>Finalise module-wise field structures, page layouts, validations, and mandatory data points</li>
+              <li>Define record ownership, role-wise visibility, and approval touchpoints</li>
+              <li>Identify SAP Business One integration requirements for master and transactional references</li>
+              <li>Prepare and obtain sign-off on the Functional Specification Document (FSD)</li>
+            </ul></td>
+          </tr>
+          <tr>
+            <td>Organization Set up</td>
+            <td><span class="status-badge config">Configuration / Customization</span></td>
+            <td><span class="persona-tag">Admin / Sales Team</span></td>
+            <td><ul>
+              <li>Configure CRM organization settings including timezone, currency, fiscal year, and naming conventions</li>
+              <li>Design role hierarchy aligned to field sales, managers, admin, and management users</li>
+              <li>Configure profiles, permissions, and data sharing rules to control access and visibility</li>
+              <li>Set up and activate 40 CRM users with role-based access</li>
+              <li>Establish governance standards for data creation, edits, and approvals</li>
+            </ul></td>
+          </tr>
+          <tr>
+            <td>User & Access Control Management</td>
+            <td><span class="status-badge config">Configuration / Customization</span></td>
+            <td><span class="persona-tag">Admin / Sales Team</span></td>
+            <td><ul>
+              <li>Roles Creation</li>
+              <li>Profiles Creation</li>
+              <li>Profiles Permission</li>
+              <li>User Creation</li>
+              <li>Territory Creation</li>
+            </ul></td>
+          </tr>
+          <tr>
+            <td>Lead Management</td>
+            <td><span class="status-badge config">Configuration / Customization</span></td>
+            <td><span class="persona-tag">Admin / Sales Team</span></td>
+            <td><ul>
+              <li>Configure the Leads module with standard and custom fields, layouts, and views</li>
+              <li>Enable manual and bulk lead creation with validation controls</li>
+              <li>Define lead lifecycle stages from capture to qualification</li>
+              <li>Configure lead assignment rules based on region, product, or channel partner</li>
+              <li>Enable lead conversion into Accounts, Contacts, and Opportunities with data mapping</li>
+            </ul></td>
+          </tr>
+          <tr>
+            <td>Accounts (Channel Partners)</td>
+            <td><span class="status-badge config">Configuration / Customization</span></td>
+            <td><span class="persona-tag">Admin / Sales Team</span></td>
+            <td><ul>
+              <li>Configure the Accounts module to maintain Channel Partner master data</li>
+              <li>Define account types, territories, and ownership rules</li>
+              <li>Integrate Channel Partner master data with SAP Business One to create and update scenarios</li>
+              <li>Ensure near real-time or scheduled synchronization as defined</li>
+              <li>Enable sales engineer visibility with edit restrictions where required</li>
+            </ul></td>
+          </tr>
+          <tr>
+            <td>Contacts (End Customers)</td>
+            <td><span class="status-badge config">Configuration / Customization</span></td>
+            <td><span class="persona-tag">Admin / Sales Team</span></td>
+            <td><ul>
+              <li>Configure the Contacts module to store end-customer details</li>
+              <li>Map contacts to respective Channel Partner accounts</li>
+              <li>Control sales engineer rights for customer creation, update, and mapping</li>
+              <li>Maintain linkage for customer-wise secondary sales tracking (reference level)</li>
+              <li>Enable standard contact views, filters, and reports</li>
+            </ul></td>
+          </tr>
+          <tr>
+            <td>Opportunity (Deals) Management</td>
+            <td><span class="status-badge config">Configuration / Customization</span></td>
+            <td><span class="persona-tag">Admin / Sales Team</span></td>
+            <td><ul>
+              <li>Configure the Opportunities module with fields as per the provided data sheet</li>
+              <li>Define sales pipeline stages, probability percentages, and expected value logic</li>
+              <li>Enable opportunity tracking at the channel partner and end-customer level</li>
+              <li>Configure stage-based ownership and mandatory field checks</li>
+              <li>Enable pipeline, forecast, and win/loss reports</li>
+            </ul></td>
+          </tr>
+          <tr>
+            <td>Activity Management (Meetings, Calls, Tasks)</td>
+            <td><span class="status-badge config">Configuration / Customization</span></td>
+            <td><span class="persona-tag">Sales & Admin Team</span></td>
+            <td><ul>
+              <li>Configure Tasks, Calls, and Meetings modules with required activity types and statuses</li>
+              <li>Enable activity association with Leads, Accounts, Contacts, and Opportunities</li>
+              <li>Configure due-date tracking and reminders for follow-ups</li>
+              <li>Enable visibility of overdue, upcoming, and completed activities</li>
+              <li>Provide standard productivity reports for individual and team performance</li>
+            </ul></td>
+          </tr>
+          <tr>
+            <td>Visit Management</td>
+            <td><span class="status-badge config">Configuration / Customization</span></td>
+            <td><span class="persona-tag">Admin / Sales Team</span></td>
+            <td><ul>
+              <li>Configure a custom Visit module with visit planning, check-in, and check-out functionality</li>
+              <li>Capture geo-location at visit start and end for field validation</li>
+              <li>Calculate visit duration (hours) and visit distance (KM) per sales engineer</li>
+              <li>Track visit count by user, customer, channel partner, and period</li>
+              <li>Enable visit coverage and productivity reports for management</li>
+            </ul></td>
+          </tr>
+          <tr>
+            <td>Workflow Automation</td>
+            <td><span class="status-badge config">Configuration / Customization</span></td>
+            <td><span class="persona-tag">Admin / Sales Team</span></td>
+            <td><ul>
+              <li>Configure workflow rules across Leads, Accounts, Contacts, Opportunities, Activities, and Visit modules</li>
+              <li>Automate record assignment, field updates, and status changes based on defined rules</li>
+              <li>Trigger alerts and notifications for follow-ups, overdue activities, and stage movements</li>
+              <li>Implement basic escalation workflows for missed SLAs or delayed actions</li>
+              <li>Ensure automation logic aligns with approved business processes</li>
+            </ul></td>
+          </tr>
+          <tr>
+            <td>Dashboards & Reporting (CRM)</td>
+            <td><span class="status-badge config">Configuration / Customization</span></td>
+            <td><span class="persona-tag">Admin / Sales Team</span></td>
+            <td><ul>
+              <li>Design dashboards for sales engineers, managers, and leadership roles</li>
+              <li>Include KPIs for leads, visits, opportunities, activities, and conversions</li>
+              <li>Configure role-based dashboard and report visibility</li>
+              <li>Enable standard and custom reports for day-to-day and review meetings</li>
+              <li>Ensure reports are filterable and exportable</li>
+            </ul></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SCOPE: ANALYTICS -->
+    <div class="section" id="scope-analytics">
+      <div class="sec-hd">
+        <div class="sec-ico">📊</div>
+        <div>
+          <div class="sec-num">04</div>
+          <div class="sec-title">Scope of Work — Zoho Analytics</div>
+        </div>
+      </div>
+      <div class="scope-label">📈 Zoho Analytics</div>
+      <table class="scope-table">
+        <thead>
+          <tr>
+            <th>Requirement</th>
+            <th>Status</th>
+            <th>User Persona</th>
+            <th>Fristine Remark</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Organization & Workspace Setup</td>
+            <td><span class="status-badge config">Configuration / Customization</span></td>
+            <td><span class="persona-tag">Admin / MIS Team</span></td>
+            <td><ul>
+              <li>Configure Zoho Analytics workspace settings and user access</li>
+              <li>Create role-based access for management, sales, and finance users</li>
+              <li>Define data-level security and row-level access where required</li>
+              <li>Establish governance for report creation, modification, and sharing</li>
+            </ul></td>
+          </tr>
+          <tr>
+            <td>Data Integration & Modeling</td>
+            <td><span class="status-badge config">Configuration / Customization</span></td>
+            <td><span class="persona-tag">Admin / MIS Team</span></td>
+            <td><ul>
+              <li>Integrate Zoho Analytics with SAP Business One as the primary data source</li>
+              <li>Integrate Zoho CRM for sales, visit, and opportunity data</li>
+              <li>Configure imports from Excel / SQL databases if required</li>
+              <li>Design and build data models, joins, and lookup tables</li>
+              <li>Create calculated fields and metrics for reporting consistency</li>
+              <li>Configure scheduled data refresh and error handling</li>
+            </ul></td>
+          </tr>
+          <tr>
+            <td>Sales Performance Analytics</td>
+            <td><span class="status-badge config">Configuration / Customization</span></td>
+            <td><span class="persona-tag">Admin / MIS Team</span></td>
+            <td><ul>
+              <li>Build Target vs Achievement reports (monthly, quarterly, yearly)</li>
+              <li>Customer-wise and Channel Partner-wise sales analysis</li>
+              <li>Sales engineer performance and coverage analytics</li>
+              <li>Item and product-category-wise sales analysis</li>
+              <li>Trend and growth analysis over defined periods</li>
+            </ul></td>
+          </tr>
+          <tr>
+            <td>Contribution & Margin Analytics</td>
+            <td><span class="status-badge config">Configuration / Customization</span></td>
+            <td><span class="persona-tag">Admin / MIS Team</span></td>
+            <td><ul>
+              <li>Margin analysis by product, customer, channel partner, and region</li>
+              <li>Contribution reporting aligned to sales and pricing data</li>
+              <li>Support discount and pricing impact analysis</li>
+              <li>Enable drill-down from summary to transaction level</li>
+            </ul></td>
+          </tr>
+          <tr>
+            <td>Inventory Movement Analytics</td>
+            <td><span class="status-badge config">Configuration / Customization</span></td>
+            <td><span class="persona-tag">Admin / MIS Team</span></td>
+            <td><ul>
+              <li>ABC and other inventory classification reports</li>
+              <li>Non-moving and slow-moving inventory analysis</li>
+              <li>Inventory aging (days-based) reporting</li>
+              <li>Product grouping by Master, Family, and Sub-family</li>
+              <li>MAD (Monthly Average Demand) adherence analysis</li>
+            </ul></td>
+          </tr>
+          <tr>
+            <td>Finance & Receivables Analytics</td>
+            <td><span class="status-badge config">Configuration / Customization</span></td>
+            <td><span class="persona-tag">Admin / MIS Team</span></td>
+            <td><ul>
+              <li>Outstanding (O/S) analysis by customer and aging buckets</li>
+              <li>DSO (Days Sales Outstanding) calculation and trend reporting</li>
+              <li>Credit exposure and overdue risk analysis</li>
+              <li>Cost center-wise revenue and expense reporting</li>
+              <li>Department-level financial performance views</li>
+            </ul></td>
+          </tr>
+          <tr>
+            <td>Dashboards & Self-Service Analytics</td>
+            <td><span class="status-badge config">Configuration / Customization</span></td>
+            <td><span class="persona-tag">Admin / MIS Team</span></td>
+            <td><ul>
+              <li>Design role-based dashboards for leadership, sales, and finance teams</li>
+              <li>Enable interactive dashboards with filters and drill-downs</li>
+              <li>Configure drag-and-drop self-service reporting capability</li>
+              <li>Ensure export and sharing controls for reports and dashboards</li>
+            </ul></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- INTEGRATIONS -->
+    <div class="section" id="integrations">
+      <div class="sec-hd">
+        <div class="sec-ico">🔗</div>
+        <div>
+          <div class="sec-num">05</div>
+          <div class="sec-title">Integrations</div>
+        </div>
+      </div>
+      <table class="scope-table">
+        <thead>
+          <tr>
+            <th>Requirement</th>
+            <th>Status</th>
+            <th>User Persona</th>
+            <th>Fristine Remark</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>SAP Business One Integration</td>
+            <td><span class="status-badge custom">Customization</span></td>
+            <td><span class="persona-tag">IT / Admin Team</span></td>
+            <td><ul>
+              <li>Integrate SAP Business One as the system of record for master and transactional data</li>
+              <li>Sync Channel Partner (Account) master data from SAP to Zoho CRM, including new and updated records</li>
+              <li>Sync the End Customer master data from SAP to Zoho CRM, where applicable</li>
+              <li>Enable controlled reverse sync from Zoho CRM to SAP Business One for CRM-created masters (subject to approval and validation rules)</li>
+              <li>Integrate SAP Business One data with Zoho Analytics for sales, inventory, receivables, and finance reporting</li>
+              <li>Configure scheduled or near real-time data synchronization based on the agreed frequency</li>
+              <li>Define data mappings, transformation rules, and lookup logic across systems</li>
+              <li>Implement duplicate handling, mandatory field validation, and basic error-handling mechanisms</li>
+              <li>Enable reconciliation checks to ensure data consistency between SAP, CRM, and Analytics</li>
+              <li>Perform end-to-end integration testing and support UAT sign-off for SAP integrations</li>
+              <li>Provide integration documentation and handover</li>
+            </ul></td>
+          </tr>
+          <tr>
+            <td>Google Maps Integration</td>
+            <td><span class="status-badge custom">Customization</span></td>
+            <td><span class="persona-tag">IT / Admin Team</span></td>
+            <td><ul>
+              <li>Integrate Google Maps Platform with Zoho CRM for distance calculation</li>
+              <li>Capture geo-coordinates (latitude & longitude) at visit check-in and check-out via CRM mobile app or custom Visit module</li>
+              <li>Invoke Google Maps Distance Matrix / Directions API through CRM custom functions to calculate visit distance (KM)</li>
+              <li>Store calculated KM value against each Visit record for reporting and analysis</li>
+              <li>Handle API response validation, fallback logic, and basic error handling</li>
+              <li>Ensure KM calculation is triggered automatically on visit completion (check-out)</li>
+            </ul></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- TRAINING & UAT -->
+    <div class="section" id="training">
+      <div class="sec-hd">
+        <div class="sec-ico">🎓</div>
+        <div>
+          <div class="sec-num">06</div>
+          <div class="sec-title">Training, Help Document & UAT</div>
+        </div>
+      </div>
+      <table class="scope-table">
+        <thead>
+          <tr>
+            <th>Requirement</th>
+            <th>Status</th>
+            <th>User Persona</th>
+            <th>Fristine Remark</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>User Training, Help Document & UAT</td>
+            <td><span class="status-badge tm">Time & Material</span></td>
+            <td><span class="persona-tag">IT / Admin Team</span></td>
+            <td><ul>
+              <li>UAT</li>
+              <li>User Training</li>
+              <li>Help Documentation</li>
+            </ul></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- PROJECT TEAM -->
+    <div class="section" id="team">
+      <div class="sec-hd">
+        <div class="sec-ico">👥</div>
+        <div>
+          <div class="sec-num">07</div>
+          <div class="sec-title">Project Team</div>
+        </div>
+      </div>
+      <table class="team-table">
+        <thead>
+          <tr>
+            <th>No.</th>
+            <th>Role</th>
+            <th>Role Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="team-num">01</td>
+            <td><div class="team-role"><div class="role-dot"></div>CTO</div></td>
+            <td>Accountable for the Architecture Plan and Risk Mitigation.</td>
+          </tr>
+          <tr>
+            <td class="team-num">02</td>
+            <td><div class="team-role"><div class="role-dot"></div>Project Manager</div></td>
+            <td>Accountable for overall project outcomes. Day-to-day control and management of progress & Status.</td>
+          </tr>
+          <tr>
+            <td class="team-num">03</td>
+            <td><div class="team-role"><div class="role-dot"></div>Sr Business Analyst</div></td>
+            <td>Accountable for overall Business/functional requirements and User Training. Responsible for creating Business Process/Product Backlog.</td>
+          </tr>
+          <tr>
+            <td class="team-num">04</td>
+            <td><div class="team-role"><div class="role-dot"></div>Junior Business Analyst</div></td>
+            <td>Accountable for helping in the documentation of Business/Functional requirements.</td>
+          </tr>
+          <tr>
+            <td class="team-num">05</td>
+            <td><div class="team-role"><div class="role-dot"></div>Sr Developer</div></td>
+            <td>Accountable for Quality Development. Responsible for the Completion of the development/Implementation task.</td>
+          </tr>
+          <tr>
+            <td class="team-num">06</td>
+            <td><div class="team-role"><div class="role-dot"></div>QA / Software Test</div></td>
+            <td>Accountable for QA/Testing of the application. Responsible for Test planning and execution.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- PROJECT PLAN -->
+    <div class="section" id="plan">
+      <div class="sec-hd">
+        <div class="sec-ico">📅</div>
+        <div>
+          <div class="sec-num">08</div>
+          <div class="sec-title">Project Plan</div>
+        </div>
+      </div>
+      <div class="notice">
+        <strong>Note:</strong> The above plan is indicative only. The actual delivery date may change based on the timely response of various stakeholders.
+      </div>
+      <div class="timeline-box">
+        <div class="tl-stat">
+          <span class="big">10</span>
+          <span class="lbl">Weeks Implementation</span>
+        </div>
+        <div class="tl-div"></div>
+        <div class="tl-stat">
+          <span class="big">+2</span>
+          <span class="lbl">Weeks Buffer</span>
+        </div>
+        <div class="tl-div"></div>
+        <div class="tl-stat">
+          <span class="big">15</span>
+          <span class="lbl">Days to Kickoff after PO</span>
+        </div>
+        <div class="tl-div"></div>
+        <div class="tl-stat">
+          <span class="big">30</span>
+          <span class="lbl">Days Hyper-Care</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ESCALATION -->
+    <div class="section" id="escalation">
+      <div class="sec-hd">
+        <div class="sec-ico">🔺</div>
+        <div>
+          <div class="sec-num">09</div>
+          <div class="sec-title">Escalation Process</div>
+        </div>
+      </div>
+      <p style="font-size:14px;color:var(--muted);margin-bottom:20px;line-height:1.7">
+        From time to time, there might be project issues/dependencies that can impact progress and result in an overall impact on timelines. While the project team will attempt to resolve such issues amicably and in a timely manner, the escalation path below provides a mechanism for the stakeholders, both Xcut Technologies and Fristine, to intervene, resolve issues, and attempt to bring the project back on track.
+      </p>
+      <table class="esc-table">
+        <thead>
+          <tr>
+            <th>No.</th>
+            <th>Escalation Level</th>
+            <th>Response Time (Working Days)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="team-num">01</td>
+            <td><span class="esc-level">Level 1 — Sr Business Analyst</span></td>
+            <td><span class="esc-time">4 Hours</span></td>
+          </tr>
+          <tr>
+            <td class="team-num">02</td>
+            <td><span class="esc-level">Level 2 — CTO</span></td>
+            <td><span class="esc-time">1 Day</span></td>
+          </tr>
+          <tr>
+            <td class="team-num">03</td>
+            <td><span class="esc-level">Level 3 — CEO</span></td>
+            <td><span class="esc-time">3 Days</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="font-size:13px;color:var(--muted);margin-top:14px">
+        Fristine Infotech Business-day timings are defined as <strong style="color:var(--text)">10:00 AM to 6:00 PM, Monday to Friday</strong>, excluding public holidays.
+      </p>
+    </div>
+
+    <!-- GOVERNANCE -->
+    <div class="section" id="governance">
+      <div class="sec-hd">
+        <div class="sec-ico">✅</div>
+        <div>
+          <div class="sec-num">10</div>
+          <div class="sec-title">Project Governance & Checkpoints</div>
+        </div>
+      </div>
+      <ul class="gov-list">
+        <li><span class="gov-num">01</span> Requirement gathering from all business stakeholders, based on the scope</li>
+        <li><span class="gov-num">02</span> Functional Solution Document (FSD) Review</li>
+        <li><span class="gov-num">03</span> FSD Sign-off</li>
+        <li><span class="gov-num">04</span> Doubt clarification during the development phase</li>
+        <li><span class="gov-num">05</span> User walkthrough session</li>
+        <li><span class="gov-num">06</span> User Acceptance Testing Round</li>
+        <li><span class="gov-num">07</span> Ticket submission on identified issues</li>
+        <li><span class="gov-num">08</span> Zoho CRM & Analytics Training</li>
+        <li><span class="gov-num">09</span> Stakeholder sign-off</li>
+      </ul>
+    </div>
+
+    <!-- CONSTRAINTS & ASSUMPTIONS -->
+    <div class="section" id="constraints">
+      <div class="sec-hd">
+        <div class="sec-ico">⚠️</div>
+        <div>
+          <div class="sec-num">11</div>
+          <div class="sec-title">Constraints & Assumptions</div>
+        </div>
+      </div>
+      <div style="margin-bottom:24px">
+        <div style="font-family:var(--display);font-size:14px;font-weight:700;color:var(--ink);margin-bottom:12px">Constraints</div>
+        <ul class="bullet-list">
+          <li>The actual delivery date may change based on the timely response of various stakeholders.</li>
+          <li>All third-party integrations will depend on the technical capabilities & API support of those platforms.</li>
+          <li>Implementation will depend on the Zoho platform's current capabilities and limitations.</li>
+          <li>All Zoho Plans have limits on Records, Storage, Custom functions, and API calls. If limits are exceeded during data migration, Integration, or usage, the Xcut Technologies team will need to purchase additional add-ons.</li>
+          <li>The above scope is a basic initial understanding. Final scope may evolve over time as we discover the requirements in detail.</li>
+          <li>Clarity on the type of automation desired is required, as it needs to be managed within the scope and capabilities of CRM.</li>
+          <li>Reporting-hierarchy based data visibility will be used as the standard sharing model. If there are additional complex requirements, Zoho Analytics will be used.</li>
+          <li>Google Maps API key, usage limits, and billing will be managed under the client's Google account & need to be purchased separately by the Xcut Technologies team.</li>
+          <li>Mobile devices used by sales engineers will have GPS and internet access enabled for accurate geo-location capture.</li>
+          <li>Any additional reports, automations, or integrations beyond the agreed scope will be treated as change requests.</li>
+          <li>KM calculation is based on geo-location captured at visit check-in and check-out; continuous GPS tracking or route optimization is out of scope.</li>
+          <li>The accuracy of distance calculation depends on GPS accuracy, network availability, and Google Maps API responses.</li>
+        </ul>
+      </div>
+      <div>
+        <div style="font-family:var(--display);font-size:14px;font-weight:700;color:var(--ink);margin-bottom:12px">Assumptions</div>
+        <ul class="bullet-list">
+          <li>The scope baseline will be finalized through Requirement Gathering & FSD sign-off, and the configuration will be implemented as per the approved FSD for Phase 1.</li>
+          <li>Data migration (if any) is assumed to be basic and limited unless separately specified. Detailed cleansing/deduplication beyond configured rules is not included.</li>
+          <li>SAP Business One is the system of record for all required sales/finance/inventory data used in Zoho Analytics reports.</li>
+          <li>Required SAP B1 data objects are accessible via API/DB/export, and the client will provide the required access and documentation.</li>
+          <li>Clean and validated master and transactional data will be provided from SAP Business One for integration and analytics.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- COMMERCIALS -->
+    <div class="section" id="commercials">
+      <div class="sec-hd">
+        <div class="sec-ico">💰</div>
+        <div>
+          <div class="sec-num">12</div>
+          <div class="sec-title">Commercials</div>
+        </div>
+      </div>
+
+      <div style="font-family:var(--display);font-size:15px;font-weight:700;color:var(--ink);margin-bottom:14px">Software License Commercials</div>
+      <table class="comm-table" style="margin-bottom:10px">
+        <thead>
+          <tr>
+            <th>No.</th>
+            <th>Product</th>
+            <th>Users</th>
+            <th>Payment Type</th>
+            <th>Annual Amount (INR)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>Zoho CRM (Enterprise Plan)</td>
+            <td>40</td>
+            <td>Recurring Annually</td>
+            <td><span class="inr">₹ —</span></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>Zoho Analytics (Standard Plan)</td>
+            <td>Up to 5</td>
+            <td>Recurring Annually</td>
+            <td><span class="inr">₹ —</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="comm-note" style="margin-bottom:32px"><strong>Note:</strong> The above pricing is exclusive of GST.</div>
+
+      <div style="font-family:var(--display);font-size:15px;font-weight:700;color:var(--ink);margin-bottom:14px">Zoho Software Implementation Commercials</div>
+      <table class="comm-table">
+        <thead>
+          <tr>
+            <th>No.</th>
+            <th>Particulars</th>
+            <th>Commercial Type</th>
+            <th>Estimated Hours</th>
+            <th>Hourly Rate</th>
+            <th>Total Amount (INR)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>Requirement Gathering & FSD Creation</td>
+            <td>Project-based</td>
+            <td>NA</td>
+            <td>NA</td>
+            <td><span class="inr">₹ —</span></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>Zoho CRM & Analytics Implementation Cost</td>
+            <td>Project-based</td>
+            <td>NA</td>
+            <td>NA</td>
+            <td><span class="inr">₹ —</span></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>Data Migration</td>
+            <td>Time & Material</td>
+            <td>4 Days</td>
+            <td>NA</td>
+            <td><span class="inr">₹ —</span></td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td><strong>Integrations:</strong> SAP B1 Integration + Google Maps Integration</td>
+            <td>Project-based</td>
+            <td>NA</td>
+            <td>NA</td>
+            <td><span class="inr">₹ —</span></td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>30 days of Hyper-care on the delivered item (no new change request)</td>
+            <td>Project-based</td>
+            <td>NA</td>
+            <td>NA</td>
+            <td><span class="inr">₹ —</span></td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td>Recommended Run Model (Silver Plan for 12 Months)</td>
+            <td>—</td>
+            <td>—</td>
+            <td>—</td>
+            <td><span class="inr">₹ —</span></td>
+          </tr>
+          <tr class="total-row">
+            <td colspan="5" style="font-family:var(--display);font-weight:700;color:var(--ink)">Total With Run Model Cost [Exclusive of GST]</td>
+            <td><span class="inr" style="font-weight:700">₹ —</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="comm-note" style="margin-top:16px">
+        <ul style="padding-left:16px;line-height:1.8">
+          <li>Above pricing is exclusive of GST</li>
+          <li>Third-party software License cost not included in this proposal</li>
+          <li>Run plan post-hyper care for Bug fix, minor configuration & maintenance</li>
+          <li>Training includes User training only; admin training is not provided</li>
+          <li>Data cleanup is not included in the current scope</li>
+          <li>The cap of Workflow Automation and Custom Module is maximum 5 per use-case</li>
+          <li>Apart from Zoho CRM & Analytics, no other Zoho application has been factored into the project-based implementation</li>
+        </ul>
+      </div>
+
+      <div style="font-family:var(--display);font-size:15px;font-weight:700;color:var(--ink);margin:28px 0 16px">Payment Terms</div>
+      <div class="payment-cards">
+        <div class="pay-card">
+          <span class="pct">100%</span>
+          <div class="what">Zoho License Cost</div>
+          <div class="when">Paid in full upfront to Zoho in advance</div>
+        </div>
+        <div class="pay-card">
+          <span class="pct">60%</span>
+          <div class="what">Implementation Cost</div>
+          <div class="when">Payable in advance</div>
+        </div>
+        <div class="pay-card">
+          <span class="pct">40%</span>
+          <div class="what">Implementation Cost</div>
+          <div class="when">Payable Before Start of UAT Sign-Off</div>
+        </div>
+      </div>
+      <div class="comm-note" style="margin-top:12px">Run Model services will be billed monthly in advance.</div>
+    </div>
+
+    <!-- RUN MODEL -->
+    <div class="section" id="runmodel">
+      <div class="sec-hd">
+        <div class="sec-ico">🔄</div>
+        <div>
+          <div class="sec-num">13</div>
+          <div class="sec-title">Run Model — Silver Plan</div>
+        </div>
+      </div>
+      <table class="run-table">
+        <thead>
+          <tr>
+            <th>Feature / Metric</th>
+            <th>Silver Plan</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Monthly Fee</td><td>—</td></tr>
+          <tr><td>Included Support & Bug-Fix Hours</td><td>20 hrs/mo</td></tr>
+          <tr><td>Coverage Window</td><td>8 × 5 (Mon–Fri)</td></tr>
+          <tr><td>SLA — First Response</td><td>8 business hrs</td></tr>
+          <tr><td>SLA — Resolution Target</td><td>3 bd (P2) / 5 bd (P3)</td></tr>
+          <tr><td>Severity 1 (Prod down) Handling</td><td>T&M at priority rate</td></tr>
+          <tr><td>Ticket Channels</td><td>Email + Shared Board</td></tr>
+          <tr><td>Scope of Work in Bundle</td><td>L1–L2 support, minor bug fixes</td></tr>
+          <tr><td>Sandbox / UAT Deployment</td><td>—</td></tr>
+          <tr><td>Admin / User Training</td><td>Self-help videos</td></tr>
+          <tr><td>Reporting & Governance</td><td>Monthly summary</td></tr>
+          <tr><td>Named Client-Success Manager</td><td>Shared</td></tr>
+          <tr><td>Overage (Support) Rate</td><td>—</td></tr>
+        </tbody>
+      </table>
+      <div class="comm-note" style="margin-top:10px"><strong>Above Pricing Exclusive of GST</strong></div>
+    </div>
+
+    <!-- NEXT STEPS -->
+    <div class="section" id="nextsteps">
+      <div class="sec-hd">
+        <div class="sec-ico">🚀</div>
+        <div>
+          <div class="sec-num">14</div>
+          <div class="sec-title">Next Steps</div>
+        </div>
+      </div>
+      <div class="steps-grid">
+        <div class="hdr">Step</div>
+        <div class="hdr">Agenda</div>
+        <div class="hdr">Fristine Team</div>
+        <div class="hdr">Xcut Technologies</div>
+
+        <div class="cell step-name">Service Level Agreement</div>
+        <div class="cell">This will define all the Terms and conditions from both parties</div>
+        <div class="cell">Sales Representative</div>
+        <div class="cell">Champ</div>
+
+        <div class="cell step-name">Software License (If Required)</div>
+        <div class="cell">Procurement of the license would be done here</div>
+        <div class="cell">Sales Representative or Zoho Team</div>
+        <div class="cell">Champ</div>
+
+        <div class="cell step-name">Vendor Registration (If Required)</div>
+        <div class="cell">If any vendor registration is required to be done for onboarding</div>
+        <div class="cell">Sales Representative</div>
+        <div class="cell">Champ</div>
+
+        <div class="cell step-name">Purchase Order</div>
+        <div class="cell">Xcut Technologies needs to raise PO for Service Fee and License Fee to Zoho separately</div>
+        <div class="cell">Not Applicable</div>
+        <div class="cell">Finance Team</div>
+
+        <div class="cell step-name">Invoicing</div>
+        <div class="cell">The Xcut Technologies team needs to process invoicing to Zoho and Fristine separately</div>
+        <div class="cell">Accounting Manager</div>
+        <div class="cell">Finance Team</div>
+      </div>
+    </div>
+
+    <!-- ACCEPTANCE -->
+    <div class="section" id="acceptance">
+      <div class="sec-hd">
+        <div class="sec-ico">✍️</div>
+        <div>
+          <div class="sec-num">15</div>
+          <div class="sec-title">Acceptance</div>
+        </div>
+      </div>
+      <div class="accept-grid">
+        <div class="accept-card">
+          <div class="party">For Fristine Infotech Pvt Ltd</div>
+          <div class="accept-line">
+            <label>Signature</label>
+            <div class="sig-box"></div>
+          </div>
+          <div class="accept-line">
+            <label>Name</label>
+            <div class="sig-box"></div>
+          </div>
+          <div class="accept-line">
+            <label>Designation</label>
+            <div class="sig-box"></div>
+          </div>
+          <div class="accept-line">
+            <label>Date</label>
+            <div class="sig-box"></div>
+          </div>
+        </div>
+        <div class="accept-card">
+          <div class="party">For Xcut Technologies</div>
+          <div class="accept-line">
+            <label>Signature</label>
+            <div class="sig-box"></div>
+          </div>
+          <div class="accept-line">
+            <label>Name</label>
+            <div class="sig-box"></div>
+          </div>
+          <div class="accept-line">
+            <label>Designation</label>
+            <div class="sig-box"></div>
+          </div>
+          <div class="accept-line">
+            <label>Date</label>
+            <div class="sig-box"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /doc-body -->
+
+  <!-- FOOTER -->
+  <div class="doc-footer">
+    <div class="left">
+      <div class="footer-logo">F</div>
+      <div class="footer-name">Fristine Infotech Pvt Ltd · Premium Zoho Partner</div>
+    </div>
+    <div class="right">Confidential · 

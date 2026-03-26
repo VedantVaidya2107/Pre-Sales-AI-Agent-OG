@@ -1,0 +1,20 @@
+[
+  {
+    "client_id": "FRIST001",
+    "company": "TestCorp",
+    "industry": "Technology",
+    "email": "test@example.com",
+    "notes": "",
+    "size": "",
+    "createdAt": "2026-03-15T16:46:41.296Z"
+  },
+  {
+    "client_id": "FRIST002",
+    "company": "Test Corp",
+    "industry": "Tech",
+    "email": "test@test.com",
+    "notes": "",
+    "size": "",
+    "createdAt": "2026-03-16T04:07:18.356Z"
+  }
+]
