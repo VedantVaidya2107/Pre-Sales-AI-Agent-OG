@@ -2,11 +2,93 @@
 
 const BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
 
-async function request(method, path, body = null) {
-  const opts = {
-    method,
-    headers: { 'Content-Type': 'application/json' },
+/* ══ MOCK MODE (runs when backend is unreachable) ══════════════════════════ */
+const MOCK_AGENTS = {
+  'test@fristinetech.com':  { email: 'test@fristinetech.com',  password: 'password123',    name: 'Test Agent' },
+  'test2@fristinetech.com': { email: 'test2@fristinetech.com', password: 'testpassword123', name: 'Test Agent 2' },
+};
+
+const MOCK_CLIENTS = [
+  { client_id: 'DEMO-001', company: 'Acme Corp',      industry: 'Manufacturing', email: 'acme@example.com' },
+  { client_id: 'DEMO-002', company: 'TechStart Ltd',  industry: 'Technology',    email: 'ts@example.com' },
+  { client_id: 'DEMO-003', company: 'RetailPro',      industry: 'Retail',        email: 'rp@example.com' },
+];
+
+let _mockMode = false;
+let _mockClientStore = [...MOCK_CLIENTS];
+
+function mockAuth() {
+  return {
+    check: (email) => {
+      const e = email.toLowerCase();
+      return Promise.resolve({ hasPassword: !!MOCK_AGENTS[e], email: e });
+    },
+    login: (email, password) => {
+      const agent = MOCK_AGENTS[email.toLowerCase()];
+      if (!agent) return Promise.reject(Object.assign(new Error('NO_PASSWORD'), { data: { error: 'NO_PASSWORD' } }));
+      if (agent.password !== password) return Promise.reject(Object.assign(new Error('WRONG_PASSWORD'), { data: { error: 'WRONG_PASSWORD' } }));
+      return Promise.resolve({ success: true, email: agent.email, name: agent.name });
+    },
+    setPassword: (email, password) => {
+      MOCK_AGENTS[email.toLowerCase()] = { email, password, name: email.split('@')[0] };
+      return Promise.resolve({ success: true });
+    },
   };
+}
+
+function mockClients() {
+  return {
+    list:   ()          => Promise.resolve([..._mockClientStore]),
+    get:    (id)        => Promise.resolve(_mockClientStore.find(c => c.client_id === id) || null),
+    nextId: ()          => Promise.resolve({ next_id: `DEMO-${String(_mockClientStore.length + 1).padStart(3, '0')}` }),
+    create: (data)      => {
+      const c = { ...data, client_id: `DEMO-${String(_mockClientStore.length + 1).padStart(3, '0')}` };
+      _mockClientStore.push(c);
+      return Promise.resolve(c);
+    },
+    update: (id, data)  => {
+      _mockClientStore = _mockClientStore.map(c => c.client_id === id ? { ...c, ...data } : c);
+      return Promise.resolve({ success: true });
+    },
+    delete: (id)        => {
+      _mockClientStore = _mockClientStore.filter(c => c.client_id !== id);
+      return Promise.resolve({ success: true });
+    },
+  };
+}
+
+function mockTracking() {
+  const _store = {};
+  return {
+    getEvents: (id)          => Promise.resolve(_store[id] || []),
+    logEvent:  (id, event)   => {
+      if (!_store[id]) _store[id] = [];
+      _store[id].push({ event, timestamp: new Date().toISOString() });
+      return Promise.resolve({ success: true });
+    },
+  };
+}
+
+function mockProposals() {
+  const _store = {};
+  return {
+    get:    (id)             => Promise.resolve(_store[id] || null),
+    save:   (id, html, title)=> {
+      const prev = _store[id] || { versions: [] };
+      _store[id] = { versions: [...prev.versions, { version: prev.versions.length + 1, proposal_html: html, title, savedAt: new Date().toISOString() }] };
+      return Promise.resolve({ success: true });
+    },
+    update: (id, html, ver)  => Promise.resolve({ success: true }),
+  };
+}
+
+const _mockTracking  = mockTracking();
+const _mockProposals = mockProposals();
+
+/* ══ REAL REQUEST ══════════════════════════════════════════════════════════ */
+async function request(method, path, body = null) {
+  if (_mockMode) throw new Error('mock mode');
+  const opts = { method, headers: { 'Content-Type': 'application/json' } };
   if (body) opts.body = JSON.stringify(body);
   const res  = await fetch(`${BASE}${path}`, opts);
   const data = await res.json().catch(() => ({}));
@@ -16,37 +98,44 @@ async function request(method, path, body = null) {
 
 /* ── Auth ── */
 export const auth = {
-  check:       (email) => request('GET', `/api/users/check?email=${encodeURIComponent(email)}`),
-  login:       (email, password) => request('POST', '/api/users/login/', { email, password }),
-  setPassword: (email, password) => request('POST', '/api/users/set-password/', { email, password }),
+  check:       (email, password) => _mockMode
+    ? mockAuth().check(email)
+    : request('GET', `/api/auth/check?email=${encodeURIComponent(email)}`).catch(() => { _mockMode = true; return mockAuth().check(email); }),
+  login:       (email, password) => _mockMode
+    ? mockAuth().login(email, password)
+    : request('POST', '/api/auth/login/', { email, password }).catch(e => { if (e.message === 'Failed to fetch') { _mockMode = true; return mockAuth().login(email, password); } throw e; }),
+  setPassword: (email, password) => _mockMode
+    ? mockAuth().setPassword(email, password)
+    : request('POST', '/api/auth/set-password/', { email, password }).catch(() => { _mockMode = true; return mockAuth().setPassword(email, password); }),
 };
 
 /* ── Clients ── */
 export const clients = {
-  list:     ()                        => request('GET',    '/api/clients/'),
-  get:      (id)                      => request('GET',    `/api/clients/${id}`),
-  nextId:   ()                        => request('GET',    '/api/clients/next-id/'),
-  create:   (data)                    => request('POST',   '/api/clients/', data),
-  update:   (id, data)                => request('PUT',    `/api/clients/${id}`, data),
-  delete:   (id)                      => request('DELETE', `/api/clients/${id}`),
+  list:   ()         => _mockMode ? mockClients().list()        : request('GET',    '/api/clients/').catch(() => { _mockMode = true; return mockClients().list(); }),
+  get:    (id)       => _mockMode ? mockClients().get(id)       : request('GET',    `/api/clients/${id}`),
+  nextId: ()         => _mockMode ? mockClients().nextId()       : request('GET',    '/api/clients/next-id/'),
+  create: (data)     => _mockMode ? mockClients().create(data)   : request('POST',   '/api/clients/', data),
+  update: (id, data) => _mockMode ? mockClients().update(id,data): request('PUT',    `/api/clients/${id}`, data),
+  delete: (id)       => _mockMode ? mockClients().delete(id)     : request('DELETE', `/api/clients/${id}`),
 };
 
 /* ── Tracking ── */
 export const tracking = {
-  getEvents:  (clientId) => request('GET',  `/api/tracking/${clientId}/`),
-  logEvent:   (clientId, event, note) => request('POST', `/api/tracking/${clientId}/`, { event, note }),
+  getEvents: (id)         => _mockMode ? _mockTracking.getEvents(id)       : request('GET',  `/api/tracking/${id}/`).catch(() => []),
+  logEvent:  (id, ev, nt) => _mockMode ? _mockTracking.logEvent(id, ev)    : request('POST', `/api/tracking/${id}/`, { event: ev, note: nt }).catch(() => {}),
 };
 
 /* ── Proposals ── */
 export const proposals = {
-  get:   (clientId)               => request('GET',  `/api/proposals/${clientId}/`),
-  save:  (clientId, html, title)  => request('POST', `/api/proposals/${clientId}/`, { proposal_html: html, title }),
-  update:(clientId, html, version)=> request('PUT',  `/api/proposals/${clientId}/`, { proposal_html: html, version }),
+  get:    (id)            => _mockMode ? _mockProposals.get(id)             : request('GET',  `/api/proposals/${id}/`).catch(() => null),
+  save:   (id, html, t)   => _mockMode ? _mockProposals.save(id, html, t)   : request('POST', `/api/proposals/${id}/`, { proposal_html: html, title: t }),
+  update: (id, html, ver) => _mockMode ? _mockProposals.update(id,html,ver) : request('PUT',  `/api/proposals/${id}/`, { proposal_html: html, version: ver }),
 };
 
 /* ── Documents ── */
 export const documents = {
   parse: async (file) => {
+    if (_mockMode) return { text: `[MOCK] Parsed content of ${file.name}. This is simulated text for testing.` };
     const fd = new FormData();
     fd.append('file', file);
     const res = await fetch(`${BASE}/api/documents/parse`, { method: 'POST', body: fd });
@@ -58,20 +147,57 @@ export const documents = {
 
 /* ── Email ── */
 export const email = {
-  sendBot: (to, company, clientId, botUrl) =>
-    request('POST', '/api/email/send-bot', { to, company, clientId, botUrl }),
-  sendProposal: (to, company, html) =>
-    request('POST', '/api/email/send-proposal', { to, company, html }),
+  sendBot:      (to, company, clientId, botUrl) => _mockMode
+    ? (console.log('[MOCK] Send bot email to', to), Promise.resolve({ success: true }))
+    : request('POST', '/api/email/send-bot', { to, company, clientId, botUrl }),
+  sendProposal: (to, company, html) => _mockMode
+    ? (console.log('[MOCK] Send proposal to', to), Promise.resolve({ success: true }))
+    : request('POST', '/api/email/send-proposal', { to, company, html }),
 };
 
-/* ── Voice (Deepgram) ── */
+/* ── Voice ── */
 export const voice = {
-  getKey: () => request('GET', '/api/voice/key/'),
-  speak:  (text) => request('POST', '/api/voice/speak/', { text }),
+  getKey: () => _mockMode ? Promise.resolve({ key: 'mock-key' }) : request('GET', '/api/voice/key/'),
+  speak:  (text) => _mockMode ? Promise.resolve({ audio: null }) : request('POST', '/api/voice/speak/', { text }),
 };
 
-/* ── Gemini (proxied through backend — key stays server-side) ── */
+/* ── Gemini ── */
 export async function gem(prompt, maxTokens = 1000, temp = 0.7, forcePro = false, history = [], systemInstruction = '') {
+  if (_mockMode) {
+    // If this is the closure / requirements JSON call
+    if (prompt.includes('REQUIREMENTS_COMPLETE') || prompt.includes('JSON SCHEMA') || forcePro) {
+      return `REQUIREMENTS_COMPLETE\n` + JSON.stringify({
+        business_overview: "A mid-sized technology firm looking to streamline sales and finance operations.",
+        departments: ["Sales", "Operations", "Finance"],
+        current_tools: ["Excel", "Tally"],
+        pain_points: ["Manual data entry consuming 20+ hours/week", "No pipeline visibility"],
+        must_have: ["Zoho CRM", "Zoho Books"],
+        nice_to_have: ["Zoho Analytics"],
+        automation_opportunities: ["Lead assignment rules", "Invoice generation"],
+        integrations: ["Email (Gmail)", "WhatsApp Business"],
+        success_metrics: ["50% reduction in manual work", "Real-time pipeline dashboard"],
+        zoho_products: ["Zoho CRM", "Zoho Books", "Zoho Analytics"],
+        user_count: 25,
+        industry: "Technology",
+        summary: "A comprehensive Zoho CRM + Books implementation for a 25-user tech firm.",
+        timeline: "3 months"
+      });
+    }
+    // Opener turn
+    if (prompt.includes('PHASE 1') || prompt.includes('Intro')) {
+      return `Let's map your requirements to ensure a seamless Zoho transformation. I am the Fristine Strategic Solutions Architect — I'll be guiding you through a quick discovery session to understand your business needs. To start: **what is the single biggest operational bottleneck your team faces today?**`;
+    }
+    // Mid-discovery turns — rotate through MEDDPICC questions
+    const questions = [
+      `Great insight! To quantify the impact — **how many hours per week does your team spend on manual data entry or reporting?** This helps us size the ROI of automation.`,
+      `Understood. On the decision side — **who else besides yourself would be involved in evaluating a Zoho implementation?** Knowing the stakeholders helps us tailor the proposal.`,
+      `Got it. Regarding your current tech stack — **which legacy systems (ERP, accounting, or CRM tools) would we need to migrate data from or integrate with?**`,
+      `Perfect. Scoping question — **how many users across sales, ops, and finance would be onboarded onto the new Zoho environment?**`,
+      `Excellent. Finally — **what does a successful go-live look like for you, and do you have a target timeline in mind?** This will anchor our implementation plan.`,
+    ];
+    const idx = Math.min(history.length % questions.length, questions.length - 1);
+    return questions[idx];
+  }
   const data = await request('POST', '/api/gemini/generate', {
     prompt, history, systemInstruction, maxTokens, temperature: temp, forcePro,
   });

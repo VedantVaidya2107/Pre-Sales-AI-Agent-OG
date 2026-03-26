@@ -95,11 +95,20 @@ async function bootStaffLogin() {
         }
     } catch (e) {
         clearTimeout(wakeUpTimer);
-        setSS('er', 'Could not connect to backend — is the server running?');
-        console.error('[Boot]', e);
+        // Mock mode kicks in automatically — show demo mode status
+        try {
+            allClients = await clients.list();
+            setSS('ok', `Demo Mode · ${allClients.length} sample clients loaded`);
+            const activeAgent = localStorage.getItem('f_active_agent');
+            if (activeAgent) startStaffPortal(activeAgent);
+        } catch {
+            setSS('er', 'Could not connect to backend — is the server running?');
+            console.error('[Boot]', e);
+        }
     }
     hideLdr();
 }
+
 
 async function bootClientSession(clientId) {
     showLdr('Loading your session…');
@@ -985,17 +994,27 @@ document.getElementById('msgIn').addEventListener('keydown', e => {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             const dgData = await voice.getKey();
             const key = dgData.key;
-            
-            socket = new WebSocket('wss://api.deepgram.com/v1/listen?interim_results=true&punctuate=true&language=en-IN&encoding=linear16&sample_rate=16000', [
-                'token', key
-            ]);
+
+            // Use webm container to match what MediaRecorder produces
+            socket = new WebSocket(
+                'wss://api.deepgram.com/v1/listen?interim_results=true&punctuate=true&language=en-IN',
+                ['token', key]
+            );
 
             socket.onopen = () => {
                 micBtn.classList.add('mic-listening');
-                document.getElementById('msgIn').placeholder = 'Listening (Deepgram)...';
-                mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm;codecs=opus' });
+                document.getElementById('msgIn').placeholder = 'Listening…';
+
+                // Pick best supported mimeType
+                const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+                    ? 'audio/webm;codecs=opus'
+                    : MediaRecorder.isTypeSupported('audio/webm')
+                    ? 'audio/webm'
+                    : '';
+
+                mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : {});
                 mediaRecorder.addEventListener('dataavailable', async (event) => {
-                    if (event.data.size > 0 && socket.readyState == 1) {
+                    if (event.data.size > 0 && socket.readyState === WebSocket.OPEN) {
                         socket.send(event.data);
                     }
                 });
@@ -1020,12 +1039,13 @@ document.getElementById('msgIn').addEventListener('keydown', e => {
 
             socket.onerror = (err) => {
                 console.error('[Deepgram Socket Error]', err);
+                showToast('Deepgram connection failed — check your API key or network.', 'error');
                 stopRecording();
             };
 
         } catch (err) {
             console.error('[Mic Access Error]', err);
-            alert('Could not access microphone or connect to Deepgram.');
+            showToast('Microphone access denied — please allow mic permissions in your browser.', 'error');
         }
     }
 
@@ -1888,14 +1908,22 @@ function setPhase(txt) { document.getElementById('phaseTxt').textContent = txt; 
 function updateCov(p) { document.getElementById('cvb').style.width = p + '%'; document.getElementById('cvp').textContent = p + '%'; }
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
+function mdToHtml(text) {
+    return text
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g, '<em>$1</em>')
+        .replace(/\n/g, '<br>');
+}
+
 function addAg(msg, opts = {}) {
     const f = document.getElementById('feed');
     const d = document.createElement('div');
     d.className = 'msg ag';
+    const rendered = opts.noEscape ? msg : mdToHtml(msg);
     if (opts.noEscape) {
-        d.innerHTML = `<div class="msg-av">F</div><div class="msg-bubble msg-bubble-wide">${msg}</div>`;
+        d.innerHTML = `<div class="msg-av">F</div><div class="msg-bubble msg-bubble-wide">${rendered}</div>`;
     } else {
-        d.innerHTML = `<div class="msg-av">F</div><div class="msg-bubble">${msg}</div>`;
+        d.innerHTML = `<div class="msg-av">F</div><div class="msg-bubble">${rendered}</div>`;
     }
     if (opts.inds) {
         const wrap = document.createElement('div');
@@ -1929,6 +1957,7 @@ function addAg(msg, opts = {}) {
         playVoice(msg);
     }
 }
+
 
 async function playVoice(text) {
     try {

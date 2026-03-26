@@ -4,9 +4,9 @@
     "email": "test@fristinetech.com",
     "updatedAt": "2026-03-16T04:24:00.958Z"
   },
-  "test@test.comtest@fristinetech.com": {
+  "test2@fristinetech.com": {
     "password": "testpassword123",
-    "email": "test@test.comtest@fristinetech.com",
+    "email": "test2@fristinetech.com",
     "updatedAt": "2026-03-16T04:11:00.248Z"
   }
 }
