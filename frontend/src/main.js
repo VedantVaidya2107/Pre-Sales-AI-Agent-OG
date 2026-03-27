@@ -20,7 +20,9 @@ let activeKpiFilter = 'all';
 let clientStatuses = {};
 let voiceEnabled = true; 
 let audioContext = null;
-let currentAudioSource = null; // Track active speech to prevent overlaps
+let currentAudioSource = null; 
+let voiceQueue = [];
+let isProcessingVoice = false;
 
 
 /* ══ ENHANCED ZOHO KNOWLEDGE BASE WITH NATURAL LANGUAGE UNDERSTANDING ══ */
@@ -907,7 +909,8 @@ document.getElementById('sendBtn').addEventListener('click', async () => {
     const msg = inp.value.trim();
     if (!msg) return;
 
-    // Stop agent talking if user sends a message
+    // Stop agent talking and clear queue if user sends a message
+    voiceQueue = [];
     if (currentAudioSource) {
         try { currentAudioSource.stop(); } catch(e){}
         currentAudioSource = null;
@@ -1158,7 +1161,8 @@ document.getElementById('msgIn').addEventListener('keydown', e => {
     }
 
     micBtn.addEventListener('click', () => {
-        // Stop agent talking if user takes the mic
+        // Stop agent talking and clear queue if user takes the mic
+        voiceQueue = [];
         if (currentAudioSource) {
             try { currentAudioSource.stop(); } catch(e){}
             currentAudioSource = null;
@@ -2055,20 +2059,31 @@ function addAg(msg, opts = {}) {
 
 
 async function playVoice(text) {
+    if (!text) return;
+    const cleanText = text.replace(/<[^>]*>/g, '').replace(/\*\*|__|#|`|\[|\]|\(|\)/g, '').replace(/\s+/g, ' ').trim();
+    if (!cleanText) return;
+    
+    voiceQueue.push(cleanText);
+    if (!isProcessingVoice) processVoiceQueue();
+}
+
+async function processVoiceQueue() {
+    if (voiceQueue.length === 0) {
+        isProcessingVoice = false;
+        return;
+    }
+    isProcessingVoice = true;
+    const text = voiceQueue.shift();
+
     try {
-        // Stop previous audio if still playing
+        // Stop any current audio before fetching new ones
         if (currentAudioSource) {
             try { currentAudioSource.stop(); } catch(e){}
             currentAudioSource = null;
         }
 
-        let cleanText = text.replace(/<[^>]*>/g, ''); // Strip HTML
-        cleanText = cleanText.replace(/\*\*|__|#|`|\[|\]|\(|\)/g, ''); // Strip Markdown symbols
-        cleanText = cleanText.replace(/\s+/g, ' ').trim();
-
-        if (!cleanText) return;
-        const data = await voice.speak(cleanText);
-        if (data.audio) {
+        const data = await voice.speak(text);
+        if (data && data.audio) {
             const audioData = atob(data.audio);
             const arrayBuffer = new ArrayBuffer(audioData.length);
             const view = new Uint8Array(arrayBuffer);
@@ -2082,36 +2097,35 @@ async function playVoice(text) {
             source.buffer = buffer;
             source.connect(audioContext.destination);
 
-            // Double-check lockout right before starting
+            // Strict lockout right before start
             if (currentAudioSource) {
                 try { currentAudioSource.stop(); } catch(e){}
             }
             currentAudioSource = source;
 
-            // Start wave animations
             const waves = document.querySelectorAll('.voice-wave, .large-voice-wave');
             waves.forEach(w => w.classList.add('active'));
 
             source.onended = () => {
-                // Only trigger mic if THIS specific source finished naturally
                 if (currentAudioSource === source) {
                     currentAudioSource = null;
                     waves.forEach(w => w.classList.remove('active'));
-
+                    
                     const mic = document.getElementById('micBtn');
                     const callBtn = document.getElementById('callToggleBtn');
-                    const isCalling = callBtn && callBtn.classList.contains('call-active');
-                    
-                    if (isCalling && mic && !mic.classList.contains('mic-listening')) {
+                    if (callingMode && mic && !mic.classList.contains('mic-listening')) {
                         mic.click();
                     }
                 }
+                processVoiceQueue(); // Handle next in queue
             };
-            currentAudioSource = source;
             source.start(0);
+        } else {
+            processVoiceQueue();
         }
     } catch (e) {
-        console.warn('[TTS Error]', e);
+        console.warn('[Queue Error]', e);
+        processVoiceQueue();
     }
 }
 
