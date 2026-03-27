@@ -18,7 +18,7 @@ let currentTrackingClient = null;
 let activeClientId = null;
 let activeKpiFilter = 'all';
 let clientStatuses = {};
-let voiceEnabled = true; 
+let voiceEnabled = false; 
 let audioContext = null;
 let currentAudioSource = null; 
 let voiceQueue = [];
@@ -1037,12 +1037,11 @@ document.getElementById('msgIn').addEventListener('keydown', e => {
                 
                 // If empty conversation, start it!
                 if (convo.length === 0) {
-                    addUs("Start the discovery."); // Hidden system-like trigger
+                    addUs("Start the discovery.");
                     convo.push({ role: 'user', content: "Please introduce yourself and start the discovery session." });
                     const resp = await gem(ZK + "\n\nUser is ready. Start Phase 1.", 1000, 0.7, false, convo);
-                    addAg(resp);
                     convo.push({ role: 'assistant', content: resp });
-                    playVoice(resp);
+                    addAg(resp); // This now handles playVoice internally if callingMode is true
                 } else {
                     // Prompt the last message if we just re-entered
                     const lastAg = Array.from(document.querySelectorAll('.msg.ag')).pop();
@@ -2080,8 +2079,8 @@ function addAg(msg, opts = {}) {
     f.scrollTop = f.scrollHeight;
     saveConversationMemory();
 
-    // Trigger TTS if voice enabled and not a restored message
-    if (voiceEnabled && !opts.restored) {
+    // Trigger TTS if calling mode is ON and not a restored message
+    if (callingMode && !opts.restored) {
         playVoice(msg);
     }
 }
