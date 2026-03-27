@@ -86,8 +86,8 @@ const _mockTracking  = mockTracking();
 const _mockProposals = mockProposals();
 
 /* ══ REAL REQUEST ══════════════════════════════════════════════════════════ */
-async function request(method, path, body = null) {
-  if (_mockMode) throw new Error('mock mode');
+async function request(method, path, body = null, ignoreMock = false) {
+  if (_mockMode && !ignoreMock) throw new Error('mock mode');
   const opts = { method, headers: { 'Content-Type': 'application/json' } };
   if (body) opts.body = JSON.stringify(body);
   const res  = await fetch(`${BASE}${path}`, opts);
@@ -158,8 +158,16 @@ export const email = {
 /* ── Voice ── */
 export const voice = {
   getKey: () => _mockMode ? Promise.resolve({ key: 'mock-key' }) : request('GET', '/api/voice/key/'),
-  speak:  (text) => _mockMode ? Promise.resolve({ audio: null }) : request('POST', '/api/voice/speak/', { text }),
+  speak:  async (text) => {
+    try {
+      // Try real TTS even if in mock mode (can't mock audio easily)
+      return await request('POST', '/api/voice/speak/', { text }, true);
+    } catch {
+      return { audio: null };
+    }
+  },
 };
+
 
 /* ── Gemini ── */
 export async function gem(prompt, maxTokens = 1000, temp = 0.7, forcePro = false, history = [], systemInstruction = '') {
