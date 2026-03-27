@@ -990,12 +990,34 @@ document.getElementById('msgIn').addEventListener('keydown', e => {
     let listening = false;
 
     async function startRecording() {
+        // Step 1: Get mic access
+        let stream;
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            const dgData = await voice.getKey();
-            const key = dgData.key;
+            stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        } catch (err) {
+            console.error('[Mic Permission]', err);
+            showToast('Microphone access denied — please allow mic permissions in your browser.', 'error');
+            listening = false;
+            return;
+        }
 
-            // Use webm container to match what MediaRecorder produces
+        // Step 2: Get Deepgram key from backend
+        let key;
+        try {
+            showToast('Connecting to voice service…', 'success');
+            const dgData = await voice.getKey();
+            key = dgData.key;
+            if (!key || key === 'mock-key') throw new Error('No valid Deepgram key');
+        } catch (err) {
+            console.error('[Voice Key Error]', err);
+            stream.getTracks().forEach(t => t.stop());
+            showToast('Voice service unavailable — backend may be starting up. Try again in 30s.', 'error');
+            listening = false;
+            return;
+        }
+
+        // Step 3: Connect to Deepgram WebSocket
+        try {
             socket = new WebSocket(
                 'wss://api.deepgram.com/v1/listen?interim_results=true&punctuate=true&language=en-IN',
                 ['token', key]
@@ -1005,7 +1027,6 @@ document.getElementById('msgIn').addEventListener('keydown', e => {
                 micBtn.classList.add('mic-listening');
                 document.getElementById('msgIn').placeholder = 'Listening…';
 
-                // Pick best supported mimeType
                 const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
                     ? 'audio/webm;codecs=opus'
                     : MediaRecorder.isTypeSupported('audio/webm')
@@ -1026,26 +1047,28 @@ document.getElementById('msgIn').addEventListener('keydown', e => {
                 const transcript = received.channel.alternatives[0].transcript;
                 if (transcript && received.is_final) {
                     document.getElementById('msgIn').value += transcript + ' ';
-                    // Optional: auto-send on silence logic can be added here
                 } else if (transcript) {
-                    // Show interim result in placeholder or subtly
                     document.getElementById('msgIn').placeholder = transcript + '...';
                 }
             };
 
             socket.onclose = () => {
+                stream.getTracks().forEach(t => t.stop());
                 stopRecording();
             };
 
             socket.onerror = (err) => {
                 console.error('[Deepgram Socket Error]', err);
-                showToast('Deepgram connection failed — check your API key or network.', 'error');
+                stream.getTracks().forEach(t => t.stop());
+                showToast('Deepgram connection failed — check API key or try again.', 'error');
                 stopRecording();
             };
 
         } catch (err) {
-            console.error('[Mic Access Error]', err);
-            showToast('Microphone access denied — please allow mic permissions in your browser.', 'error');
+            console.error('[WebSocket Error]', err);
+            stream.getTracks().forEach(t => t.stop());
+            showToast('Could not connect to Deepgram voice service.', 'error');
+            listening = false;
         }
     }
 
