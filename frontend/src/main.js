@@ -1001,19 +1001,24 @@ document.getElementById('msgIn').addEventListener('keydown', e => {
             return;
         }
 
-        // Step 2: Get Deepgram key from backend
+        // Step 2: Get Deepgram key (try backend first, fallback to env var)
         let key;
         try {
             showToast('Connecting to voice service…', 'success');
             const dgData = await voice.getKey();
             key = dgData.key;
-            if (!key || key === 'mock-key') throw new Error('No valid Deepgram key');
+            if (!key || key === 'mock-key') throw new Error('No valid key from backend');
         } catch (err) {
-            console.error('[Voice Key Error]', err);
-            stream.getTracks().forEach(t => t.stop());
-            showToast('Voice service unavailable — backend may be starting up. Try again in 30s.', 'error');
-            listening = false;
-            return;
+            // Fallback to env var embedded at build time
+            key = import.meta.env.VITE_DEEPGRAM_KEY || null;
+            if (!key) {
+                console.error('[Voice Key Error]', err);
+                stream.getTracks().forEach(t => t.stop());
+                showToast('Voice service unavailable — backend may be starting up. Try again in 30s.', 'error');
+                listening = false;
+                return;
+            }
+            console.log('[Voice] Using embedded Deepgram key');
         }
 
         // Step 3: Connect to Deepgram WebSocket

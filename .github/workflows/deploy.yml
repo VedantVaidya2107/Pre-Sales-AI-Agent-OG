@@ -35,6 +35,7 @@ jobs:
         env:
           VITE_API_URL: https://presales-backend-5u8q.onrender.com
           VITE_BASE_PATH: /AI-2-/
+          VITE_DEEPGRAM_KEY: 6e712ff0167128210a0dae3fc2fcda370858fc7e
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
