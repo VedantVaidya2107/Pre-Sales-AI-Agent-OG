@@ -1019,20 +1019,38 @@ document.getElementById('msgIn').addEventListener('keydown', e => {
         // Init state
         if (callingMode) callBtn.classList.add('call-active');
         
-        callBtn.onclick = async () => {
+        // New structure for callBtn and exitBtn
+        document.getElementById('callToggleBtn').onclick = async () => {
             if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
             if (audioContext.state === 'suspended') await audioContext.resume();
             
             callingMode = !callingMode;
-            callBtn.classList.toggle('call-active', callingMode);
+            await toggleCallingMode(); // Shared logic
+        };
+
+        const exitBtn = document.getElementById('exitCallBtn');
+        if (exitBtn) {
+            exitBtn.onclick = async () => {
+                if (callingMode) {
+                    callingMode = false;
+                    await toggleCallingMode();
+                }
+            };
+        }
+
+        async function toggleCallingMode() {
+            const btn = document.getElementById('callToggleBtn');
+            btn.classList.toggle('call-active', callingMode); // Use call-active class
             document.body.classList.toggle('focus-mode-active', callingMode);
-            console.log('[Focus Mode]', callingMode ? 'ACTIVE' : 'OFF');
+            
+            const panel = document.querySelector('.chat-panel');
+            panel.classList.toggle('calling-mode-active', callingMode);
             
             const statusEl = document.getElementById('callStatus');
-            const panel = document.querySelector('.chat-panel');
+            if (statusEl) statusEl.classList.toggle('hidden', !callingMode);
+
             if (callingMode) {
-                if (statusEl) statusEl.classList.remove('hidden');
-                if (panel) panel.classList.add('calling-mode-active');
+                console.log('[Focus Mode] ACTIVE');
                 showToast('Calling Mode: ON (Hands-free)', 'success');
                 
                 // If empty conversation, start it!

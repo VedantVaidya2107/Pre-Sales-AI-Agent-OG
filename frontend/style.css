@@ -696,6 +696,32 @@ body.focus-mode-active .chat-panel {
     opacity: 0 !important; visibility: hidden !important; pointer-events: none !important;
 }
 
+.exit-call-btn {
+    position: fixed; top: 32px; right: 32px;
+    background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%; width: 48px; height: 48px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; cursor: pointer; z-index: 1000001; 
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0; pointer-events: none;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+body.focus-mode-active .exit-call-btn {
+    opacity: 1; pointer-events: all;
+    animation: fadeIn 0.5s ease forwards;
+}
+
+.exit-call-btn:hover {
+    background: #ef4444; /* Premium Red */
+    border-color: #ef4444;
+    transform: rotate(90deg) scale(1.1);
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+}
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
 .call-overlay-center {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
