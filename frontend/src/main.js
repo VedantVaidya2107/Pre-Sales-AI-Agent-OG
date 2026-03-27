@@ -988,6 +988,19 @@ document.getElementById('msgIn').addEventListener('keydown', e => {
     let socket = null;
     let mediaRecorder = null;
     let listening = false;
+    let callingMode = true; // Enabled by default for "Calling Agent" experience
+
+    const callBtn = document.getElementById('callToggleBtn');
+    if (callBtn) {
+        // Init state
+        if (callingMode) callBtn.classList.add('call-active');
+        
+        callBtn.onclick = () => {
+            callingMode = !callingMode;
+            callBtn.classList.toggle('call-active', callingMode);
+            showToast(callingMode ? 'Calling Mode: ON (Hands-free)' : 'Calling Mode: OFF (Manual)', 'success');
+        };
+    }
 
     async function startRecording() {
         // Step 1: Get mic access
@@ -1084,9 +1097,9 @@ document.getElementById('msgIn').addEventListener('keydown', e => {
         if (mediaRecorder) mediaRecorder.stop();
         if (socket) socket.close();
         
-        // Auto-send if there's significant content
+        // Auto-send if there's significant content and callingMode is ON
         const val = document.getElementById('msgIn').value.trim();
-        if (val.length > 3) {
+        if (callingMode && val.length > 3) {
             setTimeout(() => {
                 if (document.getElementById('msgIn').value.trim() === val) {
                    document.getElementById('sendBtn').click();
@@ -2005,7 +2018,10 @@ async function playVoice(text) {
             source.connect(audioContext.destination);
             source.onended = () => {
                 const mic = document.getElementById('micBtn');
-                if (mic && !mic.classList.contains('mic-listening')) {
+                const callBtn = document.getElementById('callToggleBtn');
+                const isCalling = callBtn && callBtn.classList.contains('call-active');
+                
+                if (isCalling && mic && !mic.classList.contains('mic-listening')) {
                     mic.click();
                 }
             };
