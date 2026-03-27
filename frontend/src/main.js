@@ -1008,14 +1008,32 @@ document.getElementById('msgIn').addEventListener('keydown', e => {
         // Init state
         if (callingMode) callBtn.classList.add('call-active');
         
-        callBtn.onclick = () => {
+        callBtn.onclick = async () => {
+            if (audioContext && audioContext.state === 'suspended') {
+                await audioContext.resume();
+            }
             callingMode = !callingMode;
             callBtn.classList.toggle('call-active', callingMode);
-            showToast(callingMode ? 'Calling Mode: ON (Hands-free)' : 'Calling Mode: OFF (Manual)', 'success');
+            
+            if (callingMode) {
+                showToast('Calling Mode: ON (Hands-free)', 'success');
+                // Prompt the last message if we just turned calling mode on
+                const lastAg = Array.from(document.querySelectorAll('.msg.ag')).pop();
+                if (lastAg && lastAg.innerText) {
+                    playVoice(lastAg.innerText);
+                }
+            } else {
+                showToast('Calling Mode: OFF (Manual)', 'success');
+            }
         };
     }
 
     async function startRecording() {
+        // Step 0: Ensure AudioContext is resumed (browser requirement)
+        if (audioContext && audioContext.state === 'suspended') {
+            await audioContext.resume();
+        }
+
         // Step 1: Get mic access
         let stream;
         try {
