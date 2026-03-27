@@ -1024,8 +1024,10 @@ document.getElementById('msgIn').addEventListener('keydown', e => {
             callBtn.classList.toggle('call-active', callingMode);
             
             const statusEl = document.getElementById('callStatus');
+            const panel = document.querySelector('.chat-panel');
             if (callingMode) {
                 if (statusEl) statusEl.classList.remove('hidden');
+                if (panel) panel.classList.add('calling-mode-active');
                 showToast('Calling Mode: ON (Hands-free)', 'success');
                 // Prompt the last message if we just turned calling mode on
                 const lastAg = Array.from(document.querySelectorAll('.msg.ag')).pop();
@@ -1034,6 +1036,7 @@ document.getElementById('msgIn').addEventListener('keydown', e => {
                 }
             } else {
                 if (statusEl) statusEl.classList.add('hidden');
+                if (panel) panel.classList.remove('calling-mode-active');
                 showToast('Calling Mode: OFF (Manual)', 'success');
             }
         };
@@ -1085,8 +1088,8 @@ document.getElementById('msgIn').addEventListener('keydown', e => {
 
             socket.onopen = () => {
                 micBtn.classList.add('mic-listening');
-                const wave = document.querySelector('.voice-wave');
-                if (wave) wave.classList.add('active');
+                const waves = document.querySelectorAll('.voice-wave, .large-voice-wave');
+                waves.forEach(w => w.classList.add('active'));
                 document.getElementById('msgIn').placeholder = 'Listening…';
 
                 const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
@@ -1137,8 +1140,8 @@ document.getElementById('msgIn').addEventListener('keydown', e => {
     function stopRecording() {
         listening = false;
         micBtn.classList.remove('mic-listening');
-        const wave = document.querySelector('.voice-wave');
-        if (wave) wave.classList.remove('active');
+        const waves = document.querySelectorAll('.voice-wave, .large-voice-wave');
+        waves.forEach(w => w.classList.remove('active'));
         document.getElementById('msgIn').placeholder = 'Type your response…';
         if (mediaRecorder) mediaRecorder.stop();
         if (socket) socket.close();
@@ -2079,16 +2082,21 @@ async function playVoice(text) {
             source.buffer = buffer;
             source.connect(audioContext.destination);
 
-            // Start wave animation
-            const wave = document.querySelector('.voice-wave');
-            if (wave) wave.classList.add('active');
+            // Double-check lockout right before starting
+            if (currentAudioSource) {
+                try { currentAudioSource.stop(); } catch(e){}
+            }
+            currentAudioSource = source;
+
+            // Start wave animations
+            const waves = document.querySelectorAll('.voice-wave, .large-voice-wave');
+            waves.forEach(w => w.classList.add('active'));
 
             source.onended = () => {
                 // Only trigger mic if THIS specific source finished naturally
                 if (currentAudioSource === source) {
                     currentAudioSource = null;
-                    const wave = document.querySelector('.voice-wave');
-                    if (wave) wave.classList.remove('active');
+                    waves.forEach(w => w.classList.remove('active'));
 
                     const mic = document.getElementById('micBtn');
                     const callBtn = document.getElementById('callToggleBtn');
