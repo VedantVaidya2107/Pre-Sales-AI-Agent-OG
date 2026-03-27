@@ -3,12 +3,39 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from dotenv import load_dotenv
+from contextlib import asynccontextmanager
+import asyncio
 
 from routers import auth, clients, tracking, proposals, email, gemini, documents, voice
 
 load_dotenv()
 
-app = FastAPI(title="Fristine Presales Backend", redirect_slashes=False)
+# ── Keep-alive self-ping (prevents Render free tier from sleeping) ────────
+RENDER_URL = os.environ.get("RENDER_EXTERNAL_URL")  # Auto-set by Render
+
+async def keep_alive():
+    """Ping our own /health endpoint every 10 minutes to prevent Render sleep."""
+    if not RENDER_URL:
+        return  # Only run on Render, not locally
+    import httpx
+    url = f"{RENDER_URL}/health"
+    print(f"[Keep-Alive] Starting self-ping → {url}")
+    while True:
+        await asyncio.sleep(600)  # 10 minutes
+        try:
+            async with httpx.AsyncClient() as client:
+                r = await client.get(url, timeout=10)
+                print(f"[Keep-Alive] Pinged {url} → {r.status_code}")
+        except Exception as e:
+            print(f"[Keep-Alive] Ping failed: {e}")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    task = asyncio.create_task(keep_alive())
+    yield
+    task.cancel()
+
+app = FastAPI(title="Fristine Presales Backend", redirect_slashes=False, lifespan=lifespan)
 
 # CORS Middleware
 origins = [
@@ -50,3 +77,4 @@ app.include_router(voice.router)
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 3001))
     uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
+
