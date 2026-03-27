@@ -1026,6 +1026,7 @@ document.getElementById('msgIn').addEventListener('keydown', e => {
             callingMode = !callingMode;
             callBtn.classList.toggle('call-active', callingMode);
             document.body.classList.toggle('focus-mode-active', callingMode);
+            console.log('[Focus Mode]', callingMode ? 'ACTIVE' : 'OFF');
             
             const statusEl = document.getElementById('callStatus');
             const panel = document.querySelector('.chat-panel');
