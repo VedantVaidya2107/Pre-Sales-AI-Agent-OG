@@ -254,8 +254,19 @@ async function init() {
     initPasswordToggle();
     initKpis();
     const params = new URLSearchParams(window.location.search);
-    const clientId = params.get('client');
+    
+    // Explicit Logout Check (Fixes teleportation bug)
+    if (params.get('loggedout')) {
+        localStorage.removeItem('f_active_agent');
+        localStorage.removeItem('f_bot_memory');
+        window.history.replaceState({}, document.title, window.location.pathname);
+        showLdr('Logged out successfully...');
+        setTimeout(() => hideLdr(), 1000);
+        await bootStaffLogin();
+        return;
+    }
 
+    const clientId = params.get('client');
     if (clientId) {
         activeClientId = clientId;
         await bootClientSession(clientId);
@@ -437,11 +448,20 @@ async function startStaffPortal(agentEmail) {
 }
 
 function animateDashboardEntrance() {
-    const statCards = document.querySelectorAll('.stat-card');
-    statCards.forEach(c => c.classList.add('anim-in'));
+    gsap.from('.dash-topbar', { opacity: 0, y: -20, duration: 0.6, ease: 'power3.out' });
+    gsap.from('.stat-card', { 
+        opacity: 0, y: 30, scale: 0.9, 
+        duration: 0.6, stagger: 0.1, ease: 'back.out(1.7)' 
+    });
+    gsap.from('.table-wrap', { opacity: 0, y: 20, duration: 0.5, delay: 0.5, ease: 'power3.out' });
+}
 
-    gsap.from('.dash-topbar', { opacity: 0, y: -20, duration: 0.5, ease: 'power3.out' });
-    gsap.from('.table-wrap', { opacity: 0, y: 20, duration: 0.5, delay: 0.3, ease: 'power3.out' });
+function animateRows(selector) {
+    gsap.from(selector, {
+        opacity: 0, x: -15, 
+        duration: 0.4, stagger: 0.05, 
+        ease: 'power2.out', clearProps: 'all'
+    });
 }
 
 async function loadClientStatuses() {
@@ -560,8 +580,7 @@ async function renderClientTable(filter = '', forceRefresh = true) {
         tr.querySelector('.tbl-co-name').onclick   = () => openTracking(clientId);
     }
 
-    const rows = tbody.querySelectorAll('tr');
-    rows.forEach((row, i) => setTimeout(() => row.classList.add('anim-in'), i * 50));
+    animateRows('.client-table tbody tr');
 }
 
 function getClientStatus(events) {
@@ -808,11 +827,12 @@ function renderEventLog(evts) {
         return;
     }
     log.innerHTML = [...evts].reverse().map(e => `
-        <div class="event-row">
+        <div class="event-row anim-row">
             <div class="event-icon">${evtIcons[e.event] || '<svg viewBox="0 0 18 18" width="16" height="16" fill="none"><circle cx="9" cy="9" r="7" stroke="var(--dim)" stroke-width="1.5"/></svg>'}</div>
             <div class="event-desc">${evtLabels[e.event] || e.event}</div>
             <div class="event-time">${formatTime(e.timestamp)}</div>
         </div>`).join('');
+    animateRows('.anim-row');
 }
 
 function formatTime(ts) {
@@ -1246,6 +1266,13 @@ function initVoiceSystem() {
                 console.log('[Focus Mode] ACTIVE');
                 showToast('Calling Mode: ON (Hands-free)', 'success');
                 if (activeClientId) tracking.logEvent(activeClientId, 'conversation_started').catch(() => {});
+                
+                // GSAP Entrance for Focus Mode
+                gsap.fromTo('.calling-focus-overlay', 
+                    { opacity: 0, scale: 0.95, backdropFilter: 'blur(0px)' }, 
+                    { opacity: 1, scale: 1, backdropFilter: 'blur(20px)', duration: 0.5, ease: 'power3.out' }
+                );
+                gsap.from('.calling-agent-avatar', { scale: 0.5, duration: 0.8, delay: 0.2, ease: 'elastic.out(1, 0.5)' });
                 if (convo.length === 0) {
                     addUs("Start the discovery.");
                     convo.push({ role: 'user', content: "Please introduce yourself and start the discovery session." });
@@ -2056,10 +2083,23 @@ document.getElementById('downloadDocxBtn')?.addEventListener('click', async () =
 });
 
 /* ══ LOGOUT / BACK ══ */
-document.getElementById('staffLogout').addEventListener('click', () => { localStorage.removeItem('f_active_agent'); location.reload(); });
-document.getElementById('logoutBtn').addEventListener('click', () => { window.location.href = window.location.pathname; });
-document.getElementById('trackLogout').addEventListener('click', () => { localStorage.removeItem('f_active_agent'); location.reload(); });
-document.getElementById('backToDashBtn').addEventListener('click', () => { hide('T'); show('H'); renderClientTable(); });
+document.getElementById('staffLogout').addEventListener('click', () => { 
+    localStorage.removeItem('f_active_agent'); 
+    window.location.href = window.location.pathname + '?loggedout=true'; 
+});
+document.getElementById('logoutBtn').addEventListener('click', () => { 
+    window.location.href = window.location.pathname + '?loggedout=true'; 
+});
+document.getElementById('trackLogout').addEventListener('click', () => { 
+    localStorage.removeItem('f_active_agent'); 
+    window.location.href = window.location.pathname + '?loggedout=true'; 
+});
+document.getElementById('backToDashBtn').addEventListener('click', () => { 
+    const timeline = gsap.timeline();
+    timeline.to('#T', { opacity: 0, x: 20, duration: 0.3, onComplete: () => hide('T') });
+    timeline.fromTo('#H', { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.3, onStart: () => show('H') });
+    renderClientTable(); 
+});
 
 /* ══ THEME ══ */
 function initTheme() {

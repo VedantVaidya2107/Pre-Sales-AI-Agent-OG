@@ -1116,11 +1116,12 @@ body.focus-mode-active .exit-call-btn {
 
 /* ─── Enhanced table hover ─── */
 .client-table tbody tr {
-  transition: background .15s, transform .15s, box-shadow .15s;
+  transition: background .3s cubic-bezier(.4,0,.2,1), transform .3s cubic-bezier(.34,1.56,.64,1);
 }
 .client-table tbody tr:hover {
   background: var(--bg);
-  transform: translateX(2px);
+  transform: translateX(4px);
+  box-shadow: inset 4px 0 0 var(--navy);
 }
 
 /* ─── Button ripple effect ─── */
@@ -1154,11 +1155,12 @@ body.focus-mode-active .exit-call-btn {
 
 /* ─── Enhanced section cards ─── */
 .section-card {
-  transition: transform .2s, box-shadow .2s;
+  transition: transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease, border-color .3s ease;
 }
 .section-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shd2);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0,0,0,.08);
+  border-color: var(--navy);
 }
 
 /* ─── Pipeline step animation ─── */
