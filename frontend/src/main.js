@@ -266,6 +266,22 @@ async function init() {
         return;
     }
 
+    // Client/Agent Exit Check
+    if (params.get('exit')) {
+        const agent = localStorage.getItem('f_active_agent');
+        window.history.replaceState({}, document.title, window.location.pathname);
+        if (agent) {
+            // Agent was testing - take them back to portal
+            showLdr('Returning to portal...');
+            setTimeout(() => { hideLdr(); startStaffPortal(agent); }, 800);
+        } else {
+            // True client - show Thank You screen
+            hideLdr();
+            hide('A'); show('SE');
+        }
+        return;
+    }
+
     const clientId = params.get('client');
     if (clientId) {
         activeClientId = clientId;
@@ -2088,7 +2104,7 @@ document.getElementById('staffLogout').addEventListener('click', () => {
     window.location.href = window.location.pathname + '?loggedout=true'; 
 });
 document.getElementById('logoutBtn').addEventListener('click', () => { 
-    window.location.href = window.location.pathname + '?loggedout=true'; 
+    window.location.href = window.location.pathname + '?exit=true'; 
 });
 document.getElementById('trackLogout').addEventListener('click', () => { 
     localStorage.removeItem('f_active_agent'); 
