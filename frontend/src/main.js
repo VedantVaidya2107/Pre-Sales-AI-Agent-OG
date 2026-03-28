@@ -18,6 +18,7 @@ let currentTrackingClient = null;
 let activeClientId = null;
 let activeKpiFilter = 'all';
 let clientStatuses = {};
+let callingMode = false;
 let voiceEnabled = false; 
 let audioContext = null;
 let currentAudioSource = null; 
@@ -1059,13 +1060,13 @@ document.getElementById('msgIn').addEventListener('keydown', e => {
                     convo.push({ role: 'user', content: "Please introduce yourself and start the discovery session." });
                     const resp = await gem(ZK + "\n\nUser is ready. Start Phase 1.", 1000, 0.7, false, convo);
                     convo.push({ role: 'assistant', content: resp });
-                    addAg(resp); // This now handles playVoice internally if callingMode is true
+                    addAg(resp);
                 } else {
-                    // Prompt the last message if we just re-entered
-                    const lastAg = Array.from(document.querySelectorAll('.msg.ag')).pop();
-                    if (lastAg && lastAg.innerText) {
-                        playVoice(lastAg.innerText);
-                    }
+                    // Context-aware re-entry for "Trained" feel
+                    const progressNudge = `[SYSTEM: User has switched to VOICE/CALL mode. Current Progress: ${rn}/10. Current Client: ${cli?.company || 'Unknown'}. ${fileContent ? 'A document is uploaded.' : ''} Welcome them back to the voice discovery and continue from where we left off naturally.]`;
+                    const resp = await gem(ZK + "\n\n" + progressNudge, 1000, 0.7, false, convo);
+                    convo.push({ role: 'assistant', content: resp });
+                    addAg(resp);
                 }
             } else {
                 if (statusEl) statusEl.classList.add('hidden');
