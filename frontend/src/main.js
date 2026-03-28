@@ -24,6 +24,7 @@ let audioContext = null;
 let currentAudioSource = null; 
 let voiceQueue = [];
 let isProcessingVoice = false;
+let isFetchingReply = false; // Prevents overlapping Gemini calls in continuous mode
 
 let voiceSocket = null;
 let mediaRecorder = null;
@@ -113,23 +114,33 @@ async function startRecording() {
 
         voiceSocket.onmessage = (message) => {
             const received = JSON.parse(message.data);
-            const transcript = received.channel.alternatives[0].transcript;
+            const transcript = received.channel?.alternatives[0]?.transcript;
             
             const inp = document.getElementById('msgIn');
-            if (transcript && received.is_final && inp) {
+            if (transcript && received.is_final && inp && !isFetchingReply) {
                 inp.value += transcript + ' ';
-            } else if (transcript && inp) {
+            } else if (transcript && inp && !isFetchingReply) {
                 inp.placeholder = transcript + '...';
             }
             
-            // Auto-send Voice Activity Detection (VAD)
-            if (callingMode) {
+            // Auto-send Voice Activity Detection (VAD) & Barge-In
+            if (callingMode && !isFetchingReply) {
                 if (transcript) {
+                    
+                    // BARGE-IN: If agent is speaking, interrupt!
+                    if (isProcessingVoice || currentAudioSource || voiceQueue.length > 0) {
+                        console.log('[Voice] BARGE-IN Detected! Stopping playback.');
+                        if (currentAudioSource) { try { currentAudioSource.stop(); } catch(e){} currentAudioSource = null; }
+                        voiceQueue = [];
+                        isProcessingVoice = false;
+                        const waves = document.querySelectorAll('.large-voice-wave');
+                        waves.forEach(w => w.classList.remove('active'));
+                    }
+
                     clearTimeout(speechTimeout);
                     speechTimeout = setTimeout(() => {
                         if (inp?.value.trim().length > 0) {
                             console.log('[Voice] VAD Timeout triggers send.');
-                            stopRecording();
                             document.getElementById('sendBtn').click();
                         }
                     }, 2000); // 2 seconds of silence fallback
@@ -138,17 +149,19 @@ async function startRecording() {
                 if (received.speech_final && inp?.value.trim().length > 0) {
                     clearTimeout(speechTimeout);
                     console.log('[Voice] Deepgram Endpointing triggers send.');
-                    stopRecording();
                     document.getElementById('sendBtn').click();
                 }
             } else {
-                if (transcript) console.log('[Voice] Transcript:', transcript);
+                if (transcript && !callingMode) console.log('[Voice] Transcript:', transcript);
             }
         };
 
         voiceSocket.onclose = () => {
             console.log('[Voice] WebSocket CLOSE');
-            stopRecording();
+            // If we are still in calling mode, we should NOT call stopRecording,
+            // as we want to stay "Listening". But if it closed unexpectedly,
+            // we might need a reconnect logic later. For now, stop only if call is over.
+            if (!callingMode) stopRecording();
         };
 
         voiceSocket.onerror = (err) => {
@@ -157,7 +170,7 @@ async function startRecording() {
                 globalStream.getTracks().forEach(t => t.stop());
                 globalStream = null;
             } else {
-                stream.getTracks().forEach(t => t.stop());
+                if(stream) stream.getTracks().forEach(t => t.stop());
             }
             showToast('Deepgram connection failed.', 'error');
             stopRecording();
@@ -1088,9 +1101,12 @@ document.getElementById('sendBtn').addEventListener('click', async () => {
     rn++;
     updateCov(Math.min(95, 10 + rn * 8.5));
     showTypingIndicator();
+    isFetchingReply = true;
     try {
         const resp = await nextQ();
         removeTypingIndicator();
+        isFetchingReply = false;
+        
         if (!resp) return; 
         const potentialJson = safeJ(resp);
         if (resp.includes('REQUIREMENTS_COMPLETE')) {
@@ -1121,6 +1137,7 @@ document.getElementById('sendBtn').addEventListener('click', async () => {
         }
     } catch (e) {
         removeTypingIndicator();
+        isFetchingReply = false;
         console.error('[nextQ error]', e);
         if (rn >= 10) {
             discoveryComplete = true;
@@ -1231,8 +1248,11 @@ function initVoiceSystem() {
                     convo.push({ role: 'assistant', content: resp });
                     addAg(resp);
                 }
+                // Start persistent mic loop
+                setMicState(true);
             } else {
                 voiceQueue = [];
+                isFetchingReply = false;
                 if (currentAudioSource) {
                     try { currentAudioSource.stop(); } catch(e){}
                     currentAudioSource = null;
@@ -1244,6 +1264,7 @@ function initVoiceSystem() {
                     console.log('[Voice] Global Stream Stopped');
                 }
                 setMicState(false);
+                stopRecording(); // Fully clean up socket/recorder
                 showToast('Calling Mode: OFF (Manual)', 'success');
             }
         }
@@ -2205,11 +2226,7 @@ async function processVoiceQueue() {
                 if (currentAudioSource === source) {
                     currentAudioSource = null;
                     waves.forEach(w => w.classList.remove('active'));
-                    
-                    if (callingMode && voiceQueue.length === 0) {
-                        // Use the shared setMicState function for stability
-                        setMicState(true); 
-                    }
+                    // Note: setMicState(true) removed as mic is now continuous
                 }
                 processVoiceQueue(); 
             };
