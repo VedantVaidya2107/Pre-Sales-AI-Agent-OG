@@ -1013,7 +1013,7 @@ document.getElementById('msgIn').addEventListener('keydown', e => {
     let socket = null;
     let mediaRecorder = null;
     let listening = false;
-    let callingMode = true; // Enabled by default for "Calling Agent" experience
+    // Removed local callingMode let shadowing global state
 
     const callBtn = document.getElementById('callToggleBtn');
     if (callBtn) {
