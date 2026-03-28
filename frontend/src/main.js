@@ -1121,11 +1121,13 @@ document.getElementById('sendBtn').addEventListener('click', async () => {
             if (parts[0].trim()) addAg(parts[0].trim());
             reqs = safeJ(parts[1]) || { summary: 'Requirement analysis complete', must_have: ['Zoho Consultation'] };
             discoveryComplete = true;
+            if (activeClientId) tracking.logEvent(activeClientId, 'proposal_generated').catch(() => {});
             showReqSummary();
         } else if (potentialJson && (potentialJson.must_have || potentialJson.pain_points)) {
             // Handle cases where the AI forced JSON output and omitted the keyword
             reqs = potentialJson;
             discoveryComplete = true;
+            if (activeClientId) tracking.logEvent(activeClientId, 'proposal_generated').catch(() => {});
             showReqSummary();
         } else if (resp.includes('INITIATE_PROPOSAL_BUILD')) {
             const cleanResp = resp.replace('INITIATE_PROPOSAL_BUILD', '').trim();
@@ -1243,6 +1245,7 @@ function initVoiceSystem() {
             if (callingMode) {
                 console.log('[Focus Mode] ACTIVE');
                 showToast('Calling Mode: ON (Hands-free)', 'success');
+                if (activeClientId) tracking.logEvent(activeClientId, 'conversation_started').catch(() => {});
                 if (convo.length === 0) {
                     addUs("Start the discovery.");
                     convo.push({ role: 'user', content: "Please introduce yourself and start the discovery session." });

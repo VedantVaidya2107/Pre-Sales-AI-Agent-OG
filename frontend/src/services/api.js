@@ -58,27 +58,37 @@ function mockClients() {
 }
 
 function mockTracking() {
-  const _store = {};
+  const getKey = (id) => `mock_tracking_${id}`;
   return {
-    getEvents: (id)          => Promise.resolve(_store[id] || []),
-    logEvent:  (id, event)   => {
-      if (!_store[id]) _store[id] = [];
-      _store[id].push({ event, timestamp: new Date().toISOString() });
+    getEvents: (id) => {
+      const data = localStorage.getItem(getKey(id));
+      return Promise.resolve(data ? JSON.parse(data) : []);
+    },
+    logEvent: (id, event) => {
+      const data = localStorage.getItem(getKey(id));
+      const evts = data ? JSON.parse(data) : [];
+      evts.unshift({ event, timestamp: new Date().toISOString() });
+      localStorage.setItem(getKey(id), JSON.stringify(evts));
       return Promise.resolve({ success: true });
     },
   };
 }
 
 function mockProposals() {
-  const _store = {};
+  const getKey = (id) => `mock_proposals_${id}`;
   return {
-    get:    (id)             => Promise.resolve(_store[id] || null),
-    save:   (id, html, title)=> {
-      const prev = _store[id] || { versions: [] };
-      _store[id] = { versions: [...prev.versions, { version: prev.versions.length + 1, proposal_html: html, title, savedAt: new Date().toISOString() }] };
+    get: (id) => {
+      const data = localStorage.getItem(getKey(id));
+      return Promise.resolve(data ? JSON.parse(data) : null);
+    },
+    save: (id, html, title) => {
+      const data = localStorage.getItem(getKey(id));
+      const prev = data ? JSON.parse(data) : { versions: [] };
+      const next = { versions: [...prev.versions, { version: prev.versions.length + 1, proposal_html: html, title, savedAt: new Date().toISOString() }] };
+      localStorage.setItem(getKey(id), JSON.stringify(next));
       return Promise.resolve({ success: true });
     },
-    update: (id, html, ver)  => Promise.resolve({ success: true }),
+    update: (id, html, ver) => Promise.resolve({ success: true }),
   };
 }
 
