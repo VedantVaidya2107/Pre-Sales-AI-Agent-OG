@@ -9,9 +9,9 @@ const MOCK_AGENTS = {
 };
 
 const MOCK_CLIENTS = [
-  { client_id: 'DEMO-001', company: 'Acme Corp',      industry: 'Manufacturing', email: 'acme@example.com' },
-  { client_id: 'DEMO-002', company: 'TechStart Ltd',  industry: 'Technology',    email: 'ts@example.com' },
-  { client_id: 'DEMO-003', company: 'RetailPro',      industry: 'Retail',        email: 'rp@example.com' },
+  { client_id: 'DEMO-001', company: 'Acme Corp',      industry: 'Manufacturing', email: 'acme@example.com', created_at: '2026-01-15T10:00:00Z' },
+  { client_id: 'DEMO-002', company: 'TechStart Ltd',  industry: 'Technology',    email: 'ts@example.com',   created_at: '2026-02-10T14:30:00Z' },
+  { client_id: 'DEMO-003', company: 'RetailPro',      industry: 'Retail',        email: 'rp@example.com',   created_at: '2026-03-25T09:15:00Z' },
 ];
 
 let _mockMode = false;
@@ -42,7 +42,11 @@ function mockClients() {
     get:    (id)        => Promise.resolve(_mockClientStore.find(c => c.client_id === id) || null),
     nextId: ()          => Promise.resolve({ next_id: `DEMO-${String(_mockClientStore.length + 1).padStart(3, '0')}` }),
     create: (data)      => {
-      const c = { ...data, client_id: `DEMO-${String(_mockClientStore.length + 1).padStart(3, '0')}` };
+      const c = { 
+        ...data, 
+        client_id: `DEMO-${String(_mockClientStore.length + 1).padStart(3, '0')}`,
+        created_at: new Date().toISOString()
+      };
       _mockClientStore.push(c);
       return Promise.resolve(c);
     },

@@ -26,6 +26,15 @@ let voiceQueue = [];
 let isProcessingVoice = false;
 let isFetchingReply = false; // Prevents overlapping Gemini calls in continuous mode
 
+/* ══ DISCOVERY STATE ══ */
+const discoveryProgress = {
+    metrics: false,
+    economicBuyer: false,
+    pain: false,
+    champion: false,
+    timeline: false
+};
+
 let voiceSocket = null;
 let mediaRecorder = null;
 let listening = false;
@@ -203,50 +212,78 @@ function stopRecording() {
 }
 
 
-/* ══ ENHANCED ZOHO KNOWLEDGE BASE WITH NATURAL LANGUAGE UNDERSTANDING ══ */
-const ZK = `# ROLE
-You are the Fristine Strategic Solutions Architect, representing Fristine Infotech, India's leading Premium Zoho Partner. Your goal is to conduct a world-class MEDDPICC-driven discovery session.
+/* ══ ARYA: STRATEGIC SOLUTIONS ARCHITECT (SYSTEM INSTRUCTIONS) ══ */
+const ZK = `You are Arya, a Strategic Solutions Architect at Fristine Infotech, India's leading Zoho Premium Partner.
 
-# CONVERSATIONAL BRIDGE (HIGHEST PRIORITY)
-If the user asks a personal question about Fristine, Zoho, or your capabilities (e.g., "Who is Fristine?", "Tell me about Zoho", "What do you do?"), YOU MUST ANSWER IT FIRST using the # ABOUT FRISTINE INFOTECH section. 
-Provide a detailed, professional answer (~30-50 words). 
-Then, and ONLY then, add a smooth transition: "Coming back to our discovery..." followed by your next technical question for the current phase.
+## Core Identity
+- **Expertise**: 500+ successful Zoho implementations (CRM, Books, People, Creator, Desk, Analytics)
+- **Approach**: Consultative, not transactional. You uncover the *business impact* of operational inefficiencies.
+- **Tone**: Authoritative yet approachable. You speak like a trusted advisor who's "seen this 100 times."
 
-# ABOUT FRISTINE INFOTECH
-1. Partnership: Zoho Premium Partner since 2014.
-2. Expertise: 200+ successful Zoho transformations across CRM, Books, Analytics, Projects, and Creator.
-3. Services: Strategic consulting, end-to-end implementation, custom development (Deluge), and 24/7 support.
-4. Scale: Teams in Mumbai and Pune, serving global enterprise clients.
-5. Brand: Known for high-fidelity technical architecting and business process automation.
+## Discovery Framework (MEDDPICC)
 
-# PRIME DIRECTIVE
-If an "UPLOADED FILE" or "BRD" is present in your context: 
-1. YOU ARE NOT DISCOVERING PAIN FROM SCRATCH. 
-2. You must identify as an architect who has ALREADY READ the document.
-3. Your goal shifts from "Discovery" to "Requirement Validation & Mapping".
-4. Prioritize the specific modules (SAP, TSL Cares, Zoho Plus) and workflows (FRT, CIR, CAPA) mentioned in the document.
+### Metrics
+Ask: "What KPI are you currently struggling to move? Revenue per rep? Customer churn? Invoice turnaround time?"
+*Goal: Quantify the pain. Get a hard number.*
 
-# OPERATIONAL PROTOCOL
-1. Tone: Consultative, expert-level, and professional.
-2. Methodology (MEDDPICC): Identify Metrics, Economic Buyer, Decision Criteria, etc.
-3. Zoho Expertise: Recommend specific Zoho modules (CRM, Books, Analytics, Creator, Desk).
-4. Data Extraction: Continuously extract user count, legacy systems, and go-live timelines.
+### Economic Buyer
+Ask: "Who ultimately signs off on technology investments at your organization? How do they typically measure ROI?"
+*Goal: Identify decision-maker and their success criteria.*
 
-# CALLING AGENT FEATURE (TRIGGER)
-... (standard trigger logic used below) ...
+### Decision Criteria
+Ask: "When you've evaluated tools in the past, what made you choose one over another? Was it ease of use? Customization? Support?"
+*Goal: Understand their buying psychology.*
 
-# CONVERSATION STRUCTURE (FOR NO-FILE SCENARIOS)
-- Phase 1 (Intro): Set agenda.
-- Phase 2 (Pain & Metrics): Identify broken processes.
-- Phase 3 (Scoping): Technical discovery.
-- Phase 4 (Validation): Confirm Decision Process.
-- Phase 5 (Closure): Proposal generation.
+### Decision Process
+Ask: "Walk me through how a purchase like this would move through your organization. Who needs to be involved?"
+*Goal: Map the approval chain. Identify blockers early.*
 
-# CONSTRAINTS
-- Keep responses concise (under 100 words).
-- If a document is uploaded, DO NOT ask "What can I help you with today?". Instead, give a brief technical summary of what you read and ask for validation of a specific complex requirement from the document.
-- Support Hinglish context but maintain a professional English output.
-- CONVERSATIONAL BRIDGE: If the user asks a personal question about Fristine, Zoho, or your capabilities, YOU MUST ANSWER IT FIRST using the # ABOUT FRISTINE INFOTECH section. After answering, add a smooth transition: "Coming back to our discovery..." followed by your next technical question. 
+### Paper Process
+Ask: "Once we align on a solution, what does your contracting process look like? Any security reviews or legal hurdles?"
+*Goal: Forecast timeline. Set expectations.*
+
+### Identify Pain
+Ask: "If you do nothing—if you keep using spreadsheets/legacy CRM—what happens in 6 months? What's the cost of inaction?"
+*Goal: Create urgency by making the status quo unacceptable.*
+
+### Champion
+Ask: "Who internally would benefit most from this working? Who would you want involved in implementation?"
+*Goal: Find your internal advocate.*
+
+## Objection Handling Framework
+
+### Objection: "Zoho seems expensive compared to [competitor]"
+**Response**: "I hear that. Let me ask: what's the cost of your current workarounds? When your sales team spends 3 hours/week chasing data in spreadsheets, that's ₹X lost per quarter. Zoho isn't a cost—it's a recovery of wasted labor. Plus, we offer phased rollouts to spread investment."
+
+### Objection: "We're not sure we need all these modules"
+**Response**: "You don't. That's the advantage—Zoho is modular. We start with your biggest pain point (usually CRM or Books), prove ROI in 60 days, then expand. You only pay for what you use."
+
+### Objection: "We tried Zoho before and it didn't stick"
+**Response**: "That's common, and it's usually a change management failure. What made the team abandon it? We build adoption plans into every implementation—training, champions, phased cutover. Zoho is a tool; we provide the strategy."
+
+### Objection: "Timeline is too long (6-8 weeks)"
+**Response**: "Fair. But rushed implementations fail 70% of the time. Our timeline ensures clean migration, proper workflows, and team adoption. Are you solving a crisis or building for scale?"
+
+## Client-Tier Adaptive Responses
+
+### SMB (₹50L-2Cr revenue)
+- **Positioning**: "Zoho Books + CRM gives you CFO-level dashboards for ₹15K/month. You'll cut invoicing time by 60%."
+
+### Mid-Market (₹2Cr-20Cr)
+- **Positioning**: "Zoho One unifies your operations—sales, finance, HR—so leadership has one source of truth."
+
+### Enterprise (₹20Cr+)
+- **Positioning**: "We integrate Zoho with your ERP/SAP. Think of it as a modern layer for customer ops, without ripping out core infrastructure."
+
+## Conversation Recovery
+- Silence > 15s: "I've thrown a lot at you—let me pause. What's your biggest question right now?"
+- Vague Answers: "I want to make sure I'm not wasting your time. Can you give me an example of how [pain point] shows up day-to-day?"
+
+## Fristine Positioning
+"We've implemented Zoho for 500+ companies. What sets us apart:
+1. **Speed**: We use industry templates, not building from scratch.
+2. **Support**: Dedicated account manager + 24/7 local helpdesk.
+3. **Proof**: ROI in 60 days. Motilal Oswal, Tata Steel, ENAM—these aren't experiments."
 `;
 
 /* ══ PROPOSAL SPECIALIST MODE (FOR DOCUMENT GENERATION) ══ */
@@ -304,6 +341,18 @@ async function init() {
     } else {
         await bootStaffLogin();
     }
+
+    document.getElementById('timeFilter')?.addEventListener('change', () => renderPipelineTrends());
+
+    // Performance: Only animate if visible
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animate-in');
+            }
+        });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.stat-card').forEach(card => observer.observe(card));
 }
 
 async function bootStaffLogin() {
@@ -542,12 +591,33 @@ async function startStaffPortal(agentEmail) {
 }
 
 function animateDashboardEntrance() {
-    gsap.from('.dash-topbar', { opacity: 0, y: -20, duration: 0.6, ease: 'power3.out' });
-    gsap.from('.stat-card', { 
-        opacity: 0, y: 30, scale: 0.9, 
-        duration: 0.6, stagger: 0.1, ease: 'back.out(1.7)' 
+    // Staggered card entrance with physics-based easing
+    gsap.from('.stat-card', {
+        y: 60,
+        opacity: 0,
+        stagger: 0.12,
+        duration: 0.8,
+        ease: 'back.out(1.4)',
+        clearProps: 'all'
     });
-    gsap.from('.table-wrap', { opacity: 0, y: 20, duration: 0.5, delay: 0.5, ease: 'power3.out' });
+    
+    // Table container lift
+    gsap.from('.table-wrap', { 
+        opacity: 0, y: 30, 
+        duration: 0.6, delay: 0.4, 
+        ease: 'power3.out' 
+    });
+
+    // Table rows cascade
+    gsap.delayedCall(0.5, () => {
+        gsap.from('.client-row-visible', {
+            x: -30,
+            opacity: 0,
+            stagger: 0.08,
+            duration: 0.6,
+            ease: 'power2.out'
+        });
+    });
 }
 
 function animateRows(selector) {
@@ -637,44 +707,110 @@ async function renderClientTable(filter = '', forceRefresh = true) {
     }
 
     if (filtered.length === 0) {
+        console.log('[Table] No clients to show.', { filter, activeKpiFilter, total: allClients.length });
         tbody.innerHTML = `<tr><td colspan="5" class="tbl-empty">${filter || activeKpiFilter !== 'all' ? 'No results found.' : 'No clients yet. Add a lead to get started.'}</td></tr>`;
+        renderPipelineTrends();
         return;
     }
 
     tbody.innerHTML = '';
-    for (const client of filtered) {
-        const clientId = client.client_id || '';
-        const status = clientStatuses[clientId] || getClientStatus([]);
+    console.log('[Table] Rendering rows:', filtered.length);
+    
+    filtered.forEach(client => {
+        try {
+            const clientId = client.client_id || 'ID-ERR';
+            const status = clientStatuses[clientId] || getClientStatus([]);
+            const coName = client.company || 'Unknown Company';
+            const coIco  = coName.charAt(0).toUpperCase() || '?';
 
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>
-                <div class="tbl-co-wrap">
-                    <div class="tbl-co-ico">${(client.company || '?')[0].toUpperCase()}</div>
-                    <div>
-                        <div class="tbl-co-name">${client.company || '—'}</div>
-                        <div class="tbl-co-id">${clientId || '—'}</div>
+            const tr = document.createElement('tr');
+            tr.className = 'client-row-visible';
+            tr.innerHTML = `
+                <td>
+                    <div class="tbl-co-wrap">
+                        <div class="tbl-co-ico">${coIco}</div>
+                        <div>
+                            <div class="tbl-co-name">${coName}</div>
+                            <div class="tbl-co-id">${clientId}</div>
+                        </div>
                     </div>
-                </div>
-            </td>
-            <td><span class="tbl-industry">${client.industry || '—'}</span></td>
-            <td><span class="tbl-email">${client.email || '—'}</span></td>
-            <td>${renderStatusBadge(status)}</td>
-            <td>
-                <div class="tbl-actions">
-                    <button class="btn-tbl btn-tbl-send">Send Bot</button>
-                    <button class="btn-tbl btn-tbl-track">Track</button>
-                    <button class="btn-tbl btn-tbl-del">Delete</button>
-                </div>
-            </td>`;
-        tbody.appendChild(tr);
-        tr.querySelector('.btn-tbl-send').onclick  = () => sendBotEmail(clientId);
-        tr.querySelector('.btn-tbl-track').onclick = () => openTracking(clientId);
-        tr.querySelector('.btn-tbl-del').onclick   = () => deleteLead(clientId);
-        tr.querySelector('.tbl-co-name').onclick   = () => openTracking(clientId);
+                </td>
+                <td class="tbl-cell-visible"><span class="tbl-industry">${client.industry || '—'}</span></td>
+                <td class="tbl-cell-visible"><span class="tbl-email">${client.email || '—'}</span></td>
+                <td class="tbl-cell-visible">${renderStatusBadge(status)}</td>
+                <td>
+                    <div class="tbl-actions">
+                        <button class="btn-tbl btn-tbl-send">Send Bot</button>
+                        <button class="btn-tbl btn-tbl-track">Track</button>
+                        <button class="btn-tbl btn-tbl-del">Delete</button>
+                    </div>
+                </td>`;
+            
+            tbody.appendChild(tr);
+
+            // Safer listener attachment
+            const sBtn = tr.querySelector('.btn-tbl-send');
+            const tBtn = tr.querySelector('.btn-tbl-track');
+            const dBtn = tr.querySelector('.btn-tbl-del');
+            const nBtn = tr.querySelector('.tbl-co-name');
+
+            if (sBtn) sBtn.onclick = () => sendBotEmail(clientId);
+            if (tBtn) tBtn.onclick = () => openTracking(clientId);
+            if (dBtn) dBtn.onclick = () => deleteLead(clientId);
+            if (nBtn) nBtn.onclick = (e) => { e.stopPropagation(); openTracking(clientId); };
+            
+        } catch (err) {
+            console.error('[Table] Row render fail:', err, client);
+        }
+    });
+
+    renderPipelineTrends();
+}
+
+function renderPipelineTrends() {
+    const grid = document.getElementById('metricsGrid');
+    if (!grid) return;
+
+    const filter = document.getElementById('timeFilter')?.value || 'all';
+    const now = new Date();
+    const months = [];
+    
+    // Determine month count: 3, 6, 12 or all (default 12 for trends)
+    let monthCount = 12;
+    if (filter === '3') monthCount = 3;
+    else if (filter === '6') monthCount = 6;
+    else if (filter === '12') monthCount = 12;
+
+    for (let i = monthCount - 1; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        months.push({
+            key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`,
+            label: d.toLocaleString('en-US', { month: 'short' }),
+            count: 0
+        });
     }
 
-    animateRows('.client-table tbody tr');
+    allClients.forEach(c => {
+        if (!c.created_at) return;
+        const cd = new Date(c.created_at);
+        const key = `${cd.getFullYear()}-${String(cd.getMonth() + 1).padStart(2, '0')}`;
+        const match = months.find(m => m.key === key);
+        if (match) match.count++;
+    });
+
+    const max = Math.max(...months.map(m => m.count), 1);
+    grid.innerHTML = months.map(m => {
+        const h = (m.count / max) * 100;
+        return `
+            <div class="trend-col">
+                <div class="trend-val">${m.count}</div>
+                <div class="trend-bar-wrap">
+                    <div class="trend-bar" style="--final-height: ${h}%"></div>
+                </div>
+                <div class="trend-lbl">${m.label}</div>
+            </div>
+        `;
+    }).join('');
 }
 
 function getClientStatus(events) {
@@ -698,7 +834,7 @@ function getClientStatus(events) {
 function renderStatusBadge(s) {
     if (s.submitted) return '<span class="badge badge-done"><svg viewBox="0 0 16 16" width="12" height="12" fill="none"><path d="M3.5 8l3 3 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Submitted</span>';
     if (s.proposal)  return '<span class="badge badge-proposal"><svg viewBox="0 0 16 16" width="12" height="12" fill="none"><rect x="3" y="2" width="10" height="12" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M6 5h4M6 8h4M6 11h2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> Proposal Ready</span>';
-    if (s.active)    return '<span class="badge badge-active"><svg viewBox="0 0 16 16" width="12" height="12" fill="none"><path d="M2 4h12v7a2 2 0 01-2 2H4a2 2 0 01-2-2V4z" stroke="currentColor" stroke-width="1.5"/><path d="M5 7.5h6M5 10h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> In Session</span>';
+    if (s.active)    return '<span class="badge badge-active active"><svg viewBox="0 0 16 16" width="12" height="12" fill="none"><path d="M2 4h12v7a2 2 0 01-2 2H4a2 2 0 01-2-2V4z" stroke="currentColor" stroke-width="1.5"/><path d="M5 7.5h6M5 10h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> In Session</span>';
     if (s.accessed)  return '<span class="badge badge-accessed"><svg viewBox="0 0 16 16" width="12" height="12" fill="none"><path d="M8 3C4 3 1 8 1 8s3 5 7 5 7-5 7-5-3-5-7-5z" stroke="currentColor" stroke-width="1.5"/><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.5"/></svg> Accessed</span>';
     if (s.sent)      return '<span class="badge badge-sent"><svg viewBox="0 0 16 16" width="12" height="12" fill="none"><path d="M2 4l6 4 6-4M2 4h12v8H2V4z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Sent</span>';
     return '<span class="badge badge-pending"><svg viewBox="0 0 16 16" width="12" height="12" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Not Started</span>';
@@ -1233,6 +1369,7 @@ document.getElementById('sendBtn').addEventListener('click', async () => {
     inp.value = '';
     rn++;
     updateCov(Math.min(95, 10 + rn * 8.5));
+    evaluateDiscoveryCompleteness(msg);
     showTypingIndicator();
     isFetchingReply = true;
     try {
@@ -2428,6 +2565,30 @@ function showToast(message, type = 'success') {
         t.classList.add('exiting');
         setTimeout(() => t.remove(), 300);
     }, 3000);
+}
+
+function evaluateDiscoveryCompleteness(transcript) {
+    const t = transcript.toLowerCase();
+    if (t.includes('kpi') || t.includes('metric') || t.includes('revenue')) discoveryProgress.metrics = true;
+    if (t.includes('buy') || t.includes('sign off') || t.includes('budget')) discoveryProgress.economicBuyer = true;
+    if (t.includes('pain') || t.includes('challenge') || t.includes('issue')) discoveryProgress.pain = true;
+    if (t.includes('champion') || t.includes('involved') || t.includes('team')) discoveryProgress.champion = true;
+    if (t.includes('when') || t.includes('timeline') || t.includes('ready')) discoveryProgress.timeline = true;
+    
+    updateDiscoveryUI();
+}
+
+function updateDiscoveryUI() {
+    const items = Object.values(discoveryProgress).filter(Boolean).length;
+    const pct = (items / 5) * 100;
+    const cvb = document.getElementById('cvb');
+    const cvp = document.getElementById('cvp');
+    if (cvb) cvb.style.width = pct + '%';
+    if (cvp) cvp.textContent = Math.round(pct) + '%';
+    
+    if (items >= 4 && !discoveryComplete) {
+        console.log('[Discovery] Strategic criteria met.');
+    }
 }
 
 /* ══ BOOT ══ */

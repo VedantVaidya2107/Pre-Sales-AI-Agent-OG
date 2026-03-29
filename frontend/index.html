@@ -270,6 +270,22 @@
                     </div>
                 </div>
 
+                <!-- ─── DASHBOARD METRICS ─── -->
+                <div class="metrics-section">
+                    <div class="metrics-header">
+                        <div class="metrics-title">Growth Trends</div>
+                        <select class="filter-select" id="timeFilter">
+                            <option value="6">Last 6 Months</option>
+                            <option value="12">Last 12 Months</option>
+                            <option value="3">LastQuarter</option>
+                            <option value="all" selected>All Time</option>
+                        </select>
+                    </div>
+                    <div class="metrics-grid" id="metricsGrid">
+                        <!-- Bars dynamically loaded -->
+                    </div>
+                </div>
+
                 <div class="table-wrap">
                     <div class="table-header">
                         <div class="table-search-wrap">
