@@ -330,17 +330,24 @@ async function init() {
     if (params.get('exit')) {
         const agent = localStorage.getItem('f_active_agent');
         window.history.replaceState({}, document.title, window.location.pathname);
+        hideLdr();
+        hide('A'); show('SE'); // Always show Thank You screen for clients
+        
         if (agent) {
-            // Agent was testing - take them back to portal
-            showLdr('Returning to portal...');
-            setTimeout(() => { hideLdr(); startStaffPortal(agent); }, 800);
-        } else {
-            // True client - show Thank You screen
-            hideLdr();
-            hide('A'); show('SE');
+             // If we're an agent, add a helpful link back home
+             const card = document.querySelector('#SE .auth-card');
+             if (card) {
+                 const backBtn = document.createElement('button');
+                 backBtn.className = 'btn-primary w-full mt-12';
+                 backBtn.style.marginTop = '12px';
+                 backBtn.innerText = '← Back to Agent Dashboard';
+                 backBtn.onclick = () => { showLdr('Returning to portal...'); setTimeout(() => { hideLdr(); startStaffPortal(agent); }, 500); };
+                 card.appendChild(backBtn);
+             }
         }
         return;
     }
+
 
     const clientId = params.get('client');
     if (clientId) {
