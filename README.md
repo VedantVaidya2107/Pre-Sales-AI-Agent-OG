@@ -33,8 +33,9 @@ Built using **FastAPI**, **React (Vite)**, and **Google Gemini 1.5**, this platf
 ## 🏗️ Architecture
 
 ```text
-Pre-Sales-Agent-main/
+AI-2-/
 ├── backend/               # FastAPI + Supabase Backend
+
 │   ├── main.py            # App entry point & Routing
 │   ├── routers/           # Specialized API domains (Auth, Proposals, Tracking, Gemini)
 │   └── utils/             # Supabase client & utility functions

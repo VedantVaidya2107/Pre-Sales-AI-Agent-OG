@@ -28,14 +28,15 @@ def generate(req: GenerateRequest):
     try:
         client = genai.Client(api_key=api_key)
 
-        # 🔁 Model selection logic (same as your current logic)
+        # 🔁 Model selection logic
         model_name = (
-            "gemini-2.5-pro"
+            "gemini-1.5-pro"
             if req.forcePro
             or "json" in req.prompt.lower()
             or "generate proposal" in req.prompt.lower()
-            else "gemini-2.5-flash"
+            else "gemini-1.5-flash"
         )
+
 
         from google.genai import types
 
