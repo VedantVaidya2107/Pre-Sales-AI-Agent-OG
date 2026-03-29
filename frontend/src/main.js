@@ -214,8 +214,9 @@ function stopRecording() {
 }
 
 
-/* ══ ARYA: STRATEGIC SOLUTIONS ARCHITECT (SYSTEM INSTRUCTIONS) ══ */
-const ZK = `You are Arya, a Strategic Solutions Architect at Fristine Infotech, India's leading Zoho Premium Partner.
+/* ══ FRISTINE AI PRE-SALES ARCHITECT (SYSTEM INSTRUCTIONS) ══ */
+const ZK = `You are the Fristine AI Pre-Sales Architect, a Strategic Solutions Architect at Fristine Infotech, India's leading Zoho Premium Partner.
+
 
 ## Research-First Mandate
 - You MUST meticulously utilize the provided **RESEARCH CONTEXT** for the organization.
@@ -332,30 +333,13 @@ async function init() {
 
     // Client/Agent Exit Check
     if (params.get('exit')) {
-        const agent = localStorage.getItem('f_active_agent');
-        
-        // Final protection: Hide everything before showing the end screen
-        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+        window.history.replaceState({}, document.title, window.location.pathname);
         hideLdr();
+        document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
         show('SE'); 
-        
-        // Avoid using replaceState here as it might trigger re-init or confuse logic
-        // window.history.replaceState({}, document.title, window.location.pathname);
-        
-        if (agent) {
-             const card = document.querySelector('#SE .auth-card');
-             if (card && !document.getElementById('backToDashBtn_end')) {
-                 const backBtn = document.createElement('button');
-                 backBtn.id = 'backToDashBtn_end';
-                 backBtn.className = 'btn-primary w-full mt-12';
-                 backBtn.style.marginTop = '12px';
-                 backBtn.innerText = '← Back to Agent Dashboard';
-                 backBtn.onclick = () => { showLdr('Returning to portal...'); setTimeout(() => { hideLdr(); startStaffPortal(agent); }, 500); };
-                 card.appendChild(backBtn);
-             }
-        }
         return;
     }
+
 
 
 
@@ -1190,6 +1174,7 @@ async function beginGather() {
     } catch (e) {
         addAg(`I'm ready to dive in! Based on our research into ${cli.company}, what are the high-priority challenges you'd like to solve?`);
     }
+
     hideLdr();
 }
 
@@ -1231,8 +1216,11 @@ async function nextQ(isOpen = false) {
         if (isOpen) {
             turnPrompt = `PHASE 1 (Intro): Set the agenda for a consultation with ${cli.company}. 
             MANDATORY: Acknowledge the research findings for ${cli.company} (Industry: ${prof.industries?.[0] || 'your sector'}). 
-            Start with a personalized greeting that mentions their industry and sets a tailored agenda. 
-            Example: "I've been reviewing your operations in the ${prof.industries?.[0] || 'your'} space, and I'm impressed by ${cli.company}'s scale. Let’s map your requirements..."`;
+            1. Start with a personalized greeting that mentions ${cli.company}. 
+            2. You MUST NOT use generic placeholders like "[Client Name]" — use the actual company name "${cli.company}" instead. 
+            3. Identify as "the Fristine AI Pre-Sales Architect".
+            Example: "I've been reviewing your operations at ${cli.company} within the ${prof.industries?.[0] || 'your'} sector, and I'm impressed by your scale. Let’s map your requirements..."`;
+
 
         } else if (rn >= 10) {
             turnPrompt = `PHASE 5 (Closure): 
