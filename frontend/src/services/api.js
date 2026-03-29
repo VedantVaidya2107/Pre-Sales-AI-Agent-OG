@@ -141,10 +141,11 @@ export const tracking = {
 
 /* ── Proposals ── */
 export const proposals = {
-  get:    (id)            => _mockMode ? _mockProposals.get(id)             : request('GET',  `/api/proposals/${id}/`).catch(() => null),
-  save:   (id, html, t)   => _mockMode ? _mockProposals.save(id, html, t)   : request('POST', `/api/proposals/${id}/`, { proposal_html: html, title: t }),
-  update: (id, html, ver) => _mockMode ? _mockProposals.update(id,html,ver) : request('PUT',  `/api/proposals/${id}/`, { proposal_html: html, version: ver }),
+  get:    (id)            => _mockMode ? _mockProposals.get(id)             : request('GET',  `/api/proposals/${id}`).catch(() => null),
+  save:   (id, html, t)   => _mockMode ? _mockProposals.save(id, html, t)   : request('POST', `/api/proposals/${id}`, { proposal_html: html, title: t }),
+  update: (id, html, ver) => _mockMode ? _mockProposals.update(id,html,ver) : request('PUT',  `/api/proposals/${id}`, { proposal_html: html, version: ver }),
 };
+
 
 /* ── Documents ── */
 export const documents = {

@@ -35,7 +35,8 @@ async def lifespan(app: FastAPI):
     yield
     task.cancel()
 
-app = FastAPI(title="Fristine Presales Backend", redirect_slashes=False, lifespan=lifespan)
+app = FastAPI(title="Fristine Presales Backend", redirect_slashes=True, lifespan=lifespan)
+
 
 # CORS Middleware
 origins = [
