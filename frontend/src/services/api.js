@@ -88,7 +88,8 @@ function mockProposals() {
     save: (id, html, title) => {
       const data = localStorage.getItem(getKey(id));
       const prev = data ? JSON.parse(data) : { versions: [] };
-      const next = { versions: [...prev.versions, { version: prev.versions.length + 1, proposal_html: html, title, savedAt: new Date().toISOString() }] };
+      const next = { versions: [...prev.versions, { version: prev.versions.length + 1, proposal_html: html, title, created_at: new Date().toISOString() }] };
+
       localStorage.setItem(getKey(id), JSON.stringify(next));
       return Promise.resolve({ success: true });
     },

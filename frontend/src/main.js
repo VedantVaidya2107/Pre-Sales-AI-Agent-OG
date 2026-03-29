@@ -947,8 +947,9 @@ async function openTracking(clientId) {
             
             const rev = [...pData.versions].reverse();
             rev.forEach(v => {
-                const dateRaw = new Date(v.savedAt);
-                const dateStr = isNaN(dateRaw) ? v.savedAt : dateRaw.toLocaleString('en-IN', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+                const dateRaw = new Date(v.created_at || v.savedAt);
+                const dateStr = isNaN(dateRaw) ? (v.created_at || v.savedAt || '—') : dateRaw.toLocaleString('en-IN', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+
                 
                 html += `
                     <div class="proposal-banner">
