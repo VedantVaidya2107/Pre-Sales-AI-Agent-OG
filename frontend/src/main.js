@@ -1179,8 +1179,12 @@ async function beginGather() {
 }
 
 async function nextQ(isOpen = false) {
-    const today = new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' });
-    const sys = `${ZK}\n\nTODAY'S DATE: ${today}\n\nRESEARCH CONTEXT for ${cli.company}:\n${JSON.stringify(prof)}\n${fileContent ? `UPLOADED FILE:\n${fileContent}\n` : ''}`;
+    const now = new Date();
+    const today = now.toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' });
+    const timeNow = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+    
+    const sys = `${ZK}\n\nTODAY'S DATE: ${today}\nCURRENT TIME: ${timeNow}\n\nRESEARCH CONTEXT for ${cli.company}:\n${JSON.stringify(prof)}\n${fileContent ? `UPLOADED FILE:\n${fileContent}\n` : ''}`;
+
 
 
     const phaseMap = {
@@ -1215,11 +1219,12 @@ async function nextQ(isOpen = false) {
         // Standard Discovery Flow
         if (isOpen) {
             turnPrompt = `PHASE 1 (Intro): Set the agenda for a consultation with ${cli.company}. 
-            MANDATORY: Acknowledge the research findings for ${cli.company} (Industry: ${prof.industries?.[0] || 'your sector'}). 
-            1. Start with a personalized greeting that mentions ${cli.company}. 
-            2. You MUST NOT use generic placeholders like "[Client Name]" — use the actual company name "${cli.company}" instead. 
-            3. Identify as "the Fristine AI Pre-Sales Architect".
-            Example: "I've been reviewing your operations at ${cli.company} within the ${prof.industries?.[0] || 'your'} sector, and I'm impressed by your scale. Let’s map your requirements..."`;
+            1. Determine the appropriate greeting (Good morning, Good afternoon, or Good evening) based on the CURRENT TIME provided in the system context.
+            2. Acknowledge the research findings for ${cli.company} (Industry: ${prof.industries?.[0] || 'your sector'}). 
+            3. Start with a personalized greeting that mentions ${cli.company}. 
+            4. You MUST NOT use generic placeholders like "[Client Name]" or "morning/afternoon" — use definitive time-based greetings.
+            5. Identify as "the Fristine AI Pre-Sales Architect".`;
+
 
 
         } else if (rn >= 10) {
