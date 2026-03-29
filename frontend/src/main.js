@@ -349,7 +349,6 @@ async function init() {
 
 
 
-    const clientId = params.get('client');
     if (clientId) {
         activeClientId = clientId;
         await bootClientSession(clientId);
@@ -357,7 +356,16 @@ async function init() {
         await bootStaffLogin();
     }
 
+    // 2K Staggered Dashboard Reveal
+    gsap.from('.stat-card', { 
+        y: 20, opacity: 0, duration: 0.6, stagger: 0.08, ease: 'power2.out', delay: 0.4 
+    });
+    gsap.from('.metrics-section, .table-wrap', {
+        y: 30, opacity: 0, duration: 0.8, delay: 0.8, ease: 'expo.out'
+    });
+
     document.getElementById('timeFilter')?.addEventListener('change', () => renderPipelineTrends());
+
 
     // Performance: Only animate if visible
     const observer = new IntersectionObserver((entries) => {
@@ -2460,8 +2468,9 @@ function showLdr(txt, pct = null) {
     const pb = document.getElementById('ldrPb');
     if (pb) { pb.style.display = pct !== null ? 'block' : 'none'; if (pct !== null) pb.style.width = pct + '%'; }
     spawnParticles();
-    gsap.fromTo(l, { opacity: 0 }, { opacity: 1, duration: 0.25, ease: 'power2.out' });
+    gsap.fromTo(l, { opacity: 0, backdropFilter: 'blur(0px)' }, { opacity: 1, backdropFilter: 'blur(20px)', duration: 0.4, ease: 'power2.out' });
 }
+
 function hideLdr() {
     const l = document.getElementById('ldr');
     gsap.to(l, { opacity: 0, duration: 0.2, ease: 'power2.in', onComplete: () => l.classList.add('hidden') });
