@@ -25,6 +25,8 @@ let currentAudioSource = null;
 let voiceQueue = [];
 let isProcessingVoice = false;
 let isFetchingReply = false; // Prevents overlapping Gemini calls in continuous mode
+window.latestProposalHtml = ''; // Global for button access
+
 
 /* ══ DISCOVERY STATE ══ */
 const discoveryProgress = {
@@ -1165,7 +1167,9 @@ async function beginGather() {
 }
 
 async function nextQ(isOpen = false) {
-    const sys = `${ZK}\n\nRESEARCH CONTEXT for ${cli.company}:\n${JSON.stringify(prof)}\n${fileContent ? `UPLOADED FILE:\n${fileContent}\n` : ''}`;
+    const today = new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'long', year:'numeric' });
+    const sys = `${ZK}\n\nTODAY'S DATE: ${today}\n\nRESEARCH CONTEXT for ${cli.company}:\n${JSON.stringify(prof)}\n${fileContent ? `UPLOADED FILE:\n${fileContent}\n` : ''}`;
+
 
     const phaseMap = {
         0: 'Phase 1: Intro',
@@ -1200,8 +1204,18 @@ async function nextQ(isOpen = false) {
         if (isOpen) {
             turnPrompt = `PHASE 1 (Intro): Set the agenda for a consultation with ${cli.company}. Start with: "Let’s map your requirements to ensure a seamless Zoho transformation. I am the Fristine Strategic Solutions Architect..."`;
         } else if (rn >= 10) {
-            turnPrompt = `PHASE 5 (Closure): Inform the user that the sessions is concluding and you're compiling the Proposal, BRD, and FSD.
-            Output REQUIREMENTS_COMPLETE followed by the full JSON summary.`;
+            turnPrompt = `PHASE 5 (Closure): 
+            MANDATORY STEP 1: Provide a high-fidelity TEXTUAL SUMMARY of all requirements gathered for ${cli.company} in 3-4 professional paragraphs. You MUST mention specific technical points discussed (e.g., ERP integration, shop-floor visibility, Tally sync) rather than generic terms.
+            MANDATORY STEP 2: Inform the user that the session is concluding and you're compiling the formal Proposal, BRD, and FSD.
+            MANDATORY STEP 3: Write the exact keyword: REQUIREMENTS_COMPLETE 
+            MANDATORY STEP 4: Provide the full JSON summary block. 
+            CRITICAL: The JSON "must_have" and "pain_points" MUST be populated with specific items from this actual conversation, NOT generic placeholders like "Module Configuration".
+            
+            JSON SCHEMA: {
+              "business_overview": "Summary", "departments": [], "current_tools": [], "pain_points": [], 
+              "must_have": [], "nice_to_have": [], "automation_opportunities": [], "integrations": [], 
+              "success_metrics": [], "zoho_products": [], "user_count": 0, "industry": "", "summary": "", "timeline": ""
+            }`;
         } else {
             const curPhaseId = Math.floor(rn / 2); 
             const curPhase = phaseMap[curPhaseId] || phaseMap[4];
@@ -1363,7 +1377,14 @@ document.getElementById('sendBtn').addEventListener('click', async () => {
         currentAudioSource = null;
     }
 
-    if (discoveryComplete) discoveryComplete = false;
+    // if (discoveryComplete) discoveryComplete = false; // MOVED: now only reset if explicitly requested via "Changes Required"
+    if (discoveryComplete && !msg.toLowerCase().includes('change') && !msg.toLowerCase().includes('wrong')) {
+        // If discovery is done and user isn't asking for changes, don't re-run discovery loop
+        addUs(msg);
+        addAg("I've captured your requirements! I'm currently architecting your solution. You can also click 'Create Proposal' above to skip the wait.");
+        return;
+    }
+
     addUs(msg);
     convo.push({ role: 'user', content: msg });
     inp.value = '';
@@ -1676,8 +1697,24 @@ function showReqSummary() {
     </div>`;
 
     addAg(html, { noEscape: true });
+    
+    // Auto-trigger proposal build after 5 seconds if no manual click
+    const autoGenTimer = setTimeout(() => {
+        if (discoveryComplete && !sol) {
+            console.log('[Discovery] Auto-triggering proposal generation...');
+            buildSolution();
+        }
+    }, 5000);
+
     setTimeout(() => {
-        document.getElementById('confirmProposal')?.addEventListener('click', buildSolution);
+        const confirmBtn = document.getElementById('confirmProposal');
+        if (confirmBtn) {
+            confirmBtn.onclick = () => {
+                clearTimeout(autoGenTimer);
+                buildSolution();
+            };
+        }
+
         document.getElementById('summaryBtn')?.addEventListener('click', () => {
             document.dispatchEvent(new CustomEvent('generateBRD'));
         });
@@ -1956,6 +1993,17 @@ ul.bullets li{font-size:15px;color:var(--slate);margin-bottom:12px;position:rela
         try { await tracking.logEvent(activeClientId, 'proposal_submitted'); } catch {}
     }
 
+    window.latestProposalHtml = html;
+    // Auto-open proposal modal for the user
+    setTimeout(() => {
+        const iframe = document.getElementById('proposalIframe');
+        if (iframe) {
+            iframe.srcdoc = html;
+            openModal('proposalModal');
+            showToast('Proposal generated and opened!', 'success');
+        }
+    }, 1000);
+
     pendingBlob = new Blob([html], { type: 'text/html' });
     pendingName = fname;
     hideLdr();
@@ -1966,7 +2014,10 @@ ul.bullets li{font-size:15px;color:var(--slate);margin-bottom:12px;position:rela
             <div style="font-size:17px;font-weight:700;margin-bottom:10px">CCMS Proposal is Generated!</div>
             <div style="font-size:13px;color:var(--sub);line-height:1.75;max-width:400px;margin:0 auto">
                 Your requirements have been successfully mapped to the CCMS Reference Architecture.<br/><br/>
-                <strong>A Fristine presales specialist is reviewing your proposal and will share the detailed documents with you shortly.</strong>
+                <div style="display:flex;gap:10px;justify-content:center;margin-top:15px;">
+                    <button class="btn-primary btn-sm" onclick="document.getElementById('proposalIframe').srcdoc=window.latestProposalHtml; document.getElementById('proposalModal').classList.add('visible');" style="padding: 8px 16px;">View Proposal</button>
+                    <button class="btn-ghost btn-sm" onclick="document.dispatchEvent(new CustomEvent('downloadClientProposal'))" style="padding: 8px 16px;">Download PDF</button>
+                </div>
             </div>
         </div>`, { noEscape: true });
 }
