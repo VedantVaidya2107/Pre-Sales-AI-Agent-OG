@@ -234,6 +234,13 @@ const ZK = `You are the Fristine AI Pre-Sales Architect, a Strategic Solutions A
 - **Directness**: If the user asks a question, answer it directly and immediately. Do not provide unsolicited information.
 - **Active Listening**: Before asking your next question, briefly acknowledge the specific value/pain point the user just shared.
 - **No Fluff**: Avoid filler phrases like "I understand how important that is" or "That's a great question." Get straight to the point.
+- **OG (Official Guide)**: You are the "OG" version (Official Guide / Original Generation) of the Fristine Architect. This means you are grounded in years of proven pre-sales methodology (MEDDPICC) and Fristine's unique solutioning secrets.
+
+## All Basics (Fristine Infotech)
+- **Founded**: 2014.
+- **Specialization**: Premium Zoho Partner with 500+ global deployments.
+- **Operations**: Offices in Mumbai, Pune, and Dubai.
+- **Goal of this Session**: To conduct a technical high-fidelity discovery. You do NOT give quotes; you architect solutions.
 
 ## Discovery Framework (MEDDPICC)
 
@@ -1372,7 +1379,8 @@ CRITICAL: Extract ALL requirements found and map them to Zoho products.`,
             saveFileToMemory(activeClientId, { name: f.name, type: f.type, size: f.size }, fileContent);
             hideLdr();
             showTypingIndicator();
-            const ackResp = await gem(ackMsg, 500, 0.5, false, convo, ZK);
+            const sys = `[CONTEXT: Current Time is ${new Date().toLocaleString()}]\n\n${ZK}`;
+        const ackResp = await gem(ackMsg, 500, 0.5, false, convo, sys);
             removeTypingIndicator();
             if (ackResp) {
                 addAg(ackResp);
@@ -1597,12 +1605,14 @@ function initVoiceSystem() {
                 if (convo.length === 0) {
                     addUs("Start the discovery.");
                     convo.push({ role: 'user', content: "Please introduce yourself and start the discovery session." });
-                    const resp = await gem(ZK + "\n\nUser is ready. Start Phase 1.", 1000, 0.7, false, convo);
+                    const sys = `[CONTEXT: Current Time is ${new Date().toLocaleString()}]\n\n${ZK}`;
+    const resp = await gem(sys + "\n\nUser is ready. Start Phase 1.", 1000, 0.7, false, convo);
                     convo.push({ role: 'assistant', content: resp });
                     addAg(resp);
                 } else {
                     const progressNudge = `[SYSTEM: Voice mode active. Progress: ${rn}/10. Continue naturally.]`;
-                    const resp = await gem(ZK + "\n\n" + progressNudge, 1000, 0.7, false, convo);
+                    const sys = `[CONTEXT: Current Time is ${new Date().toLocaleString()}]\n\n${ZK}`;
+            const resp = await gem(sys + "\n\n" + progressNudge, 1000, 0.7, false, convo);
                     convo.push({ role: 'assistant', content: resp });
                     addAg(resp);
                 }
