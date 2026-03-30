@@ -390,6 +390,7 @@ async function bootStaffLogin() {
     }, 6000);
 
     try {
+        console.log('[Boot] Attempting clients.list()...');
         allClients = await clients.list();
         clearTimeout(wakeUpTimer);
         setSS('ok', `Connected · ${allClients.length} clients loaded`);
@@ -398,7 +399,12 @@ async function bootStaffLogin() {
             startStaffPortal(activeAgent);
         }
     } catch (e) {
+        console.error('[Boot] Connection failed', e);
         clearTimeout(wakeUpTimer);
+        // Show actual reason if possible
+        if (e.message === 'Failed to fetch' || e.name === 'TypeError') {
+            setSS('er', 'Network error: Is the backend URL set correctly? Check Console (F12).');
+        }
         // Mock mode kicks in automatically — show demo mode status
         try {
             allClients = await clients.list();

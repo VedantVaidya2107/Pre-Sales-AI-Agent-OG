@@ -1,6 +1,7 @@
 /* api.js — All backend API calls in one place */
 
 const BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+console.log(`[API] Base URL: ${BASE || '(local /api proxy)'}`);
 
 /* ══ MOCK MODE (runs when backend is unreachable) ══════════════════════════ */
 const MOCK_AGENTS = {
