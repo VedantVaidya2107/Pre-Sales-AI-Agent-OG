@@ -21,7 +21,7 @@ try:
         "company": "Test Company 2",
         "industry": "Technology",
         "email": "test2@example.com",
-        "Phone": "9876543210",
+        "phone": "9876543210",
         "notes": "Test note 2",
         "size": "Medium",
         "created_at": datetime.now(timezone.utc).isoformat()
