@@ -325,6 +325,7 @@ async function init() {
     initCaptcha();
     initKpis();
     const params = new URLSearchParams(window.location.search);
+    const clientId = params.get('client');
     
     // Explicit Logout Check (Fixes teleportation bug)
     if (params.get('loggedout')) {
