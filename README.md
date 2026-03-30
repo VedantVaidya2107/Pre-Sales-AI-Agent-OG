@@ -20,13 +20,13 @@ Built using **FastAPI**, **React (Vite)**, and **Google Gemini 1.5**, this platf
 
 ### 📋 Staff Dashboard (Agent Portal)
 - **Client Pipeline**: End-to-end tracking from "Bot Sent" to "Proposal Submitted."
-- **Proposal Versioning**: Maintains full history of generated solutions with exact date/time timestamps.
+- **Mobile Responsive**: Fully optimized for mobile devices with a touch-friendly drawer menu and responsive tables.
 - **Secure Handoff**: Professional "Agent-Only" control over when proposals are shared with the client.
 
 ### 📄 Strategic Document Generation
 - **Implementation Proposals**: Professional, 13-page technical plans tailored to the client's specific modules.
 - **BRD & FSD**: Auto-generated Business Requirements and Functional Specification Documents.
-- **One-Click Export**: High-quality PDF generation for immediate stakeholder review.
+- **One-Click Export**: High-quality PDF and DOCX generation for immediate stakeholder review.
 
 ---
 
@@ -51,7 +51,7 @@ Pre-Sales-AI-Agent-OG/
 
 - **Large Language Models**: Google Gemini 1.5 Flash (Discovery) & Gemini 1.5 Pro (Architecture & Proposals).
 - **Backend**: Python 3.10+, FastAPI, Uvicorn, Supabase (PostgreSQL).
-- **Frontend**: Vanilla JavaScript (React patterns), Vite, GSAP (Animations), html2pdf.js.
+- **Frontend**: Vanilla JavaScript (React patterns), Vite, GSAP (Animations), html2pdf.js, Mammoth.
 - **Infrastructure**: Render (API Service), GitHub Pages (UI Hosting).
 
 ---
@@ -61,7 +61,7 @@ Pre-Sales-AI-Agent-OG/
 ### Prerequisites
 - Node.js 18+ & Python 3.10+
 - Google Gemini API Key
-- Supabase Project URL & Service Key
+- Supabase Project URL & **Service Role Key** (Required for agent creation)
 
 ### 1. Backend Setup
 ```bash
@@ -69,7 +69,7 @@ cd backend
 python -m venv .venv
 # Activate venv: .venv\Scripts\activate (Win) or source .venv/bin/activate (Mac/Linux)
 pip install -r requirements.txt
-cp .env.example .env # Set your SUPABASE_URL and GEMINI_API_KEY
+cp .env.example .env # Set your SUPABASE_URL, SUPABASE_KEY (Service Role), and GEMINI_API_KEY
 python main.py
 ```
 
@@ -77,15 +77,23 @@ python main.py
 ```bash
 cd frontend
 npm install
+# Create .env or .env.production with VITE_API_URL=https://your-backend.onrender.com
 npm run dev
 ```
 
 ---
 
+## 🌐 Live Deployment
+
+- **Frontend (GitHub Pages)**: [https://vedantvaidya2107.github.io/Pre-Sales-AI-Agent-OG/](https://vedantvaidya2107.github.io/Pre-Sales-AI-Agent-OG/)
+- **Backend (Render)**: `https://presales-backend-5u8q.onrender.com`
+
+---
+
 ## 🛡️ Security & Privacy
-- **Client-Restricted Access**: Raw proposals are hidden from the discovery bot interface; they are only visible and shareable via the secure Staff Dashboard.
+- **Client-Restricted Access**: Raw proposals are hidden from the discovery bot interface.
 - **Secure Sessions**: Uses Client IDs and authenticated Agent sessions to ensure data isolation.
-- **Transparent Exit**: Clients see a professional "Session Completed" screen with no links back to the internal management tools.
+- **RBAC**: Backend operations are protected by Supabase RLS (ensure Service Role key is used in production).
 
 ---
 
