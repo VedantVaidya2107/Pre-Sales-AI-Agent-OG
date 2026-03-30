@@ -57,10 +57,14 @@ async def create_client(req: ClientCreate):
         "size": (req.size or "").strip(),
         "created_at": datetime.now(timezone.utc).isoformat()
     }
-    res = supabase.table("clients").insert(new_client).execute()
-    if not res.data:
-         raise HTTPException(status_code=500, detail="Failed to create client")
-    return res.data[0]
+    try:
+        res = supabase.table("clients").insert(new_client).execute()
+        if not res.data:
+             raise Exception("Supabase insert returned no data (check RLS or Column names)")
+        return res.data[0]
+    except Exception as e:
+        print(f"[Supabase Error] create_client failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Database error: {e}")
 
 @router.put("/{client_id}")
 async def update_client(client_id: str, updates: dict):

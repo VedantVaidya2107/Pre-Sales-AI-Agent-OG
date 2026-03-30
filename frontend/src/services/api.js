@@ -120,22 +120,18 @@ async function request(method, path, body = null, ignoreMock = false) {
 export const auth = {
   check:       (email, password) => _mockMode
     ? mockAuth().check(email)
-    : request('GET', `/api/auth/check?email=${encodeURIComponent(email)}`).catch(() => { _mockMode = true; return mockAuth().check(email); }),
+    : request('GET', `/api/auth/check?email=${encodeURIComponent(email)}`),
   login:       (email, password) => _mockMode
     ? mockAuth().login(email, password)
-    : request('POST', '/api/auth/login', { email, password }).catch(e => { if (e.message === 'Failed to fetch') { _mockMode = true; return mockAuth().login(email, password); } throw e; }),
+    : request('POST', '/api/auth/login', { email, password }),
   setPassword: (email, password, name = '') => _mockMode
     ? mockAuth().setPassword(email, password)
-    : request('POST', '/api/auth/set-password', { email, password, name }).catch(e => {
-        console.error('[API] setPassword failed:', e);
-        if (_mockMode) return mockAuth().setPassword(email, password);
-        throw e;
-      }),
+    : request('POST', '/api/auth/set-password', { email, password, name }),
 };
 
 /* ── Clients ── */
 export const clients = {
-  list:   ()         => _mockMode ? mockClients().list()        : request('GET',    '/api/clients').catch(() => { _mockMode = true; return mockClients().list(); }),
+  list:   ()         => _mockMode ? mockClients().list()        : request('GET',    '/api/clients'),
   get:    (id)       => _mockMode ? mockClients().get(id)       : request('GET',    `/api/clients/${id}`),
   nextId: ()         => _mockMode ? mockClients().nextId()       : request('GET',    '/api/clients/next-id'),
   create: (data)     => _mockMode ? mockClients().create(data)   : request('POST',   '/api/clients', data),

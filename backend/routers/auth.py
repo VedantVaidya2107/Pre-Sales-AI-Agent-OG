@@ -26,17 +26,20 @@ def _write_agents(data):
         json.dump(data, f, indent=2)
 
 def _get_agent(email: str):
-    """Return agent dict from Supabase if available, else from agents.json."""
+    """Return agent dict from Supabase. Fallback to agents.json only if Supabase is NOT configured."""
     if supabase:
         try:
             res = supabase.table("agents").select("*").eq("email", email).execute()
             return res.data[0] if res.data else None
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"[Supabase Error] _get_agent failed for {email}: {e}")
+            raise HTTPException(status_code=503, detail=f"Database connection error: {e}")
+    
+    # Only fallback if Supabase is physically not initialized (e.g. no URL/KEY)
     return _read_agents().get(email)
 
 def _upsert_agent(email: str, password: str, name: str = None):
-    """Upsert agent to Supabase if available, else to agents.json."""
+    """Upsert agent to Supabase. Fallback to agents.json only if Supabase is NOT configured."""
     if supabase:
         try:
             data = {
@@ -47,14 +50,17 @@ def _upsert_agent(email: str, password: str, name: str = None):
             if name:
                 data["name"] = name
             
-            supabase.table("agents").upsert(data).execute()
+            res = supabase.table("agents").upsert(data).execute()
+            if not res.data:
+                raise Exception("Supabase upsert returned no data (check RLS or keys)")
+                
             print(f"[Supabase] Successfully upserted agent: {email}")
             return
         except Exception as e:
             print(f"[Supabase Error] Upsert failed for {email}: {e}")
-            # Fall back to local storage
-            pass
+            raise HTTPException(status_code=503, detail=f"Database upsert error: {e}")
             
+    # Only fallback if Supabase is physically not initialized (e.g. no URL/KEY)
     agents = _read_agents()
     agents[email] = {
         "email": email, 
