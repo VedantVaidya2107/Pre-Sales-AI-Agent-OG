@@ -57,7 +57,7 @@ print(f"[CORS] Allowed Origins: {origins if is_production else '*'}")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
