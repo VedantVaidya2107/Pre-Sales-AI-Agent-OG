@@ -1,7 +1,11 @@
 /* api.js — All backend API calls in one place */
 
-const BASE = (import.meta.env.VITE_API_URL || 'https://presales-backend-5u8q.onrender.com').replace(/\/$/, '');
-console.log(`[API] Base URL: ${BASE || '(local /api proxy)'}`);
+const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const PROD_URL = 'https://presales-backend-5u8q.onrender.com';
+const BASE = (isLocal ? 'http://localhost:8000' : (import.meta.env.VITE_API_URL || PROD_URL)).replace(/\/$/, '');
+
+console.log(`[API] Environment: ${isLocal ? 'DEVELOPMENT (Local)' : 'PRODUCTION'}`);
+console.log(`[API] Base URL: ${BASE}`);
 
 /* ══ MOCK MODE (runs when backend is unreachable) ══════════════════════════ */
 const MOCK_AGENTS = {
