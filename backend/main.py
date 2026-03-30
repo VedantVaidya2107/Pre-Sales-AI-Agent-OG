@@ -37,7 +37,7 @@ async def lifespan(app: FastAPI):
     print("[Shutdown] App is shutting down...")
     task.cancel()
 
-app = FastAPI(title="Fristine Presales Backend", redirect_slashes=False, lifespan=lifespan)
+app = FastAPI(title="Fristine Presales Backend", redirect_slashes=True, lifespan=lifespan)
 
 
 # CORS Middleware
