@@ -12,3 +12,4 @@ pycryptodome
 jinja2
 httpx
 markupSafe
+twilio

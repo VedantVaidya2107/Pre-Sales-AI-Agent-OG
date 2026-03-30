@@ -187,6 +187,7 @@ export const voice = {
       return { audio: null };
     }
   },
+  call: (phone) => _mockMode ? (console.log('[MOCK] Call to', phone), Promise.resolve({ success: true })) : request('POST', '/api/voice/call/', { phone }),
 };
 
 

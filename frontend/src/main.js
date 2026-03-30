@@ -783,9 +783,10 @@ async function renderClientTable(filter = '', forceRefresh = true) {
                 <td class="tbl-cell-visible">${renderStatusBadge(status)}</td>
                 <td>
                     <div class="tbl-actions">
-                        <button class="btn-tbl btn-tbl-send">Send Bot</button>
-                        <button class="btn-tbl btn-tbl-track">Track</button>
-                        <button class="btn-tbl btn-tbl-del">Delete</button>
+                        <button class="btn-tbl btn-tbl-send" title="Send Bot Link">Send Bot</button>
+                        ${client.phone ? `<button class="btn-tbl btn-tbl-call" style="background:var(--green);border-color:var(--green);" title="Call Client via Twilio">Call</button>` : ''}
+                        <button class="btn-tbl btn-tbl-track" title="Track Progress">Track</button>
+                        <button class="btn-tbl btn-tbl-del" title="Delete Lead">Delete</button>
                     </div>
                 </td>`;
             
@@ -793,11 +794,13 @@ async function renderClientTable(filter = '', forceRefresh = true) {
 
             // Safer listener attachment
             const sBtn = tr.querySelector('.btn-tbl-send');
+            const cBtn = tr.querySelector('.btn-tbl-call');
             const tBtn = tr.querySelector('.btn-tbl-track');
             const dBtn = tr.querySelector('.btn-tbl-del');
             const nBtn = tr.querySelector('.tbl-co-name');
 
             if (sBtn) sBtn.onclick = () => sendBotEmail(clientId);
+            if (cBtn) cBtn.onclick = () => makeCall(client.phone, client.company);
             if (tBtn) tBtn.onclick = () => openTracking(clientId);
             if (dBtn) dBtn.onclick = () => deleteLead(clientId);
             if (nBtn) nBtn.onclick = (e) => { e.stopPropagation(); openTracking(clientId); };
@@ -904,6 +907,23 @@ async function sendBotEmail(clientId) {
     }
 }
 
+/* ══ MAKE CALL ══ */
+async function makeCall(phone, company) {
+    if (!phone) return;
+    if (!confirm(`Call ${company} at ${phone}?`)) return;
+    
+    showLdr(`Initiating call to ${company}…`);
+    try {
+        await voice.call(phone);
+        showToast('Call initiated successfully!', 'success');
+    } catch (e) {
+        console.error('[Call Error]', e);
+        showToast('Call failed: ' + (e.message || 'Check Twilio credentials'), 'error');
+    } finally {
+        hideLdr();
+    }
+}
+
 /* ══ LEAD MANAGEMENT ══ */
 document.getElementById('openCreateBtn').addEventListener('click', async () => {
     openModal('createLeadModal');
@@ -922,12 +942,13 @@ document.getElementById('saveLeadBtn').addEventListener('click', async () => {
     const co  = document.getElementById('nl-co').value.trim();
     const ind = document.getElementById('nl-ind').value.trim();
     const em  = document.getElementById('nl-em').value.trim();
+    const ph  = document.getElementById('nl-ph').value.trim();
     if (!co || !em) { showToast('Company and email are required.', 'error'); return; }
 
     const btn = document.getElementById('saveLeadBtn');
     btn.textContent = 'Saving…'; btn.disabled = true;
     try {
-        await clients.create({ company: co, industry: ind, email: em });
+        await clients.create({ company: co, industry: ind, email: em, phone: ph });
         showToast('Lead created!', 'success');
         closeModal('createLeadModal');
         ['nl-co', 'nl-ind', 'nl-em'].forEach(id => { document.getElementById(id).value = ''; });

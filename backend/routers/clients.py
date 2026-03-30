@@ -12,6 +12,7 @@ class ClientCreate(BaseModel):
     industry: Optional[str] = ""
     notes: Optional[str] = ""
     size: Optional[str] = ""
+    phone: Optional[str] = ""
 
 async def generate_client_id():
     # Use RPC or just select all and find max for now to keep it simple
@@ -51,6 +52,7 @@ async def create_client(req: ClientCreate):
         "company": (req.company or "").strip(),
         "industry": (req.industry or "").strip(),
         "email": (req.email or "").strip(),
+        "phone": (req.phone or "").strip(),
         "notes": (req.notes or "").strip(),
         "size": (req.size or "").strip(),
         "created_at": datetime.now(timezone.utc).isoformat()
