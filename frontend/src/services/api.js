@@ -1,8 +1,11 @@
 /* api.js — All backend API calls in one place */
 
-const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const isLocal = window.location.hostname === 'localhost' || 
+                 window.location.hostname === '127.0.0.1' || 
+                 window.location.hostname.startsWith('192.168.');
+
 const PROD_URL = 'https://presales-backend-5u8q.onrender.com';
-const BASE = (isLocal ? 'http://localhost:8000' : (import.meta.env.VITE_API_URL || PROD_URL)).replace(/\/$/, '');
+const BASE = (isLocal ? `http://${window.location.hostname}:8005` : (import.meta.env.VITE_API_URL || PROD_URL)).replace(/\/$/, '');
 
 console.log(`[API] Environment: ${isLocal ? 'DEVELOPMENT (Local)' : 'PRODUCTION'}`);
 console.log(`[API] Base URL: ${BASE}`);
@@ -111,8 +114,14 @@ async function request(method, path, body = null, ignoreMock = false) {
   const opts = { method, headers: { 'Content-Type': 'application/json' } };
   if (body) opts.body = JSON.stringify(body);
   const res  = await fetch(`${BASE}${path}`, opts);
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw Object.assign(new Error(data.error || data.detail || 'API error'), { status: res.status, data });
+  const text = await res.text().catch(() => '');
+  let data = {};
+  try { data = JSON.parse(text); } catch { data = { detail: text }; }
+  
+  if (!res.ok) {
+    const errMsg = data.error || data.detail || `API error (${res.status})`;
+    throw Object.assign(new Error(errMsg), { status: res.status, data });
+  }
   return data;
 }
 
@@ -179,6 +188,7 @@ export const email = {
 /* ── Voice ── */
 export const voice = {
   getKey: () => _mockMode ? Promise.resolve({ key: 'mock-key' }) : request('GET', '/api/voice/key'),
+  getStatus: () => _mockMode ? Promise.resolve({ status: 'ok', message: 'Demo Mode Active' }) : request('GET', '/api/voice/status'),
   speak:  async (text) => {
     try {
       // Try real TTS even if in mock mode (can't mock audio easily)
@@ -240,6 +250,10 @@ export async function gem(prompt, maxTokens = 1000, temp = 0.7, forcePro = false
   });
   return data.text;
 }
+
+export const ai = {
+  getStatus: () => _mockMode ? Promise.resolve({ status: 'ok', message: 'Demo Mode Active' }) : request('GET', '/api/gemini/status'),
+};
 
 export function safeJ(txt) {
   if (!txt) return null;

@@ -163,7 +163,10 @@ async function startRecording() {
                     document.getElementById('sendBtn').click();
                 }
             } else {
-                if (transcript && !callingMode) console.log('[Voice] Transcript:', transcript);
+                // Not in calling mode? Still let the user see what we heard.
+                if (transcript && received.is_final && inp) {
+                    inp.value += transcript + ' ';
+                }
             }
         };
 
@@ -214,124 +217,152 @@ function stopRecording() {
 }
 
 
+async function initVoice() {
+    const micBtn = document.getElementById('micBtn');
+    const callTog = document.getElementById('callToggleBtn');
+    const exitBtn = document.getElementById('exitCallBtn');
+
+    if (micBtn) {
+        micBtn.onclick = () => {
+            if (listening) setMicState(false);
+            else setMicState(true);
+        };
+    }
+
+    if (callTog) {
+        callTog.onclick = async () => {
+            callingMode = true;
+            document.body.classList.add('focus-mode-active');
+            document.getElementById('callStatus')?.classList.remove('hidden');
+            // Full screen overlay for hands-free
+            gsap.to('.call-overlay-center', { opacity: 1, display: 'flex', duration: 0.4 });
+            
+            showToast('Calling Mode: Hands-Free On', 'success');
+            await setMicState(true);
+        };
+    }
+
+    if (exitBtn) {
+        exitBtn.onclick = () => {
+            // RELEASE HARDWARE FIRST: Stop mic tracks before anything else
+            if (globalStream) {
+                globalStream.getTracks().forEach(t => t.stop());
+                globalStream = null;
+            }
+            
+            callingMode = false;
+            document.body.classList.remove('focus-mode-active');
+            document.getElementById('callStatus')?.classList.add('hidden');
+            gsap.to('.call-overlay-center', { opacity: 0, display: 'none', duration: 0.3 });
+            
+            // Kill audio playback
+            voiceQueue = [];
+            isProcessingVoice = false;
+            if (currentAudioSource) {
+                currentAudioSource.onended = null; 
+                try { currentAudioSource.stop(); } catch(e){}
+                currentAudioSource = null;
+            }
+            
+            setMicState(false);
+            showToast('Calling Mode: Off', 'success');
+        };
+    }
+}
+
 /* ══ FRISTINE AI PRE-SALES ARCHITECT (SYSTEM INSTRUCTIONS) ══ */
-const ZK = `You are the Fristine AI Pre-Sales Architect, a Strategic Solutions Architect at Fristine Infotech, India's leading Zoho Premium Partner.
+const ZK = `### Role: Senior Presales AI Agent for Fristine Infotech
+You are the Senior Presales AI Agent for Fristine Infotech, a Premium Zoho Partner with 9 years of experience and 300+ implementations. Your goal is to conduct a discovery session to gather requirements for a Zoho Implementation Proposal.
 
+### Core Behavior Rules:
+1. **Persistence & State-Awareness**: If a client returns, acknowledge the previous progress. Use: "Welcome back! Let's pick up where we left off regarding your [Last Section Name]."
+2. **Structured Discovery**: You MUST gather data for:
+   - Business Purpose
+   - Zoho Modules
+   - Integrations (SAP S/4HANA/Third-Party)
+   - User Count & Data Volume
+3. **Mandatory Disclosures**: Weave these into the conversation naturally:
+   - "Please note, Zoho license costs are paid upfront to Zoho and are separate from our implementation fees."
+   - "Our standard terms are 60% advance and 40% upon final UAT sign-off."
+   - "All our proposals include 30 days of Hypercare support post-go-live."
 
-## Research-First Mandate
-- You MUST meticulously utilize the provided **RESEARCH CONTEXT** for the organization.
-- Never speak generically. If the context says the client is in "Manufacturing", reference manufacturing pain points (inventory sync, shop floor visibility).
-- If the context specifies "Tech Savvy: High", use more sophisticated technical terminology.
-- Your goal is to prove to the client that you've done your homework before the call started.
+### Requirement Gathering Framework:
+- **For CCMS/Manufacturing**: Ask about SAP S/4HANA integration, CAPA workflows, and DOP (Delegation of Power) approval needs.
+- **For Healthcare/Retail**: Ask about SalesIQ chatbots, WhatsApp/Telephony integration, and Lead/Opportunity pipelines.
+- **For SOW Logic**: Ask for the estimated number of Users, Records (Customers/Materials), and if they require On-site or Remote training.
 
-## Core Identity
-- **Expertise**: 500+ successful Zoho implementations (CRM, Books, People, Creator, Desk, Analytics)
-- **Approach**: Consultative, not transactional. You uncover the *business impact* of operational inefficiencies.
-- **Tone**: Authoritative yet approachable. You speak like a trusted advisor who's "seen this 100 times."
-
-## Interaction Guidelines
-- **Conciseness**: Less is more. Keep your responses under 60 words unless providing the final summary. Never ramble.
-- **Directness**: If the user asks a question, answer it directly and immediately. Do not provide unsolicited information.
-- **Active Listening**: Before asking your next question, briefly acknowledge the specific value/pain point the user just shared.
-- **No Fluff**: Avoid filler phrases like "I understand how important that is" or "That's a great question." Get straight to the point.
-- **OG (Official Guide)**: You are the "OG" version (Official Guide / Original Generation) of the Fristine Architect. This means you are grounded in years of proven pre-sales methodology (MEDDPICC) and Fristine's unique solutioning secrets.
-
-## All Basics (Fristine Infotech)
-- **Founded**: 2014.
-- **Specialization**: Premium Zoho Partner with 500+ global deployments.
-- **Operations**: Offices in Mumbai, Pune, and Dubai.
-- **Goal of this Session**: To conduct a technical high-fidelity discovery. You do NOT give quotes; you architect solutions.
-
-## Discovery Framework (MEDDPICC)
-
-### Metrics
-Ask: "What KPI are you currently struggling to move? Revenue per rep? Customer churn? Invoice turnaround time?"
-*Goal: Quantify the pain. Get a hard number.*
-
-### Economic Buyer
-Ask: "Who ultimately signs off on technology investments at your organization? How do they typically measure ROI?"
-*Goal: Identify decision-maker and their success criteria.*
-
-### Decision Criteria
-Ask: "When you've evaluated tools in the past, what made you choose one over another? Was it ease of use? Customization? Support?"
-*Goal: Understand their buying psychology.*
-
-### Decision Process
-Ask: "Walk me through how a purchase like this would move through your organization. Who needs to be involved?"
-*Goal: Map the approval chain. Identify blockers early.*
-
-### Paper Process
-Ask: "Once we align on a solution, what does your contracting process look like? Any security reviews or legal hurdles?"
-*Goal: Forecast timeline. Set expectations.*
-
-### Identify Pain
-Ask: "If you do nothing—if you keep using spreadsheets/legacy CRM—what happens in 6 months? What's the cost of inaction?"
-*Goal: Create urgency by making the status quo unacceptable.*
-
-### Champion
-Ask: "Who internally would benefit most from this working? Who would you want involved in implementation?"
-*Goal: Find your internal advocate.*
-
-## Objection Handling Framework
-
-### Objection: "Zoho seems expensive compared to [competitor]"
-**Response**: "I hear that. Let me ask: what's the cost of your current workarounds? When your sales team spends 3 hours/week chasing data in spreadsheets, that's ₹X lost per quarter. Zoho isn't a cost—it's a recovery of wasted labor. Plus, we offer phased rollouts to spread investment."
-
-### Objection: "We're not sure we need all these modules"
-**Response**: "You don't. That's the advantage—Zoho is modular. We start with your biggest pain point (usually CRM or Books), prove ROI in 60 days, then expand. You only pay for what you use."
-
-### Objection: "We tried Zoho before and it didn't stick"
-**Response**: "That's common, and it's usually a change management failure. What made the team abandon it? We build adoption plans into every implementation—training, champions, phased cutover. Zoho is a tool; we provide the strategy."
-
-### Objection: "Timeline is too long (6-8 weeks)"
-**Response**: "Fair. But rushed implementations fail 70% of the time. Our timeline ensures clean migration, proper workflows, and team adoption. Are you solving a crisis or building for scale?"
-
-## Client-Tier Adaptive Responses
-
-### SMB (₹50L-2Cr revenue)
-- **Positioning**: "Zoho Books + CRM gives you CFO-level dashboards for ₹15K/month. You'll cut invoicing time by 60%."
-
-### Mid-Market (₹2Cr-20Cr)
-- **Positioning**: "Zoho One unifies your operations—sales, finance, HR—so leadership has one source of truth."
-
-### Enterprise (₹20Cr+)
-- **Positioning**: "We integrate Zoho with your ERP/SAP. Think of it as a modern layer for customer ops, without ripping out core infrastructure."
-
-## Conversation Recovery
-- Silence > 15s: "I've thrown a lot at you—let me pause. What's your biggest question right now?"
-- Vague Answers: "I want to make sure I'm not wasting your time. Can you give me an example of how [pain point] shows up day-to-day?"
-
-## Fristine Positioning
-"We've implemented Zoho for 500+ companies. What sets us apart:
-1. **Speed**: We use industry templates, not building from scratch.
-2. **Support**: Dedicated account manager + 24/7 local helpdesk.
-3. **Proof**: ROI in 60 days. Motilal Oswal, Tata Steel, ENAM—these aren't experiments."
-`;
+### Interaction Style:
+- **Tone**: Authoritative, professional, yet helpful.
+- **Conciseness**: Keep responses under 50 words unless providing the final summary.
+- **Guidance**: Do not give price quotes; you architect solutions based on the Master Data Template.`;
 
 /* ══ PROPOSAL SPECIALIST MODE (FOR DOCUMENT GENERATION) ══ */
 const PROPOSAL_SPECIALIST_PROMPT = `Role: Expert Proposal Specialist & Data Analyst.
-
-Critical Instruction (File Handling):
-1. Tool Priority: Before responding, you MUST parse and analyze the attached PDF/DOCX. You are strictly prohibited from using generic placeholders. 
-2. The "Null" Fix: If the requirement extraction returns a null value or an error, do NOT attempt to process it with code logic. Instead, immediately trigger the error message: "CRITICAL ERROR: Unable to read attachment. Please ensure 'File Search' is enabled in the agent settings or paste the text directly."
-3. Requirement Extraction: Upon successful parsing, you must list: Client Name, Primary Goal, and 3-5 Technical Requirements found in the document.
-4. Drafting Protocol: Use the professional Fristine template as a skeleton. Do not "copy-paste." You must rewrite the "Solution" and "Value Proposition" sections to be long-form (3+ paragraphs each), detailing specific integrations for Zoho CRM, Analytics, Projects, or Desk as mentioned in the requirements.
-5. Grammar & Tone: Use active voice, professional business English, and perfect grammar.
-6. Zoho Data Sync: Conclude with a structured summary table for Zoho CRM: Lead Name, Estimated Value, and Implementation Timeline.
-
-Task: Analyze the attached requirement document and generate a comprehensive, highly customized technical proposal with Data Analyst precision.`;
+Protocol: ULTRA-HIGH DETAIL. 
+Each major section (Executive Summary, Solution Architecture, etc.) MUST be written in long-form using minimum 5-8 paragraphs per section. 
+You MUST mapping every capture pain point from the conversation to a specific technical configuration in Zoho. 
+Identify as a Strategic Solutions Architect from Fristine Infotech.
+Status: Professional business English, active voice, and perfect grammar.
+Task: Analyze the requirements and generate a comprehensive, ultra-customized technical proposal using Data Analyst precision.`;
 
 let isAppInitialized = false;
 
-async function init() {
-    if (isAppInitialized) return;
-    isAppInitialized = true;
+async function checkAiHealth() {
+    const aiBadge = document.getElementById('aiStatus');
+    const voiceBadge = document.getElementById('voiceStatus');
+    
+    // AI Status Check
+    if (aiBadge) {
+        try {
+            const res = await ai.getStatus();
+            if (res.status === 'ok') {
+                aiBadge.style.borderColor = 'var(--green)';
+                aiBadge.style.color = 'var(--green)';
+                aiBadge.innerHTML = `<span class="phase-dot" style="background:var(--green)"></span> AI Online`;
+            } else {
+                 aiBadge.style.borderColor = 'var(--red)';
+                 aiBadge.style.color = 'var(--red)';
+                 aiBadge.innerHTML = `<span class="phase-dot" style="background:var(--red)"></span> AI Error`;
+            }
+        } catch {
+            aiBadge.style.borderColor = 'var(--red)';
+            aiBadge.innerHTML = `<span class="phase-dot" style="background:var(--red)"></span> AI Offline`;
+        }
+    }
 
+    // Voice Status Check
+    if (voiceBadge) {
+        try {
+            const res = await voice.getStatus();
+            if (res.status === 'ok') {
+                voiceEnabled = true;
+                voiceBadge.style.borderColor = 'var(--green)';
+                voiceBadge.style.color = 'var(--green)';
+                voiceBadge.innerHTML = `<span class="phase-dot" style="background:var(--green)"></span> Voice Online`;
+            } else {
+                 voiceBadge.style.borderColor = 'var(--red)';
+                 voiceBadge.style.color = 'var(--red)';
+                 voiceBadge.innerHTML = `<span class="phase-dot" style="background:var(--red)"></span> Voice Error`;
+            }
+        } catch {
+            voiceBadge.style.borderColor = 'var(--red)';
+            voiceBadge.innerHTML = `<span class="phase-dot" style="background:var(--red)"></span> Voice Offline`;
+        }
+    }
+}
+
+
+/* ══ BOOT ══ */
+async function init() {
     initTheme();
     initPasswordToggle();
     initCaptcha();
+    initVoice();
     initKpis();
     initMobileMenu();
+    checkAiHealth();
+    setInterval(checkAiHealth, 60000); // Check every minute
+    
     const params = new URLSearchParams(window.location.search);
     const clientId = params.get('client');
     
@@ -629,6 +660,7 @@ async function startStaffPortal(agentEmail) {
     if (agentEmail) document.getElementById('agentChip').textContent = agentEmail.split('@')[0];
     hide('L'); hide('SP'); hide('FP');
     show('H');
+    initKpis();
     await renderClientTable();
     animateDashboardEntrance();
 }
@@ -1069,11 +1101,49 @@ async function openTracking(clientId) {
 
     document.getElementById('resendBotBtn').onclick = () => sendBotEmail(clientId);
     document.getElementById('copyLinkBtn').onclick = () => {
-        const url = `${DEPLOY_URL}/?client=${encodeURIComponent(clientId)}`;
-        navigator.clipboard.writeText(url).then(() => {
-            document.getElementById('copyLinkBtn').textContent = 'Copied!';
-            setTimeout(() => { document.getElementById('copyLinkBtn').innerHTML = `<svg viewBox="0 0 20 20" fill="none" width="14" height="14"><rect x="7" y="7" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 13V3h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Copy Link`; }, 2000);
-        });
+        const url = `${window.location.origin}/?client=${encodeURIComponent(clientId)}`;
+        
+        const doCopy = (val) => {
+            const btn = document.getElementById('copyLinkBtn');
+            const originalHtml = btn.innerHTML;
+            
+            // Clipboard API (Best)
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(val).then(() => {
+                    btn.textContent = 'Copied!';
+                    showToast('Link copied to clipboard!', 'success');
+                    setTimeout(() => { btn.innerHTML = originalHtml; }, 2000);
+                }).catch(() => fallbackCopy(val, btn, originalHtml));
+            } else {
+                fallbackCopy(val, btn, originalHtml);
+            }
+        };
+
+        const fallbackCopy = (val, btn, originalHtml) => {
+            const input = document.createElement('input');
+            input.value = val;
+            input.style.position = 'fixed';
+            input.style.opacity = '0';
+            document.body.appendChild(input);
+            input.focus();
+            input.select();
+            try {
+                const success = document.execCommand('copy');
+                if (success) {
+                    btn.textContent = 'Copied!';
+                    showToast('Link copied to clipboard!', 'success');
+                } else {
+                    showToast('Copy failed. Please copy manually.', 'error');
+                }
+            } catch (err) {
+                console.error('Fallback copy failed:', err);
+                showToast('Copy failed. Please copy manually.', 'error');
+            }
+            document.body.removeChild(input);
+            setTimeout(() => { btn.innerHTML = originalHtml; }, 2000);
+        };
+
+        doCopy(url);
     };
 }
 
@@ -1175,13 +1245,15 @@ async function startSession() {
     showLdr('Researching ' + cli.company + '…');
     try {
         const res = await gem(
-            `Research "${cli.company}". Industry: ${cli.industry}. Size: ${cli.size}.\nReturn JSON: {"industries":["..."],"description":"...","pain_points":["..."],"tech":"...","zoho_fit":["..."],"user_est":{"CRM":10}}`,
-            1000, 0.3, false, [], ZK
+            `Research ${cli.company} (${cli.industry}). Return a STRICT JSON object with these fields: industries (array), size, pain_points (array of 3), tech (high/mid/low), zoho_fit (array of 2).`,
+            1000, 0.2, true, [], ZK
         );
         prof = safeJ(res) || fallback();
         renderSidebar();
     } catch (e) {
+        console.error('[Gemini] Research failed:', e);
         prof = fallback();
+        showToast('Initial research failed: ' + (e.message || 'API error'), 'error');
     }
     hideLdr();
     setStg(0, 'done');
@@ -1219,7 +1291,25 @@ function askInd(inds) {
 }
 
 async function beginGather() {
-    setStg(2, 'act'); setPhase('Discovery Phase: Requirements'); phase = 'gather';
+    setPhase('Discovery');
+    showFeed();
+    updateCov(10);
+    
+    // Rule 1: Proactive Exact Greeting
+    const isOpen = convo.length === 0;
+    const isRestored = convo.length > 0;
+    
+    if (isOpen) {
+        const greet = "Hi! I’m your Fristine Infotech Presales Assistant. We help businesses solve complex problems through bespoke Zoho consultation and implementation. To help me draft a budgetary proposal for you, could you tell me which Zoho applications or business processes (Sales, CCMS, Marketing, or Support) you are looking to digitize today?";
+        addAg(greet);
+        convo.push({ role: 'assistant', content: greet });
+    } else if (isRestored) {
+        // Rule 2: State-Aware Resumption
+        const welcome = "Glad to see you again! Let's pick up where we left off.";
+        addAg(welcome);
+        convo.push({ role: 'assistant', content: welcome });
+    }
+    
     if (activeClientId) await tracking.logEvent(activeClientId, 'conversation_started').catch(() => {});
     showLdr('Tailoring consultation…');
     try {
@@ -1273,21 +1363,19 @@ async function nextQ(isOpen = false) {
     } else {
         // Standard Discovery Flow
         if (isOpen) {
-            turnPrompt = `PHASE 1 (Intro): Set the agenda for a consultation with ${cli.company}. 
-            1. Determine the appropriate greeting (Good morning, Good afternoon, or Good evening) based on the CURRENT TIME provided in the system context.
-            2. Acknowledge the research findings for ${cli.company} (Industry: ${prof.industries?.[0] || 'your sector'}). 
-            3. Start with a personalized greeting that mentions ${cli.company}. 
-            4. You MUST NOT use generic placeholders like "[Client Name]" or "morning/afternoon" — use definitive time-based greetings.
-            5. Identify as "the Fristine AI Pre-Sales Architect".`;
-
-
-
+            turnPrompt = `PHASE 1 (Intro): Start the consultation session for ${cli.company}.
+            MANDATORY FLOW:
+            1. GREETING: Use a time-based greeting (e.g., Good morning/Good evening) based on current time.
+            2. IDENTITY: Identify as the Fristine AI Pre-Sales Architect.
+            3. ORG INFO: Briefly mention Fristine's credentials (Zoho Premium Partner, 500+ successful Zoho implementations since 2014, offices in Mumbai/Pune/Dubai).
+            4. RESEARCH: Mention you've researched ${cli.company} specifically for their work in ${prof.industries?.[0] || 'their sector'}.
+            5. ASK: Pose your first strategic open-ended question to understand their biggest operational challenge today.
+            BE PROFESSIONAL, AUTHORITATIVE, and CONCISE.`;
         } else if (rn >= 10) {
-            turnPrompt = `PHASE 5 (Closure): 
-            MANDATORY STEP 1: Provide a high-fidelity TEXTUAL SUMMARY of all requirements gathered for ${cli.company} in 3-4 professional paragraphs. You MUST mention specific technical points discussed (e.g., ERP integration, shop-floor visibility, Tally sync) rather than generic terms.
-            MANDATORY STEP 2: Inform the user that the session is concluding and you're compiling the formal Proposal, BRD, and FSD.
-            MANDATORY STEP 3: Write the exact keyword: REQUIREMENTS_COMPLETE 
-            MANDATORY STEP 4: Provide the full JSON summary block. 
+            turnPrompt = `PHASE 5 (Closure): Summarize all requirements in a professional Markdown Table format.
+            MANDATORY: Use EXACT wording for the last sentence of your response: "Thank you! I have captured your requirements. A Fristine Solutions Architect will now review this to finalize your formal proposal within 24–48 hours."
+            MANDATORY STEP 2: Write the exact keyword: REQUIREMENTS_COMPLETE 
+            MANDATORY STEP 3: Provide the full JSON summary block. 
             CRITICAL: The JSON "must_have" and "pain_points" MUST be populated with specific items from this actual conversation, NOT generic placeholders like "Module Configuration".
             
             JSON SCHEMA: {
@@ -1299,35 +1387,30 @@ async function nextQ(isOpen = false) {
             const curPhaseId = Math.floor(rn / 2); 
             const curPhase = phaseMap[curPhaseId] || phaseMap[4];
             
-            // Explicit Detection for Company/Tech Inquiry
-            const lastMsg = convo.length > 0 ? convo[convo.length-1].content.toLowerCase() : "";
-            const isInquiry = ["fristine", "zoho", "who are you", "what is", "about"].some(kw => lastMsg.includes(kw));
+            // Explicit Detection for Company/Tech Inquiry (Handled before hitting Gemini API)
+            const lastMsg = (convo.length > 0 ? convo[convo.length-1].content : "").toLowerCase();
+            const isInquiry = ["fristine", "zoho", "who are you", "what is", "about", "your org", "yourself"].some(kw => lastMsg.includes(kw));
 
             if (isInquiry) {
-                turnPrompt = `The user asked a question about Fristine or Zoho. 
-                1. Answer the question thoroughly using the # ABOUT FRISTINE INFOTECH system info.
-                2. Transition back to discovery by saying: "Coming back to our requirements mapping, [Insert Question for ${curPhase}]".
-                Do not skip the answer. Be professional and detailed.`;
-            } else {
-                turnPrompt = `Current Phase: ${curPhase}. Conduct discovery for ${cli.company}. 
-                MANDATORY: 
-                1. Answer only what they ask for if they posed a question.
-                2. Reference a specific detail from the RESEARCH CONTEXT to ground your question.
-                3. Be extremely concise (<60 words).
-                4. Ask ONE technical specific question.`;
+                // Return a structured response from local memory immediately — saves API costs + works offline!
+                return `Fristine Infotech (founded in 2014) is a Tier-1 Zoho Premium Partner with a track record of 500+ global deployments. We specialize in complex Zoho CRM, Books, and Creator transformations. My role today is to help architect your solution. Coming back to our discovery... what is the primary operational challenge you'd like to solve first?`;
             }
 
-
+            turnPrompt = `Current Phase: ${curPhase}. Conduct discovery for ${cli.company}. 
+            PROTOCOL RULES:
+            1. For CCMS/Manufacturing: Ask about SAP S/4HANA, CAPA, and DOP approval needs.
+            2. For Healthcare/Retail: Ask about SalesIQ, WhatsApp/Telephony, and pipelines.
+            3. Mandatory Disclosure: Weave in License, 60/40 payment, or Hypercare info if it's the right time.
+            4. Ask ONE technical specific question.
+            5. Be extremely concise (<50 words).`;
         }
     }
 
     const resp = await gem(turnPrompt, rn >= 10 ? 2000 : 1000, 0.7, rn >= 10, convo, sys);
     
     // HUMAN_INTERVENTION_REQ Trigger Detection
-    if (resp && resp.includes("I have notified the Fristine Presales Team. A Senior Consultant will review our conversation history")) {
-        if (activeClientId) {
-            tracking.logEvent(activeClientId, 'HUMAN_INTERVENTION_REQ').catch(() => {});
-        }
+    if (resp && resp.includes("I have notified the Fristine Presales Team")) {
+        if (activeClientId) tracking.logEvent(activeClientId, 'HUMAN_INTERVENTION_REQ').catch(() => {});
     }
     
     return resp;
@@ -1467,6 +1550,8 @@ document.getElementById('sendBtn').addEventListener('click', async () => {
     if (discoveryComplete && !msg.toLowerCase().includes('change') && !msg.toLowerCase().includes('wrong')) {
         // If discovery is done and user isn't asking for changes, don't re-run discovery loop
         addUs(msg);
+        inp.value = ''; // FIX: Clear input immediately to prevent loop
+        clearTimeout(speechTimeout); // FIX: Clear VAD timeout
         addAg("I've captured your requirements! I'm currently architecting your solution. You can also click 'Create Proposal' above to skip the wait.");
         return;
     }
@@ -1588,6 +1673,15 @@ function initVoiceSystem() {
             }
             
             callingMode = !callingMode;
+            
+            // Warm-up AudioContext on user gesture
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+
             await toggleCallingMode();
         };
 
@@ -1640,21 +1734,27 @@ function initVoiceSystem() {
                 // Start persistent mic loop
                 setMicState(true);
             } else {
+                console.log('[Focus Mode] DEACTIVATED');
+                // Teardown hardware FAST to release mic icon
+                if (globalStream) {
+                    globalStream.getTracks().forEach(t => t.stop());
+                    globalStream = null;
+                }
                 voiceQueue = [];
+                isProcessingVoice = false;
                 isFetchingReply = false;
+                
                 if (currentAudioSource) {
                     try { currentAudioSource.stop(); } catch(e){}
                     currentAudioSource = null;
                 }
-                // Teardown persistent stream when quitting Focus Mode
-                if (globalStream) {
-                    globalStream.getTracks().forEach(t => t.stop());
-                    globalStream = null;
-                    console.log('[Voice] Global Stream Stopped');
-                }
+                
                 setMicState(false);
-                stopRecording(); // Fully clean up socket/recorder
-                showToast('Calling Mode: OFF (Manual)', 'success');
+                stopRecording(); 
+                showToast('Calling Mode: OFF', 'success');
+                
+                // GSAP Exit
+                gsap.to('.calling-focus-overlay', { opacity: 0, scale: 1.05, backdropFilter: 'blur(0px)', duration: 0.4 });
             }
         }
     }
@@ -1677,7 +1777,20 @@ function initVoiceSystem() {
     });
 }
 
-initVoiceSystem();
+    // Initial user gesture to warm up AudioContext for the entire session
+    const warmupAudio = () => {
+        if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioContext.state === 'suspended') {
+            audioContext.resume().then(() => console.log('[Voice] AudioContext Warmed Up via Gesture'));
+        }
+        // Remove listeners once warmed up
+        window.removeEventListener('click', warmupAudio);
+        window.removeEventListener('keydown', warmupAudio);
+    };
+    window.addEventListener('click', warmupAudio);
+    window.addEventListener('keydown', warmupAudio);
+
+    initVoiceSystem();
 
 /* ══ CONVERSATION MEMORY ══ */
 function saveConversationMemory() {
@@ -1726,6 +1839,10 @@ function renderClientFiles(clientId) {
 
 /* ══ REQUIREMENTS SUMMARY ══ */
 function showReqSummary() {
+    if (callingMode) {
+        callingMode = false;
+        toggleCallingMode();
+    }
     if (!reqs) reqs = { summary: 'Ready to proceed.', must_have: [] };
     setStg(2, 'done'); setStg(3, 'act'); setPhase('Reviewing Requirements…');
     saveConversationMemory();
@@ -1832,7 +1949,9 @@ async function buildSolution() {
         
         // We now ask the AI to generate the ENTIRE content for the proposal sections
         const systemPrompt = `${PROPOSAL_SPECIALIST_PROMPT}\n\nCLIENT CONTEXT: ${JSON.stringify(reqs)}`;
-        const userPrompt = `Generate a PROFESSIONAL TECHNICAL ZOHO PROPOSAL following the Expert Proposal Specialist Protocol. 
+        const userPrompt = `Generate an ULTRA-DETAILED PROFESSIONAL TECHNICAL ZOHO PROPOSAL following the Expert Proposal Specialist Protocol. 
+Each text section MUST be long (5+ paragraphs). 
+Map ALL client pain points found in ${JSON.stringify(reqs)} to specific Zoho solutions.
 RETURN ONLY RAW JSON. NO MARKDOWN. 
 SCHEMA: {
     "extraction_proof": {
@@ -1841,13 +1960,16 @@ SCHEMA: {
         "technical_requirements": ["Requirement 1", "Requirement 2", "Requirement 3"]
     },
     "title": "Clear catch technical title",
-    "executive_summary": "Extremely detailed 4-5 paragraph executive summary (Min 3 paragraphs) addressing specific pain points.",
-    "core_requirements": ["10-12 granular requirements"],
+    "executive_summary": "Extremely detailed 6-8 paragraph executive summary Addressing specific pain points in DEPTH.",
+    "pain_point_analysis": [
+        {"pain": "Specific client pain point", "impact": "Impact description", "solution": "How Zoho specifically cures this"}
+    ],
+    "core_requirements": ["12-15 granular technical requirements"],
     "solution_architecture": [
-        {"phase": "1", "name": "...", "objective": "Detailed implementation objective (Min 2 paragraphs of context expected in rendering)"}
+        {"phase": "1", "name": "...", "objective": "Ultra-detailed implementation objective (Min 5-8 paragraphs of technical context expected per phase)"}
     ],
     "detailed_scope": [
-        {"module": "Technical Module Name", "capabilities": ["8-10 specific technical capabilities"], "persona": "Stakeholders"}
+        {"module": "Technical Module Name", "capabilities": ["10-12 specific technical capabilities"], "persona": "Stakeholders"}
     ],
     "integrations": [
         {"name": "...", "benefit": "...", "method": "Technical Method Detail"}
@@ -1858,7 +1980,7 @@ SCHEMA: {
     "zoho_data_sync": {
         "lead_name": "...",
         "estimated_value": "₹ (Quoted)",
-        "timeline": "Phase-wise timeline summary"
+        "timeline": "Detailed Phase-wise timeline summary"
     }
 }`;
         const res = await gem(userPrompt, 3000, 0.6, true, [], systemPrompt);
@@ -1983,6 +2105,17 @@ ul.bullets li{font-size:15px;color:var(--slate);margin-bottom:12px;position:rela
   <div class="sec-num">02</div>
   <div class="sec-head"><div class="sec-title">Executive <span>Summary</span></div></div>
   <div class="executive-content">${sol.executive_summary?.replace(/\n/g, '<br/>') || ''}</div>
+  
+  ${sol.pain_point_analysis ? `
+  <p><strong>Detailed Pain Point Analysis:</strong></p>
+  <table style="margin-top:20px">
+    <thead><tr style="background:#0F172A;color:white"><th>Identified Pain Point</th><th>Operational Impact</th><th>Strategic Solution</th></tr></thead>
+    <tbody>
+        ${sol.pain_point_analysis.map(p => `<tr><td style="font-weight:700">${p.pain}</td><td style="color:#64748B">${p.impact}</td><td style="font-weight:600;color:#1D4ED8">${p.solution}</td></tr>`).join('')}
+    </tbody>
+  </table>
+  ` : ''}
+
   <p><strong>Key Requirements Captured:</strong></p>
   <ul class="bullets">
     ${(sol.core_requirements || []).map(r => `<li>${r}</li>`).join('')}
@@ -1994,11 +2127,23 @@ ul.bullets li{font-size:15px;color:var(--slate);margin-bottom:12px;position:rela
   <div class="sec-head"><div class="sec-title">Proposed <span>Architecture</span></div></div>
   <p>Our tailored approach for ${cli.company} follows a structured phased rollout to ensure maximum adoption and minimal disruption.</p>
   <table>
-    <thead><tr><th style="width:60px;text-align:center">Phase</th><th>Implementation Stage</th><th>Primary Objectives</th></tr></thead>
+    <thead><tr><th style="width:60px;text-align:center">Phase</th><th>Implementation Stage</th><th>Primary Objectives & Strategic Value</th></tr></thead>
     <tbody>
-      ${(sol.solution_architecture || []).map(a => `<tr><td style="font-weight:800;color:var(--primary);text-align:center">${a.phase}</td><td style="font-weight:600;color:var(--navy)">${a.name}</td><td style="color:var(--slate)">${a.objective}</td></tr>`).join('')}
+      ${(sol.solution_architecture || []).map(a => `<tr><td style="font-weight:800;color:var(--primary);text-align:center">${a.phase}</td><td style="font-weight:600;color:var(--navy)">${a.name}</td><td style="color:var(--slate)"><div style="margin-bottom:8px">${a.objective}</div><div style="font-size:12px;color:var(--primary);font-weight:600">Technical Outcome: Ensuring ${a.name} aligns with ${cli.industry || 'Business'} standards.</div></td></tr>`).join('')}
     </tbody>
   </table>
+  
+  <p style="font-weight:700;color:var(--navy);font-size:14px;margin-top:40px;margin-bottom:12px">Strategic Value Propositions:</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+    <div style="background:#F1F5F9;padding:20px;border-radius:12px">
+        <h4 style="font-size:13px;color:var(--navy);margin-bottom:8px">Operational Efficiency</h4>
+        <p style="font-size:12px;margin-bottom:0">By automating manual workflows identified for ${cli.company}, we expect to recover up to 15-20 hours per week of team capacity.</p>
+    </div>
+    <div style="background:#F1F5F9;padding:20px;border-radius:12px">
+        <h4 style="font-size:13px;color:var(--navy);margin-bottom:8px">Data Integrity</h4>
+        <p style="font-size:12px;margin-bottom:0">Centralizing data into Zoho CRM eliminates the siloes currently caused by ${reqs.current_tools?.[0] || 'legacy systems'}.</p>
+    </div>
+  </div>
 </div>
 
 <div class="section">
@@ -2263,7 +2408,7 @@ Return ONLY the complete HTML document, no markdown wrapping.`;
     }
 });
 
-/* ══ DOCX GENERATION ══ */
+/* ══ CORE UI NAVIGATION ══ */
 async function generateDocx(proposalHtml, companyName) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(proposalHtml, 'text/html');
@@ -2554,16 +2699,14 @@ function mdToHtml(text) {
 }
 
 function addAg(msg, opts = {}) {
-    // Trigger TTS if calling mode is ON and not a restored message
-    if (callingMode && !opts.restored) {
+    // Use global voice if enabled or in calling mode
+    if ((callingMode || voiceEnabled) && !opts.restored) {
         playVoice(msg);
     }
     
-    if (callingMode) {
-        saveConversationMemory();
-        return;
-    }
+    // Always render to feed for visual confirmation, unless hidden via options
     const f = document.getElementById('feed');
+    if (!f) return;
     const d = document.createElement('div');
     d.className = 'msg ag';
     const rendered = opts.noEscape ? msg : mdToHtml(msg);
@@ -2602,68 +2745,110 @@ function addAg(msg, opts = {}) {
 
 
 async function playVoice(text) {
-    if (!text) return;
-    const cleanText = text.replace(/<[^>]*>/g, '').replace(/\*\*|__|#|`|\[|\]|\(|\)/g, '').replace(/\s+/g, ' ').trim();
-    if (!cleanText) return;
+    if (!text || (!callingMode && !voiceEnabled)) return;
+    // Strip HTML and Markdown for cleaner TTS
+    const cleanText = text.replace(/<[^>]*>/g, '')
+                          .replace(/\*\*(.+?)\*\*/g, '$1') // Bold
+                          .replace(/\*(.+?)\*/g, '$1')   // Italic
+                          .replace(/#+\s/g, '')          // Headings
+                          .replace(/[-*+]\s/g, '')        // Bullets
+                          .replace(/`{1,3}.*?`{1,3}/gs, '') // Code blocks
+                          .replace(/\[(.+?)\]\(.*?\)/g, '$1') // Links
+                          .replace(/\*\*|__|#|`|\[|\]|\(|\)/g, '')
+                          .replace(/&[a-z0-9#]+;/gi, ' ')
+                          .replace(/\s+/g, ' ')
+                          .trim();
     
+    if (!cleanText || cleanText.length < 2) return;
+    
+    console.log('[Voice] Pre-queueing speech:', cleanText.substring(0, 40) + '...');
     voiceQueue.push(cleanText);
     if (!isProcessingVoice) processVoiceQueue();
 }
 
 async function processVoiceQueue() {
+    // Exit Guard: Stop processing if the session was closed
+    if (!callingMode && !voiceEnabled) {
+        voiceQueue = [];
+        isProcessingVoice = false;
+        return;
+    }
+
     if (voiceQueue.length === 0) {
         isProcessingVoice = false;
+        console.log('[Voice] Queue empty.');
         return;
     }
     isProcessingVoice = true;
     const text = voiceQueue.shift();
 
+    console.log('[Voice] Processing item:', text.substring(0, 30));
+
     try {
-        // Stop any current audio before fetching new ones
         if (currentAudioSource) {
             try { currentAudioSource.stop(); } catch(e){}
             currentAudioSource = null;
         }
 
         const data = await voice.speak(text);
-        if (data && data.audio) {
-            const audioData = atob(data.audio);
-            const arrayBuffer = new ArrayBuffer(audioData.length);
-            const view = new Uint8Array(arrayBuffer);
-            for (let i = 0; i < audioData.length; i++) view[i] = audioData.charCodeAt(i);
-            
-            if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            if (audioContext.state === 'suspended') await audioContext.resume();
-            
-            const buffer = await audioContext.decodeAudioData(arrayBuffer);
-            const source = audioContext.createBufferSource();
-            source.buffer = buffer;
-            source.connect(audioContext.destination);
-
-            // Strict lockout right before start
-            if (currentAudioSource) {
-                try { currentAudioSource.stop(); } catch(e){}
-            }
-            currentAudioSource = source;
-
-            const waves = document.querySelectorAll('.voice-wave, .large-voice-wave');
-            waves.forEach(w => w.classList.add('active'));
-
-            source.onended = () => {
-                if (currentAudioSource === source) {
-                    currentAudioSource = null;
-                    waves.forEach(w => w.classList.remove('active'));
-                    // Note: setMicState(true) removed as mic is now continuous
-                }
-                processVoiceQueue(); 
-            };
-            source.start(0);
-        } else {
-            processVoiceQueue();
+        if (!data || !data.audio) {
+            console.warn('[Voice] No audio data returned from backend.');
+            // Wait 2 seconds on service failure to avoid rapid-fire loops
+            return setTimeout(processVoiceQueue, 2000);
         }
+
+        console.log('[Voice] Decoding audio data:', data.audio.length, 'bytes');
+        const audioData = atob(data.audio);
+        const arrayBuffer = new ArrayBuffer(audioData.length);
+        const view = new Uint8Array(arrayBuffer);
+        for (let i = 0; i < audioData.length; i++) view[i] = audioData.charCodeAt(i);
+        
+        if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioContext.state === 'suspended') {
+            console.warn('[Voice] AudioContext suspended. Attempting resume...');
+            // Safety timeout for resume
+            await Promise.race([
+                audioContext.resume(),
+                new Promise(r => setTimeout(r, 1000))
+            ]);
+        }
+        
+        let buffer;
+        try {
+            buffer = await audioContext.decodeAudioData(arrayBuffer);
+        } catch (decodeErr) {
+            console.error('[Voice] Decoding failed:', decodeErr);
+            return setTimeout(processVoiceQueue, 500);
+        }
+        const source = audioContext.createBufferSource();
+        source.buffer = buffer;
+        source.connect(audioContext.destination);
+
+        if (currentAudioSource) {
+            try { currentAudioSource.stop(); } catch(e){}
+        }
+        currentAudioSource = source;
+
+        const waves = document.querySelectorAll('.voice-wave, .large-voice-wave');
+        waves.forEach(w => w.classList.add('active'));
+
+        source.onended = () => {
+            console.log('[Voice] Playback ended.');
+            if (currentAudioSource === source) {
+                currentAudioSource = null;
+                waves.forEach(w => w.classList.remove('active'));
+            }
+            // Small delay to prevent tight-looping on short/empty segments
+            setTimeout(processVoiceQueue, 10); 
+        };
+        
+        console.log('[Voice] Starting playback...');
+        source.start(0);
     } catch (e) {
-        console.warn('[Queue Error]', e);
-        processVoiceQueue();
+        console.error('[Voice Error Callback]', e);
+        // CRITICAL: If the service is failing (e.g. 401), WAIT 2 seconds 
+        // to prevent an infinite recursive loop that hangs the UI.
+        setTimeout(processVoiceQueue, 2000);
     }
 }
 
@@ -2674,13 +2859,11 @@ function escHtml(str) {
 }
 
 function addUs(msg) {
-    if (callingMode) {
-        saveConversationMemory();
-        return;
-    }
     const f = document.getElementById('feed');
+    if (!f) return;
     const d = document.createElement('div');
     d.className = 'msg u';
+    // Always render bubble even in calling mode for visual tracking
     d.innerHTML = `<div class="msg-av">U</div><div class="msg-bubble">${escHtml(msg)}</div>`;
     f.appendChild(d);
     f.scrollTop = f.scrollHeight;
@@ -2690,15 +2873,18 @@ function addUs(msg) {
 function showToast(message, type = 'success') {
     const t = document.createElement('div');
     t.className = `toast-notification ${type}`;
+    // Truncate long error messages for UI comfort
+    const displayMsg = message.length > 120 ? message.substring(0, 117) + '...' : message;
+    
     const icon = type === 'success'
         ? '<svg viewBox="0 0 16 16" width="16" height="16" fill="none"><path d="M4 8l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
         : '<svg viewBox="0 0 16 16" width="16" height="16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>';
-    t.innerHTML = icon + message;
+    t.innerHTML = icon + displayMsg;
     document.body.appendChild(t);
     setTimeout(() => {
         t.classList.add('exiting');
         setTimeout(() => t.remove(), 300);
-    }, 3000);
+    }, type === 'success' ? 3000 : 7000); // Errors stay longer
 }
 
 function evaluateDiscoveryCompleteness(transcript) {

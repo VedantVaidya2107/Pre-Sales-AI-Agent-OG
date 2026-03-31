@@ -1,35 +1,34 @@
 import os
-import sys
+import google.generativeai as genai
 from dotenv import load_dotenv
-from google import genai
 
-# Load environment variables from .env
 load_dotenv()
 
-api_key = os.environ.get("GEMINI_API_KEY")
+key = os.getenv("GEMINI_API_KEY")
+if not key:
+    print("ERROR: GEMINI_API_KEY is not set.")
+    exit(1)
 
-if not api_key:
-    print("❌ Error: GEMINI_API_KEY not found in .env")
-    sys.exit(1)
+genai.configure(api_key=key)
 
-print(f"Testing Gemini API with Key: {api_key[:5]}...{api_key[-5:]}")
+# Test model availability
+models = [m.name for m in genai.list_models() if "generateContent" in m.supported_generation_methods]
+print(f"Available models: {models}")
+
+test_model = "gemini-2.0-flash"
+print(f"\nTesting model: {test_model}...")
 
 try:
-    client = genai.Client(api_key=api_key)
-    # Try gemini-1.5-flash as it's more widely available
-    response = client.models.generate_content(
-        model="gemini-1.5-flash",
-        contents="Hello, this is a test from the Fristine AI Pre-Sales Architect. Respond with 'API_SUCCESS' if you receive this."
-    )
-    
-    if "API_SUCCESS" in response.text:
-        print("✅ Success: Gemini API is responding correctly!")
-        print(f"Response: {response.text.strip()}")
-    else:
-        print("⚠️ Warning: Received response but it might be unexpected.")
-        print(f"Response: {response.text.strip()}")
-
-
+    model = genai.GenerativeModel(test_model)
+    response = model.generate_content("Hello, this is a test.")
+    print(f"SUCCESS: {response.text}")
 except Exception as e:
-    print(f"❌ Error during API call: {e}")
-    sys.exit(1)
+    print(f"FAILURE for {test_model}: {e}")
+    # Try gemini-1.5-flash as fallback
+    print(f"\nTesting fallback model: gemini-1.5-flash...")
+    try:
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        response = model.generate_content("Hello, this is a test.")
+        print(f"SUCCESS: {response.text}")
+    except Exception as e2:
+        print(f"FAILURE for gemini-1.5-flash: {e2}")
