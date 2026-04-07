@@ -319,39 +319,71 @@ async function initVoiceAgent() {
 }
 
 /* ══ FRISTINE AI PRE-SALES ARCHITECT (SYSTEM INSTRUCTIONS) ══ */
-const ZK = `### Role: Senior Presales AI Agent for Fristine Infotech
-You are the Senior Presales AI Agent for Fristine Infotech, a Premium Zoho Partner with 9 years of experience and 300+ implementations. Your goal is to conduct a discovery session to gather requirements for a Zoho Implementation Proposal.
+const ZK = `### Role: Fristine AI Pre-Sales Architect (OG)
+You are the expert multi-agent system designed to conduct structured, MEDDPICC-driven discovery for Zoho transformations. You represent Fristine Infotech, a Premium Zoho Partner with offices in Mumbai, Pune, and Dubai.
+
+### Core Capability:
+1. Conduct discovery for CRM, Desk, Analytics, and Books implementations.
+2. Follow MEDDPICC logic to qualify leads:
+   - Metrics (ROI/KPIs)
+   - Economic Buyer (Stakeholders)
+   - Decision Criteria (Tech/Integration needs)
+   - Decision Process (Workflow mapping)
+   - Paper Process
+   - Identify Pain (Operational Bottlenecks)
+   - Champion identification.
 
 ### Core Behavior Rules:
-1. **Persistence & State-Awareness**: If a client returns, acknowledge the previous progress. Use: "Welcome back! Let's pick up where we left off regarding your [Last Section Name]."
-2. **Structured Discovery**: You MUST gather data for:
-   - Business Purpose
-   - Zoho Modules
-   - Integrations (SAP S/4HANA/Third-Party)
-   - User Count & Data Volume
-3. **Mandatory Disclosures**: Weave these into the conversation naturally:
-   - "Please note, Zoho license costs are paid upfront to Zoho and are separate from our implementation fees."
-   - "Our standard terms are 60% advance and 40% upon final UAT sign-off."
-   - "All our proposals include 30 days of Hypercare support post-go-live."
-
-### Requirement Gathering Framework:
-- **For CCMS/Manufacturing**: Ask about SAP S/4HANA integration, CAPA workflows, and DOP (Delegation of Power) approval needs.
-- **For Healthcare/Retail**: Ask about SalesIQ chatbots, WhatsApp/Telephony integration, and Lead/Opportunity pipelines.
-- **For SOW Logic**: Ask for the estimated number of Users, Records (Customers/Materials), and if they require On-site or Remote training.
+1. **Persistence & State-Awareness**: Acknowledge previous context if the user returns.
+2. **Authority**: Speak as a Solution Architect + Business Consultant.
+3. **Zoho Product Matrix**: Map use cases intelligently:
+   - Complaint Management -> Zoho Desk + Analytics
+   - Sales Automation -> Zoho CRM + Campaigns
+   - Support -> Zoho Desk
+   - Finance -> Zoho Books
+4. **Mandatory Disclosures**: 
+   - Licensing is separate from implementation fees.
+   - Standard terms: 60% advance / 40% sign-off.
+   - 30 days of Hypercare included.
+5. **Conciseness**: Keep responses professional and under 60 words.
 
 ### Interaction Style:
-- **Tone**: Authoritative, professional, yet helpful.
-- **Conciseness**: Keep responses under 50 words unless providing the final summary.
-- **Guidance**: Do not give price quotes; you architect solutions based on the Master Data Template.`;
+- Use **consulting tone** (Accenture/Deloitte style).
+- Extract requirements and fill gaps intelligently without asking unnecessary questions.
+- Focus on business impact (ROI) and technical feasibility (Integrations).`;
 
-/* ══ PROPOSAL SPECIALIST MODE (FOR DOCUMENT GENERATION) ══ */
-const PROPOSAL_SPECIALIST_PROMPT = `Role: Expert Proposal Specialist & Data Analyst.
-Protocol: ULTRA-HIGH DETAIL. 
-Each major section (Executive Summary, Solution Architecture, etc.) MUST be written in long-form using minimum 5-8 paragraphs per section. 
-You MUST mapping every capture pain point from the conversation to a specific technical configuration in Zoho. 
-Identify as a Strategic Solutions Architect from Fristine Infotech.
-Status: Professional business English, active voice, and perfect grammar.
-Task: Analyze the requirements and generate a comprehensive, ultra-customized technical proposal using Data Analyst precision.`;
+/* ══ PROPOSAL INTELLIGENCE LAYER (OG SPECIFICATION) ══ */
+const PROPOSAL_SPECIALIST_PROMPT = `### Role Definition: Fristine AI Pre-Sales Architect (Proposal Intelligence Layer)
+You are the OG expert multi-agent system designed to conduct structured discovery and generate enterprise-grade implementation proposals for Fristine Infotech.
+
+### Core Capability:
+Generate proposals matching "Fristine DNA": boardroom-ready, highly structured, consulting-grade (Accenture/Deloitte style), and technically accurate.
+
+### Proposal Structure (STRICT - DO NOT CHANGE ORDER):
+1. About Fristine Infotech
+2. Executive Summary
+3. Client Objective / Business Context
+4. Proposed Solution (Zoho Stack Explanation)
+5. Scope of Work (CRM, Desk, Analytics, etc.)
+6. Integrations (SAP, WhatsApp, SMS, Webforms, etc.)
+7. Data Migration
+8. Delivery Model / Project Plan
+9. Timeline
+10. Project Team
+11. Governance & Escalation Matrix
+12. Detailed Scope of Work (Workflow & Module-level breakdown with limits e.g. "Up to 5 workflows")
+13. Commercials (structured table)
+14. Payment Terms (60% Advance / 40% UAT)
+15. Assumptions & Constraints
+16. Run Model / Managed Services
+17. Annexure (for complex enterprise use cases)
+
+### Intelligence Rules:
+- **Tone**: Professional business English, active voice, 4K quality technical detail.
+- **Mapping**: Convert pain points to specific Zoho cures.
+- **Limits**: Add concrete limits to scope (layouts, approvals, automated rules).
+- **Architecture**: Smartly include CAPA, SLA/TAT tracking, and DOP approval logic for CCMS/Enterprise.
+- **Commercials**: Include workshops, solution design, QA, and 30-day Hypercare.`;
 
 let isAppInitialized = false;
 
@@ -890,6 +922,7 @@ async function renderClientTable(filter = '', forceRefresh = true) {
                 <td>
                     <div class="tbl-actions">
                         <button class="btn-tbl btn-tbl-send">Bot</button>
+                        <button class="btn-tbl btn-tbl-call" style="background:var(--green);border-color:var(--green);">Call</button>
                         <button class="btn-tbl btn-tbl-edit" style="background:var(--blue-acc);border-color:var(--blue-acc);">Edit</button>
                         <button class="btn-tbl btn-tbl-track">Track</button>
                         <button class="btn-tbl btn-tbl-del">Del</button>
@@ -904,6 +937,7 @@ async function renderClientTable(filter = '', forceRefresh = true) {
             };
 
             attachListener('.btn-tbl-send', () => sendBotEmail(clientId));
+            attachListener('.btn-tbl-call', () => triggerOutboundCall(clientId));
             attachListener('.btn-tbl-edit', () => openEditLead(clientId));
             attachListener('.btn-tbl-track',() => openTracking(clientId));
 
@@ -1125,6 +1159,35 @@ async function openEditLead(clientId) {
     document.getElementById('editLeadModal').dataset.clientId = clientId;
     
     openModal('editLeadModal');
+}
+
+async function triggerOutboundCall(clientId) {
+    const c = allClients.find(i => i.client_id === clientId);
+    if (!c) return showToast('Client not found.', 'error');
+
+    // For better experience, we can prompt for verification of the phone number
+    const targetPhone = c.phone || prompt(`Enter phone number for ${c.company}:`, "+91");
+    if (!targetPhone) return;
+
+    showToast(`Calling ${c.company} (${targetPhone})…`, 'info');
+    
+    try {
+        const res = await voice.call(targetPhone, clientId);
+        
+        if (res.success) {
+            showToast('Outbound call successful. Connecting to AI bot…', 'success');
+            await tracking.logEvent(clientId, 'outbound_call_initiated', `SID: ${res.call_sid}`);
+            renderClientTable('', false); // Update status badge
+        }
+    } catch (err) {
+        console.error('[Call] Failed:', err);
+        const code = err.response?.data?.detail?.code;
+        if (code === 21219) {
+            showToast('Twilio Restriction: Phone number not verified in trial console.', 'error', 6000);
+        } else {
+            showToast('Failed to initiate call. Check Twilio config/Ngrok.', 'error');
+        }
+    }
 }
 
 document.getElementById('updateLeadBtn').addEventListener('click', async () => {
@@ -2005,40 +2068,36 @@ async function buildSolution() {
         
         // We now ask the AI to generate the ENTIRE content for the proposal sections
         const systemPrompt = `${PROPOSAL_SPECIALIST_PROMPT}\n\nCLIENT CONTEXT: ${JSON.stringify(reqs)}`;
-        const userPrompt = `Generate an ULTRA-DETAILED PROFESSIONAL TECHNICAL ZOHO PROPOSAL following the Expert Proposal Specialist Protocol. 
-Each text section MUST be long (5+ paragraphs). 
-Map ALL client pain points found in ${JSON.stringify(reqs)} to specific Zoho solutions.
-RETURN ONLY RAW JSON. NO MARKDOWN. 
-SCHEMA: {
-    "extraction_proof": {
-        "client_name": "...",
-        "project_goals": "...",
-        "technical_requirements": ["Requirement 1", "Requirement 2", "Requirement 3"]
-    },
-    "title": "Clear catch technical title",
-    "executive_summary": "Extremely detailed 6-8 paragraph executive summary Addressing specific pain points in DEPTH.",
-    "pain_point_analysis": [
-        {"pain": "Specific client pain point", "impact": "Impact description", "solution": "How Zoho specifically cures this"}
-    ],
-    "core_requirements": ["12-15 granular technical requirements"],
-    "solution_architecture": [
-        {"phase": "1", "name": "...", "objective": "Ultra-detailed implementation objective (Min 5-8 paragraphs of technical context expected per phase)"}
-    ],
-    "detailed_scope": [
-        {"module": "Technical Module Name", "capabilities": ["10-12 specific technical capabilities"], "persona": "Stakeholders"}
-    ],
-    "integrations": [
-        {"name": "...", "benefit": "...", "method": "Technical Method Detail"}
-    ],
-    "commercial_phases": [
-        {"name": "Discovery", "amount": "₹ (Quoted)", "model": "T&M"}
-    ],
-    "zoho_data_sync": {
-        "lead_name": "...",
-        "estimated_value": "₹ (Quoted)",
-        "timeline": "Detailed Phase-wise timeline summary"
-    }
-}`;
+        const userPrompt = `Generate a fully detailed, enterprise-grade implementation proposal matching Fristine's "Proposal Intelligence" standard for ${cli.company}.
+        
+        INSTRUCTIONS:
+        1. Follow the 17-section structure EXACTLY.
+        2. Ensure technical accuracy for Zoho products.
+        3. Use long-form, consulting-grade language (5-8 paragraphs per executive/objective section).
+        4. Add module-level limits (e.g., "Up to 3 Page Layouts").
+        5. Include CAPA and Approval logic for enterprise clients.
+        
+        RETURN RAW JSON ONLY.
+        SCHEMA: {
+            "title": "Project Title",
+            "about_fristine": "Detailed section about Fristine Infotech credentials.",
+            "executive_summary": "Extensive 6-10 paragraph summary for CXOs.",
+            "client_objective": "Client Context & Pain Points mapping.",
+            "proposed_solution": "In-depth Zoho stack explanation.",
+            "scope_of_work": "Overall scope summary.",
+            "integrations": [{"item": "Name", "detail": "Technical method (SAP/API/Middleware)"}],
+            "data_migration": "Details on volume and T&M model.",
+            "delivery_model": "Project plan details (Agile/SDLC).",
+            "timeline": "Phase-wise timeline (Weeks).",
+            "project_team": "Team structure (Architect, PM, Dev).",
+            "governance": "Escalation & Monitoring matrix.",
+            "detailed_sow": [{"module": "Name", "features": ["Feature with limit 1", "Feature with limit 2"]}],
+            "commercials": [{"service": "Implementation Phase", "cost": "₹ (Quoted)", "model": "Fixed/T&M"}],
+            "payment_terms": "60-40 split details.",
+            "assumptions_constraints": ["Assumption 1", "Constraint 1"],
+            "run_model": "12-month managed services option.",
+            "annexure": "Technical specs/Annexure details."
+        }`;
         const res = await gem(userPrompt, 3000, 0.6, true, [], systemPrompt);
         sol = safeJ(res);
         if (!sol) throw new Error('Bad JSON from AI');
@@ -2062,224 +2121,228 @@ SCHEMA: {
 }
 
 async function generateProposal() {
-    showLdr('Generating CCMS proposal…');
-    const fname   = `Zoho_CCMS_Proposal_${(cli.company||'Client').replace(/\s+/g,'_')}_${new Date().toISOString().slice(0,10)}.html`;
+    showLdr('Architecting Enterprise Proposal…');
+    const fname   = `Fristine_Proposal_${(cli.company||'Client').replace(/\s+/g,'_')}_${new Date().toISOString().slice(0,10)}.html`;
     const dateStr = new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
-    const products   = ['Zoho CRM Plus', 'Zoho Desk', 'Zoho Survey', 'Zoho Analytics'];
-    const industry   = reqs?.industry || cli.industry || 'Manufacturing';
-    const workflows  = sol?.workflow || sol?.workflows || [];
+    
+    // Helper to format paragraphs
+    const fmt = (txt) => (txt || '').split('\n').filter(p => p.trim()).map(p => `<p>${p}</p>`).join('');
 
-    const wfRows     = workflows.map(w => `<tr><td style="font-weight:700;color:#1A4FD6;text-align:center;width:40px">${w.step}</td><td style="font-weight:600">${w.name}</td><td style="color:#4F6282">${w.description}</td></tr>`).join('');
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Enterprise Proposal — ${cli.company}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
+    <style>
+        :root { --p:#1A56DB; --navy:#0F172A; --slate:#475569; --bg:#F8FAFC; --w:#FFFFFF; --brd:#E2E8F0; --gray:#F1F5F9; }
+        * { box-sizing:border-box; margin:0; padding:0; }
+        body { font-family:'Inter', sans-serif; color:var(--navy); line-height:1.6; background:#F1F5F9; print-color-adjust:exact; }
+        .page { max-width:1050px; margin:40px auto; background:var(--w); box-shadow:0 30px 60px rgba(15,23,42,0.1); position:relative; overflow:hidden; border-radius:16px; }
+        
+        /* Cover Page */
+        .cover { height:1100px; display:flex; flex-direction:column; justify-content:center; padding:100px; background: radial-gradient(circle at 100% 0%, rgba(26,86,219,0.05) 0%, transparent 40%), linear-gradient(135deg, #fff 0%, #f8fafc 100%); position:relative; }
+        .cover::after { content:''; position:absolute; bottom:0; left:0; width:100%; height:12px; background:var(--p); }
+        .cover-logo { display:flex; align-items:center; gap:16px; margin-bottom:80px; }
+        .logo-box { width:56px; height:56px; background:var(--navy); border-radius:14px; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:26px; box-shadow:0 12px 24px rgba(15,23,42,0.2); }
+        .logo-text { font-family:'DM Sans', sans-serif; font-weight:700; font-size:22px; color:var(--navy); letter-spacing:-0.5px; }
+        .cover-tag { font-size:14px; font-weight:700; color:var(--p); text-transform:uppercase; letter-spacing:3px; margin-bottom:16px; }
+        h1 { font-family:'DM Sans', sans-serif; font-size:56px; font-weight:700; color:var(--navy); line-height:1.1; letter-spacing:-2px; margin-bottom:24px; }
+        .client-info { font-size:28px; font-weight:500; color:var(--slate); margin-bottom:60px; }
+        
+        .meta-card { background:var(--bg); border:1px solid var(--brd); border-radius:20px; padding:40px; display:grid; grid-template-columns:1fr 1fr; gap:32px; }
+        .meta-item label { font-size:11px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:var(--slate); display:block; margin-bottom:6px; }
+        .meta-item span { font-size:16px; font-weight:600; color:var(--navy); }
 
-    const html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><title>Zoho Proposal — ${cli.company}</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
-<style>
-:root{--primary:#3B82F6;--navy:#0F172A;--slate:#475569;--bg:#F8FAFC;--white:#FFFFFF;--brd:#E2E8F0}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Inter',sans-serif;color:var(--navy);line-height:1.6;background:#F1F5F9;print-color-adjust:exact;-webkit-print-color-adjust:exact}
-.page{max-width:960px;margin:20px auto;background:var(--white);box-shadow:0 20px 50px rgba(15,23,42,0.1);position:relative;overflow:hidden;border-radius:12px}
-.cover{height:1000px;display:flex;flex-direction:column;justify-content:center;padding:80px;background:radial-gradient(circle at 100% 0%, rgba(59,130,246,0.05) 0%, transparent 40%), radial-gradient(circle at 0% 100%, rgba(59,130,246,0.05) 0%, transparent 40%);position:relative}
-.cover::after{content:'';position:absolute;bottom:0;left:0;width:100%;height:8px;background:linear-gradient(90deg,var(--primary),#1D4ED8)}
-.cover-logo{display:flex;align-items:center;gap:12px;margin-bottom:60px}
-.cover-logo-box{width:48px;height:48px;background:var(--navy);border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:22px;box-shadow:0 10px 20px rgba(15,23,42,0.2)}
-.cover-logo-name{font-family:'DM Sans',sans-serif;font-weight:700;font-size:18px;color:var(--navy);letter-spacing:-0.5px}
-.cover-tag{font-size:12px;font-weight:600;color:var(--primary);text-transform:uppercase;letter-spacing:2px;margin-bottom:12px}
-h1{font-family:'DM Sans',sans-serif;font-size:48px;font-weight:700;color:var(--navy);line-height:1.1;letter-spacing:-1.5px;margin-bottom:20px}
-.client-name{font-size:28px;font-weight:500;color:var(--slate);margin-bottom:40px}
-.meta-card{background:#F8FAFC;border:1px solid var(--brd);border-radius:16px;padding:32px;display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:100%}
-.meta-item label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--slate);display:block;margin-bottom:4px}
-.meta-item span{font-size:15px;font-weight:600;color:var(--navy)}
-.section{padding:80px 80px 40px;position:relative;page-break-before:always}
-.sec-head{display:flex;align-items:flex-end;gap:16px;margin-bottom:40px;border-bottom:2px solid #F1F5F9;padding-bottom:12px}
-.sec-num{font-family:'DM Sans',sans-serif;font-size:60px;font-weight:700;color:#F1F5F9;line-height:0.8;position:absolute;left:30px;top:65px;z-index:0}
-.sec-title{font-family:'DM Sans',sans-serif;font-size:24px;font-weight:700;color:var(--navy);position:relative;z-index:1;letter-spacing:-0.5px}
-.sec-title span{color:var(--primary)}
-p{font-size:15px;color:var(--slate);line-height:1.8;margin-bottom:20px}
-.about-box{background:var(--navy);border-radius:20px;padding:40px;margin-bottom:32px;box-shadow:0 15px 30px rgba(15,23,42,0.15)}
-.about-box p{color:rgba(255,255,255,0.7);margin-bottom:0;font-size:16px}
-.clients-grid{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
-.client-tag{background:rgba(59,130,246,0.06);color:var(--primary);font-size:12px;font-weight:600;padding:6px 16px;border-radius:30px;border:1px solid rgba(59,130,246,0.15)}
-table{width:100%;border-collapse:separate;border-spacing:0;font-size:14px;margin-bottom:32px;border:1px solid var(--brd);border-radius:12px;overflow:hidden}
-th{background:#F8FAFC;padding:16px;text-align:left;font-size:11px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--brd)}
-td{padding:16px;border-bottom:1px solid var(--brd);vertical-align:top;background:white}
-tr:last-child td{border-bottom:none}
-ul.bullets{padding-left:24px;margin-bottom:32px}
-ul.bullets li{font-size:15px;color:var(--slate);margin-bottom:12px;position:relative}
-.badge{padding:4px 12px;border-radius:30px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px}
-.badge-config{background:rgba(59,130,246,0.1);color:var(--primary)}
-.badge-tm{background:rgba(245,158,11,0.1);color:#F59E0B}
-.acceptance-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;margin-top:40px}
-.sign-box{border:1px solid var(--brd);border-radius:16px;padding:32px}
-.sign-label{font-weight:700;font-size:14px;color:var(--navy);margin-bottom:24px;display:block}
-.sign-line{border-bottom:1px solid var(--brd);margin-bottom:20px;height:40px}
-.sign-meta{font-size:12px;color:var(--slate);margin-bottom:4px}
-.footer{padding:40px 80px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--brd);background:#F8FAFC}
-.footer-text{font-size:12px;color:var(--slate);font-weight:500}
-.price-tag{color:var(--primary);font-weight:700;font-family:'DM Sans',sans-serif}
-@media print{.page{margin:0;box-shadow:none;border-radius:0}.no-print{display:none}}
-</style></head><body>
+        /* General Sections */
+        .section { padding:100px 100px 60px; position:relative; page-break-before:always; }
+        .sec-head { display:flex; align-items:center; gap:20px; margin-bottom:50px; border-bottom:2px solid var(--gray); padding-bottom:16px; }
+        .sec-num { font-family:'DM Sans', sans-serif; font-size:14px; font-weight:800; color:var(--p); background:rgba(26,86,219,0.1); padding:4px 12px; border-radius:6px; }
+        .sec-title { font-family:'DM Sans', sans-serif; font-size:28px; font-weight:700; color:var(--navy); letter-spacing:-0.5px; }
+        
+        p { font-size:15px; color:#334155; line-height:1.8; margin-bottom:20px; text-align:justify; }
+        h3 { font-family:'DM Sans', sans-serif; font-size:20px; font-weight:700; color:var(--navy); margin:32px 0 16px; border-left:4px solid var(--p); padding-left:16px; }
+        
+        /* Tables & Lists */
+        table { width:100%; border-collapse:separate; border-spacing:0; margin-bottom:40px; border:1px solid var(--brd); border-radius:12px; overflow:hidden; }
+        th { background:var(--bg); padding:18px; text-align:left; font-size:11px; font-weight:800; color:var(--slate); text-transform:uppercase; letter-spacing:1.5px; border-bottom:1px solid var(--brd); }
+        td { padding:18px; border-bottom:1px solid var(--brd); vertical-align:top; background:#fff; font-size:14px; }
+        tr:last-child td { border-bottom:none; }
+        
+        .bullet-list { list-style:none; padding-left:0; margin-bottom:32px; }
+        .bullet-list li { position:relative; padding-left:28px; margin-bottom:14px; font-size:15px; color:#334155; }
+        .bullet-list li::before { content:'→'; position:absolute; left:0; color:var(--p); font-weight:800; }
+
+        .highlight-box { background:var(--navy); border-radius:24px; padding:50px; color:#fff; position:relative; overflow:hidden; margin-bottom:40px; }
+        .highlight-box h3 { color:#fff; border-left-color:rgba(255,255,255,0.4); margin-top:0; }
+        .highlight-box p { color:rgba(255,255,255,0.8); }
+
+        .commercial-table td { font-weight:500; }
+        .price-text { color:var(--p); font-weight:800; font-family:'DM Sans', sans-serif; font-size:16px; }
+        
+        .footer { padding:60px 100px; background:var(--bg); border-top:1px solid var(--brd); display:flex; justify-content:space-between; align-items:center; }
+        .footer-logo { font-weight:800; font-size:14px; letter-spacing:1px; color:var(--navy); }
+        .footer-meta { font-size:12px; color:var(--slate); font-weight:500; }
+
+        @media print { .page { margin:0; box-shadow:none; border-radius:0; max-width:100%; } .no-print { display:none; } }
+    </style>
+</head>
+<body>
+
 <div class="page">
-<div class="cover">
-  <div class="cover-logo"><div class="cover-logo-box">F</div><div class="cover-logo-name">FRISTINE INFOTECH</div></div>
-  <div class="cover-tag">Implementation Proposal</div>
-  <h1>Zoho CRM Plus for CCMS Lifecycle</h1>
-  <div class="client-name">Prepared for ${cli.company || 'Client'}</div>
-  <div class="meta-card">
-    <div class="meta-item"><label>Date / Version</label><span>${dateStr} / v1.2</span></div>
-    <div class="meta-item"><label>Project Reference</label><span>PRJ-CCMS-${cli.company?.substring(0,3).toUpperCase() || 'XXX'}</span></div>
-    <div class="meta-item"><label>Solution Architect</label><span>Fristine Presales Team</span></div>
-    <div class="meta-item"><label>Contact</label><span>presales@fristinetech.com</span></div>
-  </div>
-</div>
-
-<!-- Page 1: Extraction Proof (Rule #2) -->
-<div class="page" style="padding:40px 80px">
-    <div class="section" style="padding:40px 0">
-        <div class="sec-num">00</div>
-        <div class="sec-head"><div class="sec-title">Extraction <span>Proof</span></div></div>
-        <p style="margin-bottom:20px;color:var(--slate)"><em>Requirement document analysis for <strong>${sol.extraction_proof?.client_name || cli.company}</strong>:</em></p>
-        <div style="background:var(--bg);padding:32px;border-radius:16px;border:1px solid var(--brd)">
-            <p style="font-weight:700;margin-bottom:8px;color:var(--navy)">Primary Project Goals:</p>
-            <p style="margin-bottom:20px;color:var(--slate)">${sol.extraction_proof?.project_goals || 'See requirements below.'}</p>
-            <p style="font-weight:700;margin-bottom:8px;color:var(--navy)">Identified Technical Requirements:</p>
-            <ul class="bullets" style="margin-bottom:0">
-                ${(sol.extraction_proof?.technical_requirements || []).map(r => `<li>${r}</li>`).join('')}
-            </ul>
+    <!-- COVER PAGE -->
+    <div class="cover">
+        <div class="cover-logo"><div class="logo-box">F</div><div class="logo-text">FRISTINE INFOTECH</div></div>
+        <div class="cover-tag">Strategic Implementation Proposal</div>
+        <h1>Enterprise Transformation: ${sol.title || 'Zoho Solution'}</h1>
+        <div class="client-info">Prepared for ${cli.company}</div>
+        <div class="meta-card">
+            <div class="meta-item"><label>Reference ID</label><span>FRAI-${cli.company.substring(0,3).toUpperCase()}-${new Date().getFullYear()}</span></div>
+            <div class="meta-item"><label>Date issued</label><span>${dateStr}</span></div>
+            <div class="meta-item"><label>Architect</label><span>Fristine AI Architect (OG)</span></div>
+            <div class="meta-item"><label>Classification</label><span>Strictly Confidential</span></div>
         </div>
     </div>
-</div>
 
-<div class="section">
-  <div class="sec-num">01</div>
-  <div class="sec-head"><div class="sec-title">The <span>Fristine</span> Advantage</div></div>
-  <div class="about-box"><p>Fristine Infotech is India's premier Zoho Partner, recognized as the "Innovator of the Year". We specialize in transforming complex legacy workflows into streamline digital ecosystems using Zoho's unified stack.</p></div>
-  <p>With a decade of experience and over <strong>200 successful enterprise implementations</strong>, we bring a wealth of domain expertise in manufacturing, operations, and quality management.</p>
-  <div class="clients-grid">${['eBay','Pepperfry','Edelweiss','Jio','Suzlon','Mercedes-Benz','TATA MD','CARE Ratings','CRISIL','NPCI'].map(c=>`<span class="client-tag">${c}</span>`).join('')}</div>
-</div>
-
-<div class="section">
-  <div class="sec-num">02</div>
-  <div class="sec-head"><div class="sec-title">Executive <span>Summary</span></div></div>
-  <div class="executive-content">${sol.executive_summary?.replace(/\n/g, '<br/>') || ''}</div>
-  
-  ${sol.pain_point_analysis ? `
-  <p><strong>Detailed Pain Point Analysis:</strong></p>
-  <table style="margin-top:20px">
-    <thead><tr style="background:#0F172A;color:white"><th>Identified Pain Point</th><th>Operational Impact</th><th>Strategic Solution</th></tr></thead>
-    <tbody>
-        ${sol.pain_point_analysis.map(p => `<tr><td style="font-weight:700">${p.pain}</td><td style="color:#64748B">${p.impact}</td><td style="font-weight:600;color:#1D4ED8">${p.solution}</td></tr>`).join('')}
-    </tbody>
-  </table>
-  ` : ''}
-
-  <p><strong>Key Requirements Captured:</strong></p>
-  <ul class="bullets">
-    ${(sol.core_requirements || []).map(r => `<li>${r}</li>`).join('')}
-  </ul>
-</div>
-
-<div class="section">
-  <div class="sec-num">03</div>
-  <div class="sec-head"><div class="sec-title">Proposed <span>Architecture</span></div></div>
-  <p>Our tailored approach for ${cli.company} follows a structured phased rollout to ensure maximum adoption and minimal disruption.</p>
-  <table>
-    <thead><tr><th style="width:60px;text-align:center">Phase</th><th>Implementation Stage</th><th>Primary Objectives & Strategic Value</th></tr></thead>
-    <tbody>
-      ${(sol.solution_architecture || []).map(a => `<tr><td style="font-weight:800;color:var(--primary);text-align:center">${a.phase}</td><td style="font-weight:600;color:var(--navy)">${a.name}</td><td style="color:var(--slate)"><div style="margin-bottom:8px">${a.objective}</div><div style="font-size:12px;color:var(--primary);font-weight:600">Technical Outcome: Ensuring ${a.name} aligns with ${cli.industry || 'Business'} standards.</div></td></tr>`).join('')}
-    </tbody>
-  </table>
-  
-  <p style="font-weight:700;color:var(--navy);font-size:14px;margin-top:40px;margin-bottom:12px">Strategic Value Propositions:</p>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
-    <div style="background:#F1F5F9;padding:20px;border-radius:12px">
-        <h4 style="font-size:13px;color:var(--navy);margin-bottom:8px">Operational Efficiency</h4>
-        <p style="font-size:12px;margin-bottom:0">By automating manual workflows identified for ${cli.company}, we expect to recover up to 15-20 hours per week of team capacity.</p>
+    <!-- 01 ABOUT FRISTINE -->
+    <div class="section">
+        <div class="sec-head"><span class="sec-num">01</span><span class="sec-title">About <span>Fristine Infotech</span></span></div>
+        <div class="highlight-box">
+            <p>${sol.about_fristine || 'Fristine Infotech is a Premium Zoho Partner with over 9 years of experience. We serve 200+ global clients including Mercedes-Benz, TATA MD, and NPCI, specializing in complex enterprise transformations.'}</p>
+        </div>
+        <p>Our methodology combines technical rigor with business strategy, ensuring every implementation is not just a software deployment, but a platform for accelerated growth.</p>
     </div>
-    <div style="background:#F1F5F9;padding:20px;border-radius:12px">
-        <h4 style="font-size:13px;color:var(--navy);margin-bottom:8px">Data Integrity</h4>
-        <p style="font-size:12px;margin-bottom:0">Centralizing data into Zoho CRM eliminates the siloes currently caused by ${reqs.current_tools?.[0] || 'legacy systems'}.</p>
+
+    <!-- 02 EXECUTIVE SUMMARY -->
+    <div class="section">
+        <div class="sec-head"><span class="sec-num">02</span><span class="sec-title">Executive <span>Summary</span></span></div>
+        ${fmt(sol.executive_summary)}
     </div>
-  </div>
+
+    <!-- 03 CLIENT OBJECTIVE -->
+    <div class="section">
+        <div class="sec-head"><span class="sec-num">03</span><span class="sec-title">Client <span>Objective</span></span></div>
+        ${fmt(sol.client_objective)}
+    </div>
+
+    <!-- 04 PROPOSED SOLUTION -->
+    <div class="section">
+        <div class="sec-head"><span class="sec-num">04</span><span class="sec-title">Proposed <span>Zoho Stack</span></span></div>
+        ${fmt(sol.proposed_solution)}
+    </div>
+
+    <!-- 05 SCOPE OF WORK (SUMMARY) -->
+    <div class="section">
+        <div class="sec-head"><span class="sec-num">05</span><span class="sec-title">Scope of <span>Work</span></span></div>
+        ${fmt(sol.scope_of_work)}
+    </div>
+
+    <!-- 06 INTEGRATIONS -->
+    <div class="section">
+        <div class="sec-head"><span class="sec-num">06</span><span class="sec-title">Enterprise <span>Integrations</span></span></div>
+        <p>Strategic connectivity is core to this architecture. The following integrations are included:</p>
+        <table>
+            <thead><tr><th>Integration Module</th><th>Technical Method / Strategy</th></tr></thead>
+            <tbody>
+                ${(sol.integrations || []).map(i => `<tr><td><strong>${i.item}</strong></td><td>${i.detail}</td></tr>`).join('')}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 07 DATA MIGRATION -->
+    <div class="section">
+        <div class="sec-head"><span class="sec-num">07</span><span class="sec-title">Data <span>Migration Strategy</span></span></div>
+        ${fmt(sol.data_migration)}
+    </div>
+
+    <!-- 08 DELIVERY MODEL -->
+    <div class="section">
+        <div class="sec-head"><span class="sec-num">08</span><span class="sec-title">Delivery <span>Model</span></span></div>
+        ${fmt(sol.delivery_model)}
+    </div>
+
+    <!-- 09/10/11 TIMELINE & TEAM -->
+    <div class="section">
+        <div class="sec-head"><span class="sec-num">09</span><span class="sec-title">Timeline & <span>Teams</span></span></div>
+        <h3>Project Timeline</h3>
+        <p>${sol.timeline || 'Implementation is expected to span 12-16 weeks across 4 major phases.'}</p>
+        
+        <h3>Project Team</h3>
+        <p>${sol.project_team || 'A dedicated team consisting of a Lead Architect, Project Manager, and Technical Consultants will be assigned.'}</p>
+        
+        <h3>Governance</h3>
+        <p>${sol.governance || 'Standard project governance includes weekly status calls, UAT sign-offs, and an escalation matrix reaching the Fristine Delivery Head.'}</p>
+    </div>
+
+    <!-- 12 DETAILED SOW -->
+    <div class="section">
+        <div class="sec-head"><span class="sec-num">10</span><span class="sec-title">Detailed <span>Scope Mapping</span></span></div>
+        <p>The following table outlines the granular module-level capabilities and defined boundaries for this implementation:</p>
+        ${(sol.detailed_sow || []).map(m => `
+            <h3>${m.module}</h3>
+            <table>
+                <thead><tr><th>Feature / Capability</th></tr></thead>
+                <tbody>
+                    ${(m.features || []).map(f => `<tr><td>${f}</td></tr>`).join('')}
+                </tbody>
+            </table>
+        `).join('')}
+    </div>
+
+    <!-- 13/14 COMMERCIALS -->
+    <div class="section">
+        <div class="sec-head"><span class="sec-num">11</span><span class="sec-title">Investment <span>Summary</span></span></div>
+        <p>The total professional services fee for this transformation is detailed below:</p>
+        <table class="commercial-table">
+            <thead><tr><th>Description</th><th>Billing Model</th><th>Investment (INR)</th></tr></thead>
+            <tbody>
+                ${(sol.commercials || []).map(c => `<tr><td>${c.service}</td><td>${c.model}</td><td class="price-text" contenteditable="true">${c.cost}</td></tr>`).join('')}
+                <tr style="background:var(--bg)"><td colspan="2"><strong>Total Implementation Estimate</strong></td><td class="price-text" contenteditable="true">₹ (Quoted)</td></tr>
+            </tbody>
+        </table>
+        
+        <h3>Payment Terms</h3>
+        <p>${sol.payment_terms || '60% Advance Payment | 40% Completion of UAT sign-off.'}</p>
+    </div>
+
+    <!-- 15/16 ASSUMPTIONS & RUN MODEL -->
+    <div class="section">
+        <div class="sec-head"><span class="sec-num">12</span><span class="sec-title">Assumptions & <span>Run Model</span></span></div>
+        <h3>Project Assumptions</h3>
+        <ul class="bullet-list">
+            ${(sol.assumptions_constraints || ["Client will provide timely access to data sources.", "Third-party API credentials must be shared by client."]).map(a => `<li>${a}</li>`).join('')}
+        </ul>
+        
+        <div class="highlight-box">
+            <h3>Managed Services (Managed Run)</h3>
+            <p>${sol.run_model || 'Post-implementation, we offer a dedicated Managed Services model for ongoing optimizations, L3 support, and quarterly platform audits.'}</p>
+        </div>
+    </div>
+
+    <!-- 17 ANNEXURE -->
+    <div class="section">
+        <div class="sec-head"><span class="sec-num">13</span><span class="sec-title">Project <span>Annexure</span></span></div>
+        ${fmt(sol.annexure || 'Additional technical specifications and API documentation will be provided in the Master Design Document (MDD) during Phase 1.')}
+        
+        <div style="margin-top:100px; display:grid; grid-template-columns:1fr 1fr; gap:60px">
+            <div style="border-top:1px solid #000; padding-top:12px"><p style="font-size:11px; font-weight:800">FOR FRISTINE INFOTECH PVT LTD</p></div>
+            <div style="border-top:1px solid #000; padding-top:12px"><p style="font-size:11px; font-weight:800">FOR ${cli.company.toUpperCase()}</p></div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="footer-logo">FRISTINE INFOTECH · ZOHO PREMIUM PARTNER</div>
+        <div class="footer-meta">Confidential © ${new Date().getFullYear()} · Generated by Fristine AI Architect</div>
+    </div>
 </div>
 
-<div class="section">
-  <div class="sec-num">04</div>
-  <div class="sec-head"><div class="sec-title">Detailed <span>Scope Of Work</span></div></div>
-  ${(sol.detailed_scope || []).map(s => `
-    <p style="font-weight:700;color:var(--navy);font-size:14px;margin-bottom:12px">${s.module}</p>
-    <table><thead><tr><th>Capability Mapping</th><th>Persona / Stakeholder</th></tr></thead><tbody>
-      <tr><td><ul style="padding-left:14px">${(s.capabilities || []).map(c => `<li>${c}</li>`).join('')}</ul></td><td>${s.persona}</td></tr>
-    </tbody></table>
-  `).join('')}
-  
-  <p style="font-weight:700;color:var(--navy);font-size:14px;margin-top:20px;margin-bottom:12px">Ecosystem Integrations</p>
-  <table><thead><tr><th>Connector</th><th>Business Benefit</th><th>Method</th></tr></thead><tbody>
-    ${(sol.integrations || []).map(i => `<tr><td>${i.name}</td><td>${i.benefit}</td><td>${i.method}</td></tr>`).join('')}
-  </tbody></table>
-</div>
-
-<div class="section">
-  <div class="sec-num">05</div>
-  <div class="sec-head"><div class="sec-title">Commercial <span>Investment</span></div></div>
-  <p>Based on our "Anti-Static" evaluation, the following investment structure is optimized for your project scale.</p>
-  <table><thead><tr><th>Phase</th><th>Activity Details</th><th>Model</th><th>Amount (INR)</th></tr></thead><tbody>
-    ${(sol.commercial_phases || []).map(p => `<tr><td>${p.name}</td><td>Strategic Implementation Services</td><td><span class="badge ${p.model === 'T&M' ? 'badge-tm' : 'badge-config'}">${p.model}</span></td><td class="price-tag" contenteditable="true">${p.amount}</td></tr>`).join('')}
-    <tr style="background:#F8FAFC"><td colspan="3" style="font-weight:700">Estimated Project Total</td><td class="price-tag" contenteditable="true">₹ (Quoted)</td></tr>
-  </tbody></table>
-</div>
-
-<div class="section">
-  <div class="sec-num">05</div>
-  <div class="sec-head"><div class="sec-title">Commercial <span>Model</span></div></div>
-  <p>The following estimates reflect the effort required for a standard "Platinum" CCMS Implementation on Zoho CRM Plus.</p>
-  <table><thead><tr><th>Phase</th><th>Activity Description</th><th>Model</th><th>Amount (INR)</th></tr></thead><tbody>
-    <tr><td>Phase 1</td><td>Requirement Discovery, FSD Drafting & Sign-off</td><td><span class="badge badge-tm">T&M</span></td><td class="price-tag" contenteditable="true">₹ (Quoted)</td></tr>
-    <tr><td>Phase 2</td><td>CCMS Core Configuration & Workflow Automation</td><td><span class="badge badge-config">Fixed</span></td><td class="price-tag" contenteditable="true">₹ (Quoted)</td></tr>
-    <tr><td>Phase 3</td><td>SAP S/4HANA & 3rd Party API Integrations</td><td><span class="badge badge-config">Fixed</span></td><td class="price-tag" contenteditable="true">₹ (Quoted)</td></tr>
-    <tr><td>Phase 4</td><td>Migration, UAT, and Go-Live Hypercare</td><td><span class="badge badge-config">Fixed</span></td><td class="price-tag" contenteditable="true">₹ (Included)</td></tr>
-    <tr style="background:#F8FAFC"><td colspan="3" style="font-weight:700">Estimated Project Total</td><td class="price-tag" contenteditable="true">₹ (Quoted)</td></tr>
-  </tbody></table>
-  
-  <p style="font-weight:700;color:var(--navy);font-size:14px;margin-bottom:8px">Managed Services (Optional)</p>
-  <p style="font-size:13px;margin-bottom:12px">80 Hours/Month support | SLA-driven response | L1, L2, L3 Support coverage.</p>
-  <table style="width:50%"><tbody><tr style="background:var(--navy);color:#fff"><td style="font-weight:700">Monthly Support Fee</td><td class="price-tag" contenteditable="true" style="color:#FFF">₹ (Quoted)</td></tr></tbody></table>
-</div>
-
-<!-- Zoho CRM Data Sync (Rule #6) -->
-<div class="section" style="margin-top:40px;padding-top:40px;border-top:4px solid var(--bg)">
-  <div class="sec-head"><div class="sec-title">Zoho CRM <span>Data Sync</span></div></div>
-  <p style="margin-bottom:16px">The following summary table is structured for direct synchronization with internal Zoho CRM lead management systems.</p>
-  <table style="background:var(--white);border:2px solid var(--navy)">
-    <thead style="background:var(--navy);color:white"><tr><th style="color:white">Lead Name</th><th style="color:white">Estimated Project Value</th><th style="color:white">Phase-wise Timeline</th></tr></thead>
-    <tbody>
-      <tr>
-        <td style="font-weight:800;color:var(--navy)">${sol.zoho_data_sync?.lead_name || cli.company}</td>
-        <td style="color:var(--primary);font-weight:800;font-size:16px">${sol.zoho_data_sync?.estimated_value || '₹ (Quoted)'}</td>
-        <td style="color:var(--slate);font-weight:500">${sol.zoho_data_sync?.timeline || 'Implementation over 4-6 months'}</td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<div class="section">
-  <div class="sec-num">06</div>
-  <div class="sec-head"><div class="sec-title">Project <span>Acceptance</span></div></div>
-  <div class="acceptance-grid">
-    <div class="sign-box"><span class="sign-label">For Fristine Infotech Pvt Ltd</span><div class="sign-line"></div><div class="sign-meta">Signature & Stamp</div><div class="sign-line"></div><div class="sign-meta">Date</div></div>
-    <div class="sign-box"><span class="sign-label">For ${cli.company || 'Client'}</span><div class="sign-line"></div><div class="sign-meta">Authorized Signatory</div><div class="sign-line"></div><div class="sign-meta">Date</div></div>
-  </div>
-</div>
-
-<div class="footer">
-  <div class="footer-text">Fristine Infotech · Zoho Premium Partner</div>
-  <div class="footer-text">Confidential © ${new Date().getFullYear()}</div>
-</div>
-</div></body></html>`;
+</body>
+</html>`;
 
     if (activeClientId) {
         try { 
             console.log('[Proposal] Saving version for:', activeClientId);
-            await proposals.save(activeClientId, html, `CCMS Proposal — ${cli.company||'Client'}`); 
+            await proposals.save(activeClientId, html, `Enterprise Proposal — ${cli.company}`); 
             console.log('[Proposal] Save SUCCESS');
         } catch (err) {
             console.error('[Proposal] Save FAILED:', err);
@@ -2294,15 +2357,15 @@ ul.bullets li{font-size:15px;color:var(--slate);margin-bottom:12px;position:rela
     addAg(`
         <div class="reqcard-box" style="text-align:center;padding:28px 20px;">
             <div style="margin-bottom:14px"><svg viewBox="0 0 48 48" width="48" height="48" fill="none"><circle cx="24" cy="24" r="20" stroke="var(--green)" stroke-width="2.5"/><path d="M15 24l6 6 12-12" stroke="var(--green)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-            <div style="font-size:17px;font-weight:700;margin-bottom:10px">Solution Architecture Complete</div>
+            <div style="font-size:17px;font-weight:700;margin-bottom:10px">Enterprise Solution Architected</div>
             <div style="font-size:13px;color:var(--sub);line-height:1.75;max-width:400px;margin:0 auto">
-                Your requirements have been successfully mapped to the CCMS Reference Architecture by Arya.<br/><br/>
-                <strong>A Fristine presales specialist is reviewing your tailored proposal and will share the formal multi-page document with you shortly via email/portal for final approval.</strong>
+                An enterprise-grade, boardroom-ready proposal has been generated following the Fristine Proposal Intelligence protocol.<br/><br/>
+                <strong>You can now view, download, or edit the technical specifications. The solution includes all 17 mandatory sections and module-level boundaries.</strong>
             </div>
         </div>`, { noEscape: true });
     
     // Sync sidebar to final stage
-    setStg(4, 'done'); setPhase('Proposal Pending Review');
+    setStg(4, 'done'); setPhase('Proposal Generated');
 }
 
 /**

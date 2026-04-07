@@ -76,11 +76,16 @@ async def text_to_speech(req: TTSRequest):
 @router.post("/twiml")
 async def get_twiml(request: Request, client_id: str = None):
     """Returns TwiML for connecting the call to our Pipecat WebSocket."""
-    host = request.headers.get("host") or ""
-    # Determine the WebSocket URL
-    # Force 'wss' for Ngrok and other production tunnels for Twilio Media Streams
-    ws_scheme = "wss" if ("ngrok" in host or "loca.lt" in host or request.url.scheme == "https") else "ws"
-    ws_url = f"{ws_scheme}://{host}/api/voice/ws"
+    import os
+    base_url = os.environ.get("BASE_URL")
+    if base_url:
+        # e.g. https://domain.trycloudflare.com -> wss://domain.trycloudflare.com
+        ws_url = base_url.replace("http://", "ws://").replace("https://", "wss://").rstrip('/') + "/api/voice/ws"
+    else:
+        host = request.headers.get("host") or ""
+        ws_scheme = "wss" if ("ngrok" in host or "loca.lt" in host or "trycloudflare" in host or request.url.scheme == "https") else "ws"
+        ws_url = f"{ws_scheme}://{host}/api/voice/ws"
+        
     if client_id:
         ws_url += f"?client_id={client_id}"
     
