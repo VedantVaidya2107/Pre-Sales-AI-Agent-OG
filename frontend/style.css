@@ -500,6 +500,8 @@ body {
   display: flex; align-items: center; gap: 18px;
   box-shadow: var(--shd);
   position: relative; overflow: hidden;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 .stat-icon {
   width: 48px; height: 48px; border-radius: 12px;
@@ -511,8 +513,29 @@ body {
 .stat-amber { background: var(--amber-a); color: var(--amber); }
 .stat-green { background: var(--green-a); color: var(--green); }
 .stat-orange{ background: var(--orange-a); color: var(--orange); }
-.stat-num { font-family: var(--fn-d); font-size: 30px; font-weight: 800; color: var(--text); line-height: 1; letter-spacing: -0.5px; }
-.stat-lbl { font-size: 12px; font-weight: 500; color: var(--sub); margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-num { 
+  font-family: var(--fn-d); 
+  font-size: 38px; 
+  font-weight: 800; 
+  color: #FFFFFF !important; 
+  line-height: 1; 
+  letter-spacing: -1px;
+  display: block;
+  min-height: 42px;
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+.stat-lbl { 
+  font-size: 11px; 
+  font-weight: 600; 
+  color: var(--sub); 
+  margin-top: 3px; 
+  text-transform: uppercase; 
+  letter-spacing: 0.8px; 
+  display: flex;
+  align-items: center;
+}
 
 /* ─── Metrics & Trends ─── */
 .metrics-section { 
@@ -1374,6 +1397,28 @@ body.focus-mode-active .exit-call-btn {
 }
 .typing-dots span:nth-child(2) { animation-delay: .2s; }
 .typing-dots span:nth-child(3) { animation-delay: .4s; }
+.conn-status {
+  display: flex; align-items: center; gap: 8px; justify-content: center;
+  padding: 8px 16px; border-radius: 99px; background: rgba(0,0,0,.05);
+  margin-bottom: 24px; font-size: 13px; font-weight: 500;
+  border: 1px solid transparent; transition: all .3s;
+}
+.conn-status.demo {
+  background: rgba(245,158,11,.1); border-color: rgba(245,158,11,.2);
+  color: var(--amber);
+}
+.ss-retry-btn {
+  background: var(--amber); color: #fff; border: none;
+  padding: 3px 10px; border-radius: 6px; font-size: 11px;
+  font-weight: 700; cursor: pointer; transition: all .2s;
+  box-shadow: 0 2px 4px rgba(245,158,11,.3);
+}
+.ss-retry-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(245,158,11,.4);
+}
+.ss-retry-btn:active { transform: translateY(0); }
+
 @keyframes typingBounce {
   0%,60%,100% { transform: translateY(0); opacity: .4; }
   30% { transform: translateY(-6px); opacity: 1; }

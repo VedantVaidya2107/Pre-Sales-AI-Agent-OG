@@ -1,0 +1,31 @@
+remote: error: GH013: Repository rule violations found for refs/heads/fix-voice-agent.        
+remote: 
+remote: - GITHUB PUSH PROTECTION        
+remote:   â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”        
+remote:     Resolve the following violations before pushing again        
+remote: 
+remote:     - Push cannot contain secrets        
+remote: 
+remote:             
+remote:      (?) Learn how to resolve a blocked push        
+remote:      https://docs.github.com/code-security/secret-scanning/working-with-secret-scanning-and-push-protection/working-with-push-protection-from-the-command-line#resolving-a-blocked-push        
+remote:             
+remote:      (?) This repository does not have Secret Scanning enabled, but is eligible. Enable Secret Scanning to view and manage detected secrets.        
+remote:      Visit the repository settings page, https://github.com/VedantVaidya2107/Pre-Sales-AI-Agent-OG/settings/security_analysis        
+remote:             
+remote:             
+remote:       â€”â€” Twilio Account String Identifier â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”        
+remote:        locations:        
+remote:          - commit: 05973932cdaa950e26488e5715881cf4cbeb7389        
+remote:            path: backend/.env:25        
+remote:          - commit: e589ff460f3ef6724bb6d14ed9bba57aed19acf8        
+remote:            path: backend/.env:26        
+remote:             
+remote:        (?) To push, remove secret from commit(s) or follow this URL to allow the secret.        
+remote:        https://github.com/VedantVaidya2107/Pre-Sales-AI-Agent-OG/security/secret-scanning/unblock-secret/3C1oPXYjmdAYNcdNHAicVB9wB8i        
+remote:             
+remote: 
+remote: 
+To https://github.com/VedantVaidya2107/Pre-Sales-AI-Agent-OG.git
+ ! [remote rejected] fix-voice-agent -> fix-voice-agent (push declined due to repository rule violations)
+error: failed to push some refs to 'https://github.com/VedantVaidya2107/Pre-Sales-AI-Agent-OG.git'

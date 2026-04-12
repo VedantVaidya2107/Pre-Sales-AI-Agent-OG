@@ -1,7 +1,7 @@
 import '../style.css';
-import { auth, clients, tracking, proposals, email, documents, gem, ai, voice, safeJ } from './services/api.js';
+import { auth, clients, tracking, proposals, email, documents, gem, ai, voice, safeJ, isMockMode, reconnect, setMockMode } from './services/api.js';
 import mammoth from 'mammoth';
-import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Table, TableRow, TableCell, WidthType, BorderStyle, ShadingType } from 'docx';
+import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Table, TableRow, TableCell, WidthType, BorderStyle, ShadingType, VerticalAlign, Footer } from 'docx';
 import { saveAs } from 'file-saver';
 import gsap from 'gsap';
 
@@ -429,6 +429,16 @@ async function checkAiHealth() {
             voiceBadge.innerHTML = `<span class="phase-dot" style="background:var(--red)"></span> Voice Offline`;
         }
     }
+
+    // NEW: Heartbeat - Auto-reconnect if in Mock Mode
+    if (isMockMode()) {
+        console.log('[Heartbeat] In Mock Mode. Checking for backend...');
+        const success = await reconnect();
+        if (success) {
+            showToast('Backend connection restored!', 'success');
+            await renderClientTable('', true);
+        }
+    }
 }
 
 
@@ -438,6 +448,8 @@ async function init() {
     initVoiceAgent();
     initKpis();
     initMobileMenu();
+    initTheme();
+    initPasswordToggle();
     checkAiHealth();
     setInterval(checkAiHealth, 60000); // Check every minute
     
@@ -474,9 +486,9 @@ async function init() {
         await bootStaffLogin();
     }
 
-    // 2K Staggered Dashboard Reveal
+    // Staggered Dashboard Reveal (Harden for 2K)
     gsap.from('.stat-card', { 
-        y: 20, opacity: 0, duration: 0.6, stagger: 0.08, ease: 'power2.out', delay: 0.4 
+        y: 20, opacity: 0, duration: 0.6, stagger: 0.08, ease: 'power2.out', delay: 0.4, clearProps: 'all' 
     });
     gsap.from('.metrics-section, .table-wrap', {
         y: 30, opacity: 0, duration: 0.8, delay: 0.8, ease: 'expo.out'
@@ -571,9 +583,29 @@ async function bootClientSession(clientId) {
 function setSS(type, txt) {
     const el = document.getElementById('ss');
     el.className = 'conn-status ' + type;
-    document.getElementById('stxt').textContent = txt;
-    const dot = document.getElementById('sdot');
-    dot.className = type === 'ok' ? 'cs-dot' : 'cs-dot spin';
+    
+    // Add Reconnect button if error
+    if (type === 'er') {
+        el.innerHTML = `<div id="sdot" class="cs-dot spin"></div> <span id="stxt">${txt}</span> <button id="reconnectBtn" style="margin-left:auto;background:var(--navy);border-radius:6px;padding:2px 8px;font-size:10px;color:white;border:none;cursor:pointer">Retry</button>`;
+        setTimeout(() => {
+            document.getElementById('reconnectBtn')?.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                showLdr('Retrying connection...');
+                const ok = await reconnect();
+                if (ok) {
+                    showToast('Connected!', 'success');
+                    await bootStaffLogin();
+                } else {
+                    showToast('Still offline.', 'error');
+                }
+                hideLdr();
+            });
+        }, 50);
+    } else {
+        document.getElementById('stxt').textContent = txt;
+        const dot = document.getElementById('sdot');
+        dot.className = type === 'ok' ? 'cs-dot' : 'cs-dot spin';
+    }
 }
 
 /* ── Captcha Logic ── */
@@ -783,14 +815,15 @@ function animateRows(selector) {
 
 async function loadClientStatuses() {
     clientStatuses = {};
-    for (const c of allClients) {
+    const loadTask = allClients.map(async (c) => {
         try { 
             const evts = await tracking.getEvents(c.client_id || ''); 
             clientStatuses[c.client_id] = getClientStatus(evts || []);
         } catch {
             clientStatuses[c.client_id] = getClientStatus([]);
         }
-    }
+    });
+    await Promise.all(loadTask);
 }
 
 function initKpis() {
@@ -862,12 +895,18 @@ async function renderClientTable(filter = '', forceRefresh = true) {
         }
     };
 
-    updateKpi('statTotal', dateFiltered.length, '↑ 12%', 'green');
-    updateKpi('statSent', sentCount, '↑ 2.4%', 'blue-acc');
-    updateKpi('statActive', activeCount, '~ stable', 'amber');
-    updateKpi('statProposal', proposalCount, '↑ 8%', 'green');
+    updateKpi('statTotal', dateFiltered.length, 'total', 'green');
+    updateKpi('statSent', sentCount, 'sent', 'blue-acc');
+    updateKpi('statActive', activeCount, 'active', 'amber');
+    updateKpi('statProposal', proposalCount, 'proposal', 'green');
 
-    document.getElementById('clientCount').textContent = `${dateFiltered.length} clients in this period`;
+    const leadCountEl = document.getElementById('clientCount');
+    if (leadCountEl) {
+        leadCountEl.textContent = `${dateFiltered.length} clients in this period`;
+        if (isMockMode()) {
+            leadCountEl.innerHTML += ` <span style="color:var(--orange);font-weight:700;margin-left:10px">[DEMO MODE ACTIVE]</span>`;
+        }
+    }
 
     // 4. VIEW FILTERING (Search + KPI Phase)
     let viewFiltered = dateFiltered;
@@ -1011,7 +1050,8 @@ function renderPipelineTrends() {
 function getClientStatus(events) {
     const names = events.map(e => e.event);
     const isSubmitted = names.includes('proposal_submitted');
-    const isProposal  = names.includes('proposal_generated');
+    const proposals   = events.filter(e => e.event === 'proposal_generated');
+    const isProposal  = proposals.length > 0;
     const isActive    = names.includes('conversation_started');
     const isAccessed  = names.includes('bot_accessed');
     const isSent      = names.includes('bot_sent');
@@ -1022,16 +1062,20 @@ function getClientStatus(events) {
         active: isActive && !isProposal && !isSubmitted,
         accessed: isAccessed && !isActive && !isProposal && !isSubmitted,
         sent: isSent && !isAccessed && !isActive && !isProposal && !isSubmitted,
-        totalProposal: isProposal || isSubmitted
+        totalProposal: isProposal || isSubmitted,
+        version: proposals.length
     };
 }
 
 function renderStatusBadge(s) {
     if (s.submitted) return '<span class="badge badge-done"><svg viewBox="0 0 16 16" width="12" height="12" fill="none"><path d="M3.5 8l3 3 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Submitted</span>';
-    if (s.proposal)  return '<span class="badge badge-proposal"><svg viewBox="0 0 16 16" width="12" height="12" fill="none"><rect x="3" y="2" width="10" height="12" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M6 5h4M6 8h4M6 11h2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> Proposal Ready</span>';
+    if (s.proposal) {
+        const verStr = s.version > 1 ? ` (v${s.version})` : '';
+        return `<span class="badge badge-proposal"><svg viewBox="0 0 16 16" width="12" height="12" fill="none"><rect x="3" y="2" width="10" height="12" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M6 5h4M6 8h4M6 11h2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> Proposal Ready${verStr}</span>`;
+    }
     if (s.active)    return '<span class="badge badge-active active"><svg viewBox="0 0 16 16" width="12" height="12" fill="none"><path d="M2 4h12v7a2 2 0 01-2 2H4a2 2 0 01-2-2V4z" stroke="currentColor" stroke-width="1.5"/><path d="M5 7.5h6M5 10h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> In Session</span>';
     if (s.accessed)  return '<span class="badge badge-accessed"><svg viewBox="0 0 16 16" width="12" height="12" fill="none"><path d="M8 3C4 3 1 8 1 8s3 5 7 5 7-5 7-5-3-5-7-5z" stroke="currentColor" stroke-width="1.5"/><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.5"/></svg> Accessed</span>';
-    if (s.sent)      return '<span class="badge badge-sent"><svg viewBox="0 0 16 16" width="12" height="12" fill="none"><path d="M2 4l6 4 6-4M2 4h12v8H2V4z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Sent</span>';
+    if (s.sent)      return '<span class="badge badge-sent"><svg viewBox="0 0 16 16" width="12" height="12" fill="none"><path d="M2 4l6 4 6-4M2 4h12v8H2V4z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Bot Sent</span>';
     return '<span class="badge badge-pending"><svg viewBox="0 0 16 16" width="12" height="12" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Not Started</span>';
 }
 
@@ -1175,9 +1219,10 @@ async function triggerOutboundCall(clientId) {
         const res = await voice.call(targetPhone, clientId);
         
         if (res.success) {
-            showToast('Outbound call successful. Connecting to AI bot…', 'success');
-            await tracking.logEvent(clientId, 'outbound_call_initiated', `SID: ${res.call_sid}`);
-            renderClientTable('', false); // Update status badge
+            const msg = res.is_demo ? '[Demo Mode] Outbound call simulated successfully!' : 'Outbound call successful. Connecting to AI bot…';
+            showToast(msg, res.is_demo ? 'info' : 'success');
+            await tracking.logEvent(clientId, 'outbound_call_initiated', `SID: ${res.call_sid || 'DEMO'}`);
+            renderClientTable('', false); 
         }
     } catch (err) {
         console.error('[Call] Failed:', err);
@@ -1288,7 +1333,7 @@ async function openTracking(clientId) {
             ps.querySelectorAll('.view-ver-btn').forEach(btn => {
                 btn.onclick = () => {
                     const ver = pData.versions.find(x => x.version == btn.dataset.v);
-                    document.getElementById('proposalIframe').srcdoc = ver.proposal_html;
+                    document.getElementById('proposalIframe').srcdoc = ver.proposal_html || `<html><body style="font-family:sans-serif;padding:40px;color:#64748b"><h3>Content Unavailable</h3><p>The content for this proposal version was not found.</p></body></html>`;
                     document.getElementById('proposalModal').dataset.version = ver.version;
                     openModal('proposalModal');
                 };
@@ -1299,12 +1344,13 @@ async function openTracking(clientId) {
                     btn.disabled = true;
                     btn.textContent = 'Sending...';
                     try {
-                        await email.sendProposal(client.email, client.company, ver.proposal_html);
+                        const res = await email.sendProposal(client.email, client.company, ver.proposal_html);
                         await tracking.logEvent(clientId, 'proposal_submitted');
                         const evts2 = await tracking.getEvents(clientId);
                         renderPipeline(evts2);
                         renderEventLog(evts2);
-                        showToast('Proposal Version ' + btn.dataset.v + ' securely sent to client!', 'success');
+                        const msg = res.is_demo ? `[Demo Mode] Proposal Version ${btn.dataset.v} simulated email sent!` : `Proposal Version ${btn.dataset.v} securely sent to client!`;
+                        showToast(msg, res.is_demo ? 'info' : 'success');
                     } catch (e) {
                         showToast('Failed to send email: ' + e.message, 'error');
                     } finally {
@@ -2391,11 +2437,11 @@ async function exportHtmlToPdf(htmlString, filename) {
                 }
 
                 const opt = {
-                    margin: 0,
+                    margin: [0.5, 0.5, 0.5, 0.5],
                     filename,
                     image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2, useCORS: true, windowWidth: 960 },
-                    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+                    html2canvas: { scale: 3, useCORS: true, letterRendering: true },
+                    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait', compress: true }
                 };
 
                 html2pdf().set(opt).from(body.firstElementChild).save().then(() => {
@@ -2531,62 +2577,70 @@ Return ONLY the complete HTML document, no markdown wrapping.`;
 async function generateDocx(proposalHtml, companyName) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(proposalHtml, 'text/html');
-
-    const sections = doc.querySelectorAll('.section');
     const children = [];
 
-    // Title page
+    // Title Section
     children.push(
-        new Paragraph({ spacing: { after: 600 }, children: [] }),
+        new Paragraph({ spacing: { before: 1000, after: 400 }, children: [] }),
+        new Paragraph({
+            alignment: AlignmentType.CENTER,
+            children: [new TextRun({ text: 'FRISTINE INFOTECH', bold: true, size: 32, color: '1A56DB', font: 'Inter' })],
+        }),
+        new Paragraph({
+            alignment: AlignmentType.CENTER,
+            spacing: { after: 800 },
+            children: [new TextRun({ text: "Strategic Solutions & Implementation Partner", italics: true, size: 22, color: '4B5563', font: 'Inter' })],
+        }),
+        new Paragraph({
+            alignment: AlignmentType.CENTER,
+            spacing: { before: 800, after: 200 },
+            children: [new TextRun({ text: 'BUSINESS IMPLEMENTATION PROPOSAL', bold: true, size: 48, color: '111827', font: 'Inter' })],
+        }),
+        new Paragraph({
+            alignment: AlignmentType.CENTER,
+            spacing: { after: 1200 },
+            children: [new TextRun({ text: `Custom Engineered for ${companyName}`, size: 28, color: '6B7280', font: 'Inter' })],
+        }),
         new Paragraph({
             alignment: AlignmentType.CENTER,
             spacing: { after: 200 },
-            children: [new TextRun({ text: 'FRISTINE INFOTECH', bold: true, size: 28, color: '1A4FD6', font: 'Calibri' })],
+            children: [new TextRun({ text: `Date: ${new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}`, size: 20, color: '9CA3AF', font: 'Inter' })],
         }),
-        new Paragraph({
-            alignment: AlignmentType.CENTER,
-            spacing: { after: 100 },
-            children: [new TextRun({ text: "India's Leading Premium Zoho Partner", italics: true, size: 20, color: '4F6282', font: 'Calibri' })],
-        }),
-        new Paragraph({ spacing: { after: 400 }, children: [] }),
-        new Paragraph({
-            alignment: AlignmentType.CENTER,
-            spacing: { after: 200 },
-            children: [new TextRun({ text: 'Zoho Implementation Proposal', bold: true, size: 36, color: '1A4FD6', font: 'Calibri' })],
-        }),
-        new Paragraph({
-            alignment: AlignmentType.CENTER,
-            spacing: { after: 100 },
-            children: [new TextRun({ text: `For ${companyName}`, bold: true, size: 28, color: '1A2540', font: 'Calibri' })],
-        }),
-        new Paragraph({
-            alignment: AlignmentType.CENTER,
-            spacing: { after: 400 },
-            children: [new TextRun({ text: `Prepared: ${new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}`, size: 20, color: '7A91B3', font: 'Calibri' })],
-        }),
-        new Paragraph({ spacing: { after: 200 }, children: [] })
+        new Paragraph({ pageBreakBefore: true, children: [] })
     );
 
-    // Parse all text content from sections
+    // Body Sections
+    const sections = doc.querySelectorAll('.section');
     sections.forEach(section => {
-        const titleEl = section.querySelector('.sec-title');
+        const titleEl = section.querySelector('.sec-title, h1, h2, h3');
         if (titleEl) {
             children.push(new Paragraph({
                 heading: HeadingLevel.HEADING_1,
                 spacing: { before: 400, after: 200 },
-                children: [new TextRun({ text: titleEl.textContent, bold: true, size: 28, color: '1A4FD6', font: 'Calibri' })],
+                children: [new TextRun({ text: titleEl.textContent.trim().toUpperCase(), bold: true, size: 24, color: '1A56DB', font: 'Inter' })],
             }));
         }
 
-        // Get all paragraphs
+        // Paragraphs
         section.querySelectorAll('p').forEach(p => {
+            if (p.textContent.trim()) {
+                children.push(new Paragraph({
+                    spacing: { after: 150 },
+                    children: [new TextRun({ text: p.textContent.trim(), size: 22, color: '374151', font: 'Inter' })],
+                }));
+            }
+        });
+
+        // Lists
+        section.querySelectorAll('li').forEach(li => {
             children.push(new Paragraph({
-                spacing: { after: 120 },
-                children: [new TextRun({ text: p.textContent, size: 22, color: '4F6282', font: 'Calibri' })],
+                bullet: { level: 0 },
+                spacing: { after: 100 },
+                children: [new TextRun({ text: li.textContent.trim(), size: 22, color: '374151', font: 'Inter' })],
             }));
         });
 
-        // Get all table data
+        // Tables (Crucial for Commercials/Scope)
         section.querySelectorAll('table').forEach(table => {
             const rows = [];
             table.querySelectorAll('tr').forEach(tr => {
@@ -2595,60 +2649,57 @@ async function generateDocx(proposalHtml, companyName) {
                     const isHeader = cell.tagName === 'TH';
                     cells.push(new TableCell({
                         width: { size: 100 / tr.children.length, type: WidthType.PERCENTAGE },
-                        shading: isHeader ? { fill: '0B1120', type: ShadingType.SOLID, color: '0B1120' } : undefined,
+                        shading: isHeader ? { fill: '1A56DB', type: ShadingType.SOLID, color: '1A56DB' } : undefined,
+                        verticalAlign: VerticalAlign.CENTER,
                         children: [new Paragraph({
-                            spacing: { after: 60 },
+                            alignment: isHeader ? AlignmentType.CENTER : AlignmentType.LEFT,
+                            spacing: { before: 100, after: 100 },
                             children: [new TextRun({
                                 text: cell.textContent.trim(),
                                 bold: isHeader,
                                 size: isHeader ? 18 : 20,
-                                color: isHeader ? 'FFFFFF' : '1A2540',
-                                font: 'Calibri',
+                                color: isHeader ? 'FFFFFF' : '111827',
+                                font: 'Inter',
                             })],
                         })],
                     }));
                 });
-                if (cells.length > 0) {
-                    rows.push(new TableRow({ children: cells }));
-                }
+                if (cells.length > 0) rows.push(new TableRow({ children: cells }));
             });
             if (rows.length > 0) {
                 children.push(new Table({
                     width: { size: 100, type: WidthType.PERCENTAGE },
                     rows,
+                    margins: { top: 100, bottom: 100, left: 100, right: 100 },
                 }));
-                children.push(new Paragraph({ spacing: { after: 200 }, children: [] }));
+                children.push(new Paragraph({ spacing: { after: 300 }, children: [] }));
             }
-        });
-
-        // Get lists
-        section.querySelectorAll('li').forEach(li => {
-            children.push(new Paragraph({
-                bullet: { level: 0 },
-                spacing: { after: 60 },
-                children: [new TextRun({ text: li.textContent.trim(), size: 22, color: '4F6282', font: 'Calibri' })],
-            }));
         });
     });
 
-    // Footer
-    children.push(
-        new Paragraph({ spacing: { after: 400 }, children: [] }),
-        new Paragraph({
-            alignment: AlignmentType.CENTER,
-            children: [new TextRun({ text: `Confidential — Fristine Infotech Pvt Ltd — ${new Date().getFullYear()}`, size: 18, color: '7A91B3', font: 'Calibri' })],
-        })
-    );
-
     const docxDoc = new Document({
+        styles: {
+            paragraphStyles: [
+                { id: "normal", name: "Normal", run: { font: "Inter", size: 22, color: "374151" } }
+            ]
+        },
         sections: [{
-            properties: { page: { margin: { top: 1000, right: 1000, bottom: 1000, left: 1000 } } },
+            footers: {
+                default: new Footer({
+                    children: [new Paragraph({
+                        alignment: AlignmentType.CENTER,
+                        children: [new TextRun({ text: `© ${new Date().getFullYear()} Fristine Infotech Pvt Ltd · Confidential Strategical Document`, size: 16, color: '9CA3AF', font: 'Inter' })]
+                    })]
+                })
+            },
+            properties: { page: { margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 } } },
             children,
         }],
     });
 
     const blob = await Packer.toBlob(docxDoc);
-    saveAs(blob, `Proposal_${companyName.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.docx`);
+    const fname = `Fristine_Proposal_${companyName.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.docx`;
+    saveAs(blob, fname);
 }
 
 /* ══ MODALS ══ */

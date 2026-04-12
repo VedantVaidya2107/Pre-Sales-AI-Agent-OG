@@ -65,18 +65,28 @@ def health():
     from datetime import datetime, timezone
     return {"status": "ok", "ts": datetime.now(timezone.utc).isoformat()}
 
-app.include_router(auth.router)
-app.include_router(clients.router)
-app.include_router(tracking.router)
-app.include_router(proposals.router)
-app.include_router(email.router)
-app.include_router(gemini.router)
-app.include_router(documents.router)
-app.include_router(voice.router)
+# Import routers safely
+routers_list = [
+    ("Auth", auth.router),
+    ("Clients", clients.router),
+    ("Tracking", tracking.router),
+    ("Proposals", proposals.router),
+    ("Email", email.router),
+    ("Gemini", gemini.router),
+    ("Documents", documents.router),
+    ("Voice", voice.router),
+]
+
+for name, r in routers_list:
+    try:
+        app.include_router(r)
+        print(f"[Startup] Router '{name}' loaded successfully.")
+    except Exception as e:
+        print(f"⚠️ [Startup Warning] Failed to load router '{name}': {e}")
 
 
 
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
-
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)

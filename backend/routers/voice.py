@@ -104,21 +104,24 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str = None):
     # Wait for the first message from Twilio (the 'start' message)
     import json
     try:
-        message = await websocket.receive_text()
-        data = json.loads(message)
-        if data.get("event") == "start":
-            stream_id = data["start"]["streamSid"]
-            call_id = data["start"]["callSid"]
-            logger.info(f"[WebSocket] Stream started: {stream_id} for Call: {call_id}")
-            
-            # Start the Pipecat Bot (Lazy Import)
-            from src.pipecat_bot import start_frc_bot
-            await start_frc_bot(websocket, stream_id, call_id, client_id=client_id)
-
-        else:
-            logger.warning(f"[WebSocket] Expected 'start' event, got: {data.get('event')}")
+        while True:
+            message = await websocket.receive_text()
+            data = json.loads(message)
+            if data.get("event") == "start":
+                stream_id = data["start"]["streamSid"]
+                call_id = data["start"]["callSid"]
+                logger.info(f"[WebSocket] Stream started: {stream_id} for Call: {call_id}")
+                
+                # Start the Pipecat Bot (Lazy Import)
+                from src.pipecat_bot import start_frc_bot
+                await start_frc_bot(websocket, stream_id, call_id, client_id=client_id)
+                break # Session ended
+            elif data.get("event") == "connected":
+                logger.info("[WebSocket] Twilio Connected")
+            else:
+                logger.debug(f"[WebSocket] Received event: {data.get('event')}")
     except Exception as e:
-        logger.error(f"[WebSocket] Error: {e}")
+        logger.error(f"[WebSocket] Error during media session: {e}")
     finally:
         try:
             await websocket.close()

@@ -61,7 +61,7 @@ Once you have captured the core requirements (Pain, Metrics, Stack, and Scope), 
 
     # LLM Service (Gemini)
     llm = GoogleLLMService(
-        model="gemini-2.5-flash",
+        model="gemini-2.0-flash",
         api_key=os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY"),
         settings=GoogleLLMService.Settings(
             system_instruction=sys_instr,
@@ -112,7 +112,18 @@ Once you have captured the core requirements (Pain, Metrics, Stack, and Scope), 
     else:
         tts = DeepgramTTSService(api_key=os.getenv("DEEPGRAM_API_KEY"))
 
+    # Pre-load context with a user message that will trigger the LLM to greet
     context = LLMContext()
+    context.set_messages([
+        {
+            "role": "system",
+            "content": sys_instr
+        },
+        {
+            "role": "user",
+            "content": f"[SYSTEM: The outbound call has just connected to {name} from {company}. Greet them warmly and introduce yourself as the Fristine AI Pre-Sales Architect. Keep it to 2 sentences max.]"
+        }
+    ])
     user_aggregator, assistant_aggregator = LLMContextAggregatorPair(
         context,
         user_params=LLMUserAggregatorParams(
@@ -142,19 +153,27 @@ Once you have captured the core requirements (Pain, Metrics, Stack, and Scope), 
         ),
     )
 
+    runner = PipelineRunner(handle_sigint=handle_sigint)
+
     @transport.event_handler("on_client_connected")
     async def on_client_connected(transport, client):
-        logger.info(f"Fristine AI: Outbound conversation started for {company}")
-        # Greet the user proactively
-        await task.queue_frames([llm.user_input_frame(f"Hello, is this {name} from {company}?")])
+        logger.success(f"[Bot] Twilio client connected for {company}. Sending greeting...")
+        import asyncio
+        await asyncio.sleep(0.3)
+        # Inject the pre-loaded context into the LLM to trigger the greeting
+        from pipecat.frames.frames import LLMMessagesFrame
+        await task.queue_frames([LLMMessagesFrame(context.messages)])
 
     @transport.event_handler("on_client_disconnected")
     async def on_client_disconnected(transport, client):
-        logger.info("Fristine AI: Outbound call ended")
+        logger.warning(f"[Bot] Twilio client disconnected for {company}")
         await task.cancel()
 
-    runner = PipelineRunner(handle_sigint=handle_sigint)
-    await runner.run(task)
+    try:
+        logger.info("[Bot] Starting Pipecat pipeline runner...")
+        await runner.run(task)
+    except Exception as e:
+        logger.error(f"[Bot] Pipeline runner crashed: {e}")
 
 
 async def start_frc_bot(websocket: Any, stream_id: str, call_id: str, client_id: str = None):

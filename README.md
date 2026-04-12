@@ -24,9 +24,13 @@ Built using **FastAPI**, **React (Vite)**, and **Google Gemini 1.5**, this platf
 - **Secure Handoff**: Professional "Agent-Only" control over when proposals are shared with the client.
 
 ### 📄 Strategic Document Generation
-- **Implementation Proposals**: Professional, 13-page technical plans tailored to the client's specific modules.
+- **Boardroom-Ready Proposals**: Professional, technical plans with high-fidelity formatting (Cover Pages, Indigo Headers, Technical Tables).
 - **BRD & FSD**: Auto-generated Business Requirements and Functional Specification Documents.
-- **One-Click Export**: High-quality PDF and DOCX generation for immediate stakeholder review.
+- **High-Fidelity Export**: One-click **PDF (3x High-Res)** and **DOCX (Editable Word)** generation for professional stakeholder review.
+
+### 🛡️ Demo Mode Resilience
+- **Fail-Safe Communication**: Integrated simulation mode for Outbound Calling and Emailing, ensuring successful demos even when backend services (Twilio/Postmark) are unreachable.
+- **Connectivity Intelligence**: Real-time status monitoring with a one-click "Retry & Reconnect" mechanism for seamless transition from Demo to Production mode.
 
 ---
 
@@ -91,6 +95,7 @@ npm run dev
 ---
 
 ## 🛡️ Security & Privacy
+- **Hardened Environment**: Uses sanitized configuration patterns to prevent accidental exposure of production secrets (Twilio, Gemini, Supabase).
 - **Client-Restricted Access**: Raw proposals are hidden from the discovery bot interface.
 - **Secure Sessions**: Uses Client IDs and authenticated Agent sessions to ensure data isolation.
 - **RBAC**: Backend operations are protected by Supabase RLS (ensure Service Role key is used in production).
