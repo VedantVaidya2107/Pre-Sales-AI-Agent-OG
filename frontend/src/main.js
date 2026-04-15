@@ -1684,7 +1684,19 @@ async function nextQ(isOpen = false) {
     
     const sys = `${ZK}\n\nTODAY'S DATE: ${today}\nCURRENT TIME: ${timeNow}\n\nRESEARCH CONTEXT for ${cli.company}:\n${JSON.stringify(prof)}\n${fileContent ? `UPLOADED FILE:\n${fileContent}\n` : ''}`;
 
-
+    // ── PRIORITY: Natural response for conversational questions ──────────────
+    // Runs BEFORE any phase/round checks so users always get a human answer.
+    if (!isOpen && convo.length > 0) {
+        const lastMsg = (convo[convo.length - 1].content || '').toLowerCase();
+        const isConversational = ['what is', 'what are', 'what does', 'who are', 'tell me', 
+            'explain', 'help', 'fristine', 'zoho', 'about', 'yourself', 'your org'].some(kw => lastMsg.includes(kw));
+        if (isConversational) {
+            return await gem(
+                `The customer asked: "${convo[convo.length-1].content}"\nAnswer naturally in 2-3 sentences as a helpful presales consultant. Do NOT output any JSON or markdown tables. After answering, ask one brief follow-up question about their needs.`,
+                600, 0.7, false, convo, sys
+            );
+        }
+    }
 
     const phaseMap = {
         0: 'Phase 1: Intro',
@@ -1701,7 +1713,7 @@ async function nextQ(isOpen = false) {
             turnPrompt = `The user has provided a BRD/Requirement document. 
             Identify as a Strategic Solutions Architect. 
             Briefly summarize the core technical objective you found in the document (under 30 words) and ask if the user would like to dive into validating the technical integrations (e.g., SAP, Third-party APIs) or the internal workflow mapping.`;
-        } else if (rn >= 10) {
+        } else if (rn >= 16) {
             turnPrompt = `The discovery for the BRD-based requirements is complete. 
             Output REQUIREMENTS_COMPLETE followed by the full JSON summary reflecting the document-specific requirements.
             JSON SCHEMA: {
@@ -1711,32 +1723,21 @@ async function nextQ(isOpen = false) {
             }`;
         } else {
             turnPrompt = `The user provided a BRD (File Content is present). 
-            Skip generic introductory questions. Validate a specific complex technical requirement from the document (e.g. integrations, security, or specific data migration volumes). 
-            Be professional, concise, and technical.`;
+            Validate a specific requirement from the document (e.g. integrations, security, or specific data migration volumes). 
+            Be conversational, professional, and concise.`;
         }
     } else {
         // Standard Discovery Flow
         if (isOpen) {
-            turnPrompt = `PHASE 1 (Intro): Start the consultation session for ${cli.company}.
-            MANDATORY FLOW:
-            1. GREETING: Use a time-based greeting (e.g., Good morning/Good evening) based on current time.
-            2. IDENTITY: Identify as the Fristine AI Pre-Sales Architect.
-            3. ORG INFO: Briefly mention Fristine's credentials (Zoho Premium Partner, 500+ successful Zoho implementations since 2014, offices in Mumbai/Pune/Dubai).
-            4. RESEARCH: Mention you've researched ${cli.company} specifically for their work in ${prof.industries?.[0] || 'their sector'}.
-            5. ASK: Pose your first strategic open-ended question to understand their biggest operational challenge today.
-            BE PROFESSIONAL, AUTHORITATIVE, and CONCISE.`;
-        } else if (rn >= 10) {
-            turnPrompt = `PHASE 5 (Closure): Summarize all requirements in a professional Markdown Table format.
-            MANDATORY: Use EXACT wording for the last sentence of your response: "Thank you! I have captured your requirements. A Fristine Solutions Architect will now review this to finalize your formal proposal within 24–48 hours."
+            turnPrompt = `Start the conversation warmly. Ask what brings them here today or what challenge they are facing. Keep it to 1-2 friendly sentences. Do NOT introduce yourself with a long pitch. Do NOT list products upfront.`;
+        } else if (rn >= 16) {
+            turnPrompt = `PHASE 5 (Closure): Summarize all requirements gathered so far.
+            MANDATORY: Say "Thank you! I have captured your requirements. A Fristine Solutions Architect will now review this to finalize your formal proposal within 24–48 hours."
             MANDATORY STEP 2: Write the exact keyword: REQUIREMENTS_COMPLETE 
-            MANDATORY STEP 3: Provide the full ULTRA-DETAILED JSON summary block. 
-            
-            CRITICAL RULES:
-            1. The "detailed_analysis" field MUST be a deep technical breakdown (5-8 paragraphs) of how Zoho solves their specific business challenges.
-            2. "must_have" and "pain_points" MUST be granular technical items (e.g. "Real-time SAP S/4HANA OData Sync" instead of "Integrations").
+            MANDATORY STEP 3: Provide the full technical JSON summary block. 
             
             JSON SCHEMA: {
-              "business_overview": "Summary", "detailed_analysis": "Long-form technical rationale", "departments": [], "current_tools": [], "pain_points": [], 
+              "business_overview": "Summary", "detailed_analysis": "Technical rationale", "departments": [], "current_tools": [], "pain_points": [], 
               "must_have": [], "nice_to_have": [], "automation_opportunities": [], "integrations": [], 
               "success_metrics": [], "zoho_products": [], "user_count": 0, "industry": "", "summary": "", "timeline": ""
             }`;
@@ -1744,23 +1745,10 @@ async function nextQ(isOpen = false) {
             const curPhaseId = Math.floor(rn / 2); 
             const curPhase = phaseMap[curPhaseId] || phaseMap[4];
             
-            // Explicit Detection for Company/Tech Inquiry (Handled before hitting Gemini API)
-            const lastMsg = (convo.length > 0 ? convo[convo.length-1].content : "").toLowerCase();
-            const isInquiry = ["fristine", "zoho", "who are you", "what is", "about", "your org", "yourself"].some(kw => lastMsg.includes(kw));
-
-            if (isInquiry) {
-                // Return a structured response from local memory immediately — saves API costs + works offline!
-                return `Fristine Infotech (founded in 2014) is a Tier-1 Zoho Premium Partner with a track record of 500+ global deployments. We specialize in complex Zoho CRM, Books, and Creator transformations. My role today is to help architect your solution. Coming back to our discovery... what is the primary operational challenge you'd like to solve first?`;
-            }
-
-            turnPrompt = `Current Phase: ${curPhase}. Conduct discovery for ${cli.company}.
-            CRITICAL RULE 1: Analyze the user's latest message. If they greeted you, asked a question, or expressed confusion, YOU MUST respond naturally to their specific input FIRST before doing anything else!
-            CRITICAL RULE 2: If the user is proceeding normally, follow these PROTOCOL RULES:
-            1. For CCMS/Manufacturing: Ask about SAP S/4HANA, CAPA, and DOP approval needs.
-            2. For Healthcare/Retail: Ask about SalesIQ, WhatsApp/Telephony, and pipelines.
-            3. Mandatory Disclosure: Weave in License, 60/40 payment, or Hypercare info if it's the right time.
-            4. Ask ONE technical specific question.
-            5. Be extremely concise (<50 words).`;
+            turnPrompt = `Current Phase: ${curPhase}. You are helping ${cli.company} find the right solution.
+            RULE 1: Respond naturally to whatever the user just said. If they asked a question, answer it.
+            RULE 2: Ask ONE focused follow-up question to understand their needs better.
+            RULE 3: Keep your response under 50 words. Conversational tone only. NO JSON. NO markdown tables.`;
         }
     }
 
@@ -1936,26 +1924,34 @@ document.getElementById('sendBtn').addEventListener('click', async () => {
             discoveryComplete = true;
             if (activeClientId) tracking.logEvent(activeClientId, 'proposal_generated').catch(() => {});
             showReqSummary();
-        } else if (potentialJson && (potentialJson.must_have || potentialJson.pain_points)) {
-            // Handle cases where the AI forced JSON output and omitted the keyword
+        } else if (potentialJson && (potentialJson.must_have || potentialJson.pain_points || potentialJson.business_overview)) {
+            // Safety: If AI dumps JSON without the keyword, capture it but DO NOT show raw JSON to user
             reqs = potentialJson;
             discoveryComplete = true;
             if (activeClientId) tracking.logEvent(activeClientId, 'proposal_generated').catch(() => {});
+            addAg("Thank you! I have captured your requirements. A Fristine Solutions Architect will now review this to finalize your formal proposal within 24–48 hours.");
             showReqSummary();
         } else if (resp.includes('INITIATE_PROPOSAL_BUILD')) {
             const cleanResp = resp.replace('INITIATE_PROPOSAL_BUILD', '').trim();
             if (cleanResp) {
-                addAg(cleanResp);
-                convo.push({ role: 'assistant', content: cleanResp });
+                const safeClean = cleanResp.replace(/\{[\s\S]{100,}\}/g, '').trim(); // strip sudden JSON
+                if (safeClean) addAg(safeClean);
+                convo.push({ role: 'assistant', content: safeClean || cleanResp });
             }
             discoveryComplete = true;
-            // Small delay to let the AI voice finish speaking most of the confirmation
             setTimeout(() => {
                 buildSolution();
             }, 2500);
         } else {
-            addAg(resp);
-            convo.push({ role: 'assistant', content: resp });
+            // FINAL SAFETY GUARD: Strip any raw JSON blocks that leaked into a standard response
+            const safeDisplay = resp
+                .replace(/```json[\s\S]*?```/gi, '')
+                .replace(/\{[\s\S]{200,}\}/g, '')
+                .trim();
+            
+            const finalResp = safeDisplay || "I've noted that! Could you tell me more about your specific goals for this project?";
+            addAg(finalResp);
+            convo.push({ role: 'assistant', content: finalResp });
         }
     } catch (e) {
         removeTypingIndicator();

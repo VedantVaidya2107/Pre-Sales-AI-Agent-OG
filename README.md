@@ -8,11 +8,11 @@ Built using **FastAPI**, **Vite**, and **Google Gemini**, this platform conducts
 
 ## 🌟 Key Features
 
-### 💬 Conversational Presales Consultant
-- **Customer-First Approach**: Greets warmly, listens actively, and recommends specific solutions — no product dumps or jargon.
-- **3-Step Discovery Flow**: Greet & Ask → Listen & Clarify → Recommend Solution.
-- **Smart Questioning**: Asks maximum 2 focused questions at a time to understand pain points, current systems, and desired outcomes.
-- **Solution-Focused**: Provides specific, named recommendations with clear benefits and implementation timelines.
+### 💬 Conversational Senior Pre-Sales Architect
+- **Warm & Professional Persona**: Focuses on deep value discovery and building rapport —India's first AI Senior Pre-Sales Architect.
+- **Solution-Oriented Approach**: Greets warmly, listens actively, and recommends tailored Zoho systems — no product dumps or jargon.
+- **Invisible MEDDPICC**: Uses the MEDDPICC framework for strategic qualification without exposing jargon to the client.
+- **Smart Discovery Flow**: 1-3 focused questions to uncover pain points, current systems, and desired business outcomes.
 
 ### 📞 Calling Agent (Voice & Chat)
 - **Natural Voice Conversations**: Pipecat-powered voice bot with Deepgram STT, Cartesia/Deepgram TTS, and Google Gemini LLM.
@@ -37,17 +37,17 @@ Built using **FastAPI**, **Vite**, and **Google Gemini**, this platform conducts
 
 ---
 
-## 🤖 AI Persona: Presales Consultant
+## 🤖 AI Persona: Senior Pre-Sales Architect
 
-The agent follows a structured yet natural conversation flow:
+The agent follows a refined, consultative conversation flow:
 
-| Step | Behavior |
-|------|----------|
-| **Greet** | "Hello! How can I help you today?" |
-| **Listen** | Asks 1-2 focused questions about their situation |
-| **Clarify** | Understands pain points, current systems, and goals |
-| **Recommend** | Names a specific solution with 3-4 key benefits |
-| **Next Steps** | Offers a demo or connects with the sales team |
+| Step | Behavior | Spoken Example |
+|------|----------|----------------|
+| **Greet** | Warm rapport building | "Hello! I'm the Presales Consultant from Fristine Infotech. How are things going today?" |
+| **Discover** | Identify 2-3 specific pain points | "I'd love to understand your current business workflows. What's the biggest challenge your team is facing?" |
+| **Clarify** | Understand tech stack & goals | "I see. Besides Excel, are there any other legacy systems you're currently using for this?" |
+| **Recommend** | Tailored Zoho-based solution | "Based on that, I'd recommend Zoho Books integrated with CRM to automate that manual entry..." |
+| **Advise** | Expert guidance & next steps | "This typically saves about 10 hours a week for finance teams. Would you like to see a deeper demo?" |
 
 **Key rules:**
 - Never discusses pricing (redirects to sales team)

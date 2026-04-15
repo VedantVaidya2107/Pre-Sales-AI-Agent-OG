@@ -65,7 +65,11 @@ def generate(req: GenerateRequest):
 
     try:
         final_prompt = req.prompt.strip()
-        is_json = req.forcePro or "json" in final_prompt.lower()
+        
+        # Refined JSON detection: Only trigger if explicitly asked for structured data
+        json_requested = any(kw in final_prompt.lower() for kw in ["return json", "output json", "json only", "as json", "format as json"])
+        is_json = req.forcePro or json_requested
+        
         if is_json and "JSON" not in final_prompt:
             final_prompt = "RETURN JSON ONLY. " + final_prompt
 
