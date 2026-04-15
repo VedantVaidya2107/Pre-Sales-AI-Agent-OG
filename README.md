@@ -1,48 +1,72 @@
-# Fristine AI Pre-Sales Architect (OG) 🚀
+# Fristine AI Pre-Sales Agent 🚀
 
-The **Fristine AI Pre-Sales Architect** is a state-of-the-art multi-agent system designed to automate the initial discovery, solution architecting, and proposal generation phases for Fristine Infotech — India's leading Premium Zoho Partner.
+The **Fristine AI Pre-Sales Agent** is an intelligent presales consultation system designed to automate discovery, solution recommendation, and proposal generation for Fristine Infotech — India's leading Premium Zoho Partner.
 
-Built using **FastAPI**, **React (Vite)**, and **Google Gemini 1.5**, this platform transforms the presales workflow by conducting high-fidelity technical consultations and generating boardroom-ready implementation plans in minutes.
+Built using **FastAPI**, **Vite**, and **Google Gemini**, this platform conducts natural, customer-focused conversations to understand business needs and recommend tailored solutions.
 
 ---
 
 ## 🌟 Key Features
 
-### 🤖 High-Fidelity AI Discovery
-- **MEDDPICC Grounding**: Conducts structured discovery focused on Metrics, Economic Buyers, and Pain Points.
-- **Organizational Awareness**: Implicitly researches the client's industry and scale before starting, providing a "homework-first" consultation experience.
-- **Document Analysis**: Extract requirements directly from uploaded BRDs, SOWs, or RFPs (.docx, .pdf, .txt).
+### 💬 Conversational Presales Consultant
+- **Customer-First Approach**: Greets warmly, listens actively, and recommends specific solutions — no product dumps or jargon.
+- **3-Step Discovery Flow**: Greet & Ask → Listen & Clarify → Recommend Solution.
+- **Smart Questioning**: Asks maximum 2 focused questions at a time to understand pain points, current systems, and desired outcomes.
+- **Solution-Focused**: Provides specific, named recommendations with clear benefits and implementation timelines.
 
 ### 📞 Calling Agent (Voice & Chat)
-- **Autonomous Interaction**: A specialized "AI Pre-Sales Architect" persona that provides concise, direct, and time-aware consultation.
-- **Direct Replying**: Trained for extreme conciseness (<60 words) to respect the client's time.
-- **Active Listening**: Acknowledges specific technical details shared by the user before moving to the next strategic question.
+- **Natural Voice Conversations**: Pipecat-powered voice bot with Deepgram STT, Cartesia/Deepgram TTS, and Google Gemini LLM.
+- **Conversational Persona**: Warm, helpful, and concise — asks "How can I help?" instead of launching into product pitches.
+- **Barge-In Support**: Customers can interrupt the agent naturally during voice calls.
+- **Document Analysis**: Extract requirements directly from uploaded BRDs, SOWs, or RFPs (.docx, .pdf, .txt).
 
 ### 📋 Staff Dashboard (Agent Portal)
 - **Client Pipeline**: End-to-end tracking from "Bot Sent" to "Proposal Submitted."
-- **Mobile Responsive**: Fully optimized for mobile devices with a touch-friendly drawer menu and responsive tables.
-- **Secure Handoff**: Professional "Agent-Only" control over when proposals are shared with the client.
+- **KPI Cards**: Real-time metrics with clickable filtering (Total, Sent, Active, Proposals).
+- **Mobile Responsive**: Fully optimized for mobile devices with touch-friendly drawer menu.
+- **Outbound Calling**: One-click Twilio/LiveKit outbound calls to clients directly from the dashboard.
 
 ### 📄 Strategic Document Generation
-- **Boardroom-Ready Proposals**: Professional, technical plans with high-fidelity formatting (Cover Pages, Indigo Headers, Technical Tables).
+- **Boardroom-Ready Proposals**: Professional, technical plans with high-fidelity formatting.
 - **BRD & FSD**: Auto-generated Business Requirements and Functional Specification Documents.
-- **High-Fidelity Export**: One-click **PDF (3x High-Res)** and **DOCX (Editable Word)** generation for professional stakeholder review.
+- **High-Fidelity Export**: One-click **PDF (3x High-Res)** and **DOCX (Editable Word)** generation.
 
 ### 🛡️ Demo Mode Resilience
-- **Fail-Safe Communication**: Integrated simulation mode for Outbound Calling and Emailing, ensuring successful demos even when backend services (Twilio/Postmark) are unreachable.
-- **Connectivity Intelligence**: Real-time status monitoring with a one-click "Retry & Reconnect" mechanism for seamless transition from Demo to Production mode.
+- **Smart Mock Mode**: Automatic fallback when backend is unreachable — demos always work.
+- **Connectivity Intelligence**: Real-time status monitoring with one-click "Retry & Reconnect."
+
+---
+
+## 🤖 AI Persona: Presales Consultant
+
+The agent follows a structured yet natural conversation flow:
+
+| Step | Behavior |
+|------|----------|
+| **Greet** | "Hello! How can I help you today?" |
+| **Listen** | Asks 1-2 focused questions about their situation |
+| **Clarify** | Understands pain points, current systems, and goals |
+| **Recommend** | Names a specific solution with 3-4 key benefits |
+| **Next Steps** | Offers a demo or connects with the sales team |
+
+**Key rules:**
+- Never discusses pricing (redirects to sales team)
+- Never dumps product lists — recommends one specific solution
+- Uses MEDDPICC internally for lead qualification (invisible to customer)
+- Keeps voice responses short and conversational
 
 ---
 
 ## 🏗️ Architecture
 
 ```text
-Pre-Sales-AI-Agent-OG/
+Pre-Sales-Agent/
 ├── backend/               # FastAPI + Supabase Backend
 │   ├── main.py            # App entry point & Routing
-│   ├── routers/           # Specialized API domains (Auth, Proposals, Tracking, Gemini)
+│   ├── routers/           # API domains (Auth, Proposals, Tracking, Gemini, Voice)
+│   ├── src/               # AI services (pipecat_bot.py, gemini.js)
 │   └── utils/             # Supabase client & utility functions
-├── frontend/              # React / Vite Frontend
+├── frontend/              # Vite Frontend
 │   ├── index.html         # Unified UI (Login, Dashboard, Bot Discovery)
 │   ├── src/               # Application logic & AI orchestration (main.js)
 │   └── services/          # API layer (api.js)
@@ -53,10 +77,11 @@ Pre-Sales-AI-Agent-OG/
 
 ## 🛠️ Tech Stack
 
-- **Large Language Models**: Google Gemini 1.5 Flash (Discovery) & Gemini 1.5 Pro (Architecture & Proposals).
+- **Large Language Models**: Google Gemini 2.0 Flash (Discovery) & Gemini Pro (Architecture & Proposals).
+- **Voice Pipeline**: Pipecat, Deepgram (STT), Cartesia (TTS), Twilio (Telephony).
 - **Backend**: Python 3.10+, FastAPI, Uvicorn, Supabase (PostgreSQL).
-- **Frontend**: Vanilla JavaScript (React patterns), Vite, GSAP (Animations), html2pdf.js, Mammoth.
-- **Infrastructure**: Render (API Service), GitHub Pages (UI Hosting).
+- **Frontend**: Vanilla JavaScript, Vite, GSAP (Animations), html2pdf.js, Mammoth.
+- **Infrastructure**: Render (API Service), GitHub Pages (UI Hosting), Localtunnel (Dev).
 
 ---
 
@@ -65,7 +90,9 @@ Pre-Sales-AI-Agent-OG/
 ### Prerequisites
 - Node.js 18+ & Python 3.10+
 - Google Gemini API Key
-- Supabase Project URL & **Service Role Key** (Required for agent creation)
+- Supabase Project URL & **Service Role Key**
+- Deepgram API Key (for voice features)
+- Twilio Account (for outbound calling)
 
 ### 1. Backend Setup
 ```bash
@@ -73,7 +100,7 @@ cd backend
 python -m venv .venv
 # Activate venv: .venv\Scripts\activate (Win) or source .venv/bin/activate (Mac/Linux)
 pip install -r requirements.txt
-cp .env.example .env # Set your SUPABASE_URL, SUPABASE_KEY (Service Role), and GEMINI_API_KEY
+cp .env.example .env # Set your API keys
 python main.py
 ```
 
@@ -81,8 +108,12 @@ python main.py
 ```bash
 cd frontend
 npm install
-# Create .env or .env.production with VITE_API_URL=https://your-backend.onrender.com
 npm run dev
+```
+
+### 3. Quick Start (Windows)
+```powershell
+.\start-app.ps1  # Starts backend, frontend, voice agent, and tunnel
 ```
 
 ---
@@ -95,10 +126,10 @@ npm run dev
 ---
 
 ## 🛡️ Security & Privacy
-- **Hardened Environment**: Uses sanitized configuration patterns to prevent accidental exposure of production secrets (Twilio, Gemini, Supabase).
-- **Client-Restricted Access**: Raw proposals are hidden from the discovery bot interface.
-- **Secure Sessions**: Uses Client IDs and authenticated Agent sessions to ensure data isolation.
-- **RBAC**: Backend operations are protected by Supabase RLS (ensure Service Role key is used in production).
+- **Hardened Environment**: Sanitized configuration patterns prevent accidental secret exposure.
+- **Client-Restricted Access**: Raw proposals hidden from the discovery bot interface.
+- **Secure Sessions**: Client IDs and authenticated Agent sessions ensure data isolation.
+- **RBAC**: Backend operations protected by Supabase RLS.
 
 ---
 

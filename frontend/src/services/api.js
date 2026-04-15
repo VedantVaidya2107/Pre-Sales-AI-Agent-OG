@@ -369,10 +369,10 @@ export const voice = {
     }
   },
   call: (phone, clientId = null) => {
-    console.log(`[API] Triggering call to ${phone} (Client: ${clientId}) via backend...`);
+    console.log(`[API] Triggering LiveKit AI Voice call to ${phone} (Client: ${clientId}) via backend...`);
     return _mockMode 
-      ? (console.log('[MOCK] Call to', phone), new Promise(res => setTimeout(() => res({ success: true, is_demo: true, call_sid: 'DEMO_' + Date.now() }), 1000))) 
-      : request('POST', '/api/voice/call', { phone, client_id: clientId }, false, 25000); 
+      ? (console.log('[MOCK] LiveKit Call to', phone), new Promise(res => setTimeout(() => res({ success: true, is_demo: true, call_sid: 'DEMO_' + Date.now() }), 1000))) 
+      : request('POST', '/api/voice/livekit-call', { phone, client_id: clientId }, false, 25000); 
   },
 };
 
@@ -424,22 +424,22 @@ export async function gem(prompt, maxTokens = 1000, temp = 0.7, forcePro = false
     }
     // Opener turn
     if (prompt.includes('PHASE 1') || prompt.includes('Intro')) {
-      return `Let's map your requirements to ensure a seamless Zoho transformation. I am the Fristine Strategic Solutions Architect — I'll be guiding you through a quick discovery session to understand your business needs. To start: **what is the single biggest operational bottleneck your team faces today?**`;
+      return `I'd love to understand your needs better. What's the biggest challenge your team is facing right now?`;
     }
 
     // NEW: Handle Questions in Mock Mode (Fixes Rigidity)
     const lastUserMsg = (history[history.length-1]?.content || "").toLowerCase();
     if (lastUserMsg.includes("fristine") || lastUserMsg.includes("who are you") || lastUserMsg.includes("about")) {
-        return `Fristine Infotech is a leading Zoho Premium Partner (since 2014) with offices in Mumbai and Pune. We've successfully completed over 200 Zoho transformations for global clients. Coming back to our discovery... what are your primary goals for this implementation?`;
+        return `We're Fristine Infotech, a Zoho Premium Partner with offices in Mumbai, Pune, and Dubai. We've helped 500+ businesses find the right solutions. But enough about us — how can I help you today?`;
     }
 
     // Mid-discovery turns — rotate through MEDDPICC questions
     const questions = [
-      `Great insight! To quantify the impact — **how many hours per week does your team spend on manual data entry or reporting?** This helps us size the ROI of automation.`,
-      `Understood. On the decision side — **who else besides yourself would be involved in evaluating a Zoho implementation?** Knowing the stakeholders helps us tailor the proposal.`,
-      `Got it. Regarding your current tech stack — **which legacy systems (ERP, accounting, or CRM tools) would we need to migrate data from or integrate with?**`,
-      `Perfect. Scoping question — **how many users across sales, ops, and finance would be onboarded onto the new Zoho environment?**`,
-      `Excellent. Finally — **what does a successful go-live look like for you, and do you have a target timeline in mind?** This will anchor our implementation plan.`,
+      `That's helpful! To recommend the right setup — how many hours per week does your team spend on manual data entry or reporting?`,
+      `Got it. Who else on your team would be involved in evaluating a new solution? This helps me tailor my recommendation.`,
+      `Understood. What systems are you currently using — any CRM, ERP, or accounting tools we'd need to integrate with?`,
+      `That makes sense. How many users across your team would need access to the new system?`,
+      `Great. What does success look like for you, and do you have a timeline in mind? This helps me recommend the right approach.`,
     ];
     const idx = Math.min(history.length % questions.length, questions.length - 1);
     return questions[idx];

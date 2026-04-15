@@ -17,10 +17,17 @@ async def get_events(client_id: str):
 
 @router.post("/{client_id}")
 async def create_event(client_id: str, req: TrackingEvent):
-    # Check if event already exists for this client (deduplication as per old logic)
-    res_check = supabase.table("tracking").select("id").eq("client_id", client_id).eq("event", req.event).execute()
+    # Events that should be logged every time (no deduplication)
+    repeatable_events = {"outbound_call_initiated", "call_completed", "proposal_generated", "voice_call_started"}
     
-    if not res_check.data:
+    should_insert = True
+    if req.event not in repeatable_events:
+        # Check if event already exists for this client (deduplication for non-call events)
+        res_check = supabase.table("tracking").select("id").eq("client_id", client_id).eq("event", req.event).execute()
+        if res_check.data:
+            should_insert = False
+    
+    if should_insert:
         data = {
             "client_id": client_id,
             "event": req.event,

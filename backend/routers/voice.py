@@ -5,6 +5,10 @@ import os
 import httpx
 from pydantic import BaseModel
 from twilio.rest import Client as TwilioClient
+from livekit import api as lkapi
+import random
+import json
+import asyncio
 # from src.pipecat_bot import start_frc_bot
 
 from loguru import logger
@@ -183,3 +187,67 @@ async def make_call(req: CallRequest, request: Request):
             )
             
         raise HTTPException(status_code=500, detail=f"Twilio error: {err_msg}")
+
+@router.post("/livekit-call")
+async def make_livekit_call(req: CallRequest):
+    """Initiates an outbound call via LiveKit Agent Dispatch."""
+    logger.info(f"[LiveKit] Received call request for: {req.phone}")
+    
+    url = os.environ.get("LIVEKIT_URL")
+    api_key = os.environ.get("LIVEKIT_API_KEY")
+    api_secret = os.environ.get("LIVEKIT_API_SECRET")
+
+    if not all([url, api_key, api_secret]):
+        logger.error("[LiveKit] Credentials missing from environment.")
+        raise HTTPException(status_code=500, detail="LiveKit credentials missing")
+
+    # Fix URL: LiveKitAPI (Server SDK) needs https://, not wss://
+    if url.startswith("wss://"):
+        api_url = url.replace("wss://", "https://")
+    elif url.startswith("ws://"):
+        api_url = url.replace("ws://", "http://")
+    else:
+        api_url = url
+
+    try:
+        print(f"📡 [LiveKit] Initiating dispatch to API: {api_url}")
+        # 1. Setup API Client
+        client = lkapi.LiveKitAPI(url=api_url, api_key=api_key, api_secret=api_secret)
+        
+        # 2. Create a unique room for this call
+        safe_phone = req.phone.replace('+', '').replace(' ', '')
+        room_name = f"call-{safe_phone}-{random.randint(1000, 9999)}"
+        print(f"📦 [LiveKit] Room Name: {room_name}")
+        
+        # 3. Dispatch the Agent
+        # Passing phone number and client_id in metadata so agent.py can parse it
+        dispatch_request = lkapi.CreateAgentDispatchRequest(
+            agent_name="outbound-caller", 
+            room=room_name,
+            metadata=json.dumps({
+                "phone_number": req.phone,
+                "client_id": req.client_id
+            })
+        )
+        
+        print(f"🚀 [LiveKit] Sending CreateAgentDispatchRequest (60s timeout)...")
+        try:
+            dispatch = await asyncio.wait_for(
+                client.agent_dispatch.create_dispatch(dispatch_request),
+                timeout=60.0
+            )
+        except asyncio.TimeoutError:
+            print("❌ [LiveKit] Dispatch request timed out after 60s")
+            await client.aclose()
+            raise HTTPException(status_code=504, detail="LiveKit Cloud dispatch timed out. Please answer the phone faster or check your network.")
+            
+        await client.aclose()
+        
+        print(f"✅ [LiveKit] Success! Dispatch ID: {dispatch.id}")
+        logger.success(f"[LiveKit] Call dispatched! ID: {dispatch.id} in Room: {room_name}")
+        return {"success": True, "dispatch_id": dispatch.id, "room": room_name}
+        
+    except Exception as e:
+        print(f"❌ [LiveKit] Dispatch failed with error: {str(e)}")
+        logger.error(f"[LiveKit] Dispatch failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))

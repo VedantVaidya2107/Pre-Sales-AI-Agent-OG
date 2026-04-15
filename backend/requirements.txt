@@ -17,3 +17,13 @@ twilio
 pipecat-ai[websocket,cartesia,google,silero,deepgram,runner,local-smart-turn-v3]>=0.0.105
 loguru
 pipecatcloud>=0.2.20
+livekit-agents>=0.8.0
+livekit-api>=0.6.0
+livekit-plugins-openai>=0.6.0
+livekit-plugins-cartesia>=0.6.0
+livekit-plugins-deepgram>=0.6.0
+livekit-plugins-silero>=0.6.0
+livekit-plugins-sarvam>=0.6.0
+livekit-plugins-google>=0.6.0
+livekit-plugins-noise-cancellation
+certifi>=2024.0.0

@@ -20,7 +20,8 @@ let activeKpiFilter = 'all';
 let clientStatuses = {};
 let isFetchingReply = false; // Prevents overlapping Gemini calls in continuous mode
 let callingMode = false;
-let voiceEnabled = false; 
+let voiceEnabled = false; // Only true when user explicitly clicks mic/voice agent button
+let voiceServiceAvailable = false; // True when Deepgram service is reachable
 let audioContext = null;
 let currentAudioSource = null; 
 let voiceQueue = [];
@@ -68,7 +69,13 @@ async function startRecording() {
     // Step 1: Get mic access (Persist if already granted)
     if (!globalStream) {
         try {
-            globalStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            globalStream = await navigator.mediaDevices.getUserMedia({ 
+                audio: { 
+                    echoCancellation: true, 
+                    noiseSuppression: true, 
+                    autoGainControl: true 
+                } 
+            });
             console.log('[Voice] Stream Captured Successfully');
         } catch (err) {
             console.error('[Mic Permission]', err);
@@ -94,7 +101,7 @@ async function startRecording() {
     try {
         console.log('[Voice] Opening WebSocket...');
         voiceSocket = new WebSocket(
-            'wss://api.deepgram.com/v1/listen?interim_results=true&punctuate=true&language=en-IN&endpointing=500',
+            'wss://api.deepgram.com/v1/listen?interim_results=true&punctuate=true&smart_format=true&model=nova-2&language=en-IN&endpointing=1500',
             ['token', key]
         );
 
@@ -129,8 +136,8 @@ async function startRecording() {
             const inp = document.getElementById('msgIn');
             
             if (transcript && !isFetchingReply) {
-                // BARGE-IN: If agent is speaking, interrupt!
-                if (isProcessingVoice || currentAudioSource || voiceQueue.length > 0) {
+                // BARGE-IN: If agent is speaking, interrupt! (Only if actual words are detected, preventing room noise cutoffs)
+                if (transcript.length > 3 && (isProcessingVoice || currentAudioSource || voiceQueue.length > 0)) {
                     console.log('[Voice] BARGE-IN Detected! Stopping playback.');
                     if (currentAudioSource) { try { currentAudioSource.stop(); } catch(e){} currentAudioSource = null; }
                     voiceQueue = [];
@@ -318,39 +325,80 @@ async function initVoiceAgent() {
     }
 }
 
-/* ══ FRISTINE AI PRE-SALES ARCHITECT (SYSTEM INSTRUCTIONS) ══ */
-const ZK = `### Role: Fristine AI Pre-Sales Architect (OG)
-You are the expert multi-agent system designed to conduct structured, MEDDPICC-driven discovery for Zoho transformations. You represent Fristine Infotech, a Premium Zoho Partner with offices in Mumbai, Pune, and Dubai.
+/* ══ FRISTINE AI PRE-SALES CONSULTANT (SYSTEM INSTRUCTIONS) ══ */
+const ZK = `You are an expert presales consultant. Your job is to greet customers, understand their needs, and recommend the right solutions.
 
-### Core Capability:
+### CONVERSATION APPROACH:
+
+**Step 1 - GREET & ASK:**
+Start every new conversation with a warm greeting and ask what they need.
+Example: "Hello! How can I help you today?" or "Hi there! What brings you here today?"
+
+**Step 2 - LISTEN & CLARIFY:**
+- Listen to their problem
+- If unclear, ask 1-2 specific questions to understand better
+- Focus on: their current situation, pain points, systems they use
+
+**Step 3 - RECOMMEND SOLUTION:**
+- Suggest a specific solution that matches their need
+- Explain how it solves their problem
+- Mention key benefits and capabilities
+- Provide clear next steps
+
+### RESPONSE STYLE:
+✓ Start with greeting and direct question about their needs
+✓ Keep responses conversational and focused
+✓ Ask maximum 2 questions at a time
+✓ Give specific recommendations, not generic options
+✓ Focus on solving their problem
+
+✗ Don't give long introductions about yourself
+✗ Don't list all your products upfront
+✗ Don't ask too many questions before helping
+✗ Don't be vague - be specific
+✗ Don't discuss pricing or costs
+
+### GREETING RULES:
+
+When customer says just "hi":
+- Respond: "Hi! How can I help you today?"
+
+When customer returns:
+- Respond: "Welcome back! What would you like to discuss today?"
+
+When customer shares a problem:
+- Acknowledge it, then ask 1-2 clarifying questions to recommend the best setup.
+- Example: "I can help with that. To recommend the best setup: [specific clarifying question]?"
+
+### WHEN YOU HAVE ENOUGH INFO:
+Provide a specific recommendation:
+- Name the solution
+- Explain how it solves their problem (3-4 bullet points)
+- Mention implementation timeline
+- Ask if they'd like a demo
+
+### IF CUSTOMER ASKS ABOUT PRICING:
+"I'd be happy to connect you with our sales team who can provide detailed pricing based on your specific requirements. For now, let's make sure we have the right solution for your needs."
+
+### TECHNICAL IDENTITY (Fristine Context):
+You represent **Fristine Infotech**, a Tier-1 Zoho Premium Partner (500+ global deployments).
+Offices: Mumbai, Pune, Dubai.
+Specialisms: Zoho CRM, Creator, Desk, People, and Books.
+Integration Focus: SAP S/4HANA, WhatsApp API, accounting bridges.
+
+### REMEMBER:
+- Start by asking what they need
+- Listen to understand their problem
+- Recommend specific solutions
+- Make it easy for them to take next steps
+- Be helpful, not salesy
+- Focus on value, not price
+
+### TECHNICAL OPERATING PROTOCOL:
 1. Conduct discovery for CRM, Desk, Analytics, and Books implementations.
-2. Follow MEDDPICC logic to qualify leads:
-   - Metrics (ROI/KPIs)
-   - Economic Buyer (Stakeholders)
-   - Decision Criteria (Tech/Integration needs)
-   - Decision Process (Workflow mapping)
-   - Paper Process
-   - Identify Pain (Operational Bottlenecks)
-   - Champion identification.
-
-### Core Behavior Rules:
-1. **Persistence & State-Awareness**: Acknowledge previous context if the user returns.
-2. **Authority**: Speak as a Solution Architect + Business Consultant.
-3. **Zoho Product Matrix**: Map use cases intelligently:
-   - Complaint Management -> Zoho Desk + Analytics
-   - Sales Automation -> Zoho CRM + Campaigns
-   - Support -> Zoho Desk
-   - Finance -> Zoho Books
-4. **Mandatory Disclosures**: 
-   - Licensing is separate from implementation fees.
-   - Standard terms: 60% advance / 40% sign-off.
-   - 30 days of Hypercare included.
-5. **Conciseness**: Keep responses professional and under 60 words.
-
-### Interaction Style:
-- Use **consulting tone** (Accenture/Deloitte style).
-- Extract requirements and fill gaps intelligently without asking unnecessary questions.
-- Focus on business impact (ROI) and technical feasibility (Integrations).`;
+2. Follow MEDDPICC logic internally to qualify leads (don't mention MEDDPICC to the customer).
+3. Use exact technical wording when recommending: "SAP S/4HANA OData Sync", "CAPA/DOP Approval Workflows".
+4. COMPLETION TRIGGER: When the user is ready to finalize, output EXACTLY the keyword "REQUIREMENTS_COMPLETE" followed by the structured JSON summary.`;
 
 /* ══ PROPOSAL INTELLIGENCE LAYER (OG SPECIFICATION) ══ */
 const PROPOSAL_SPECIALIST_PROMPT = `### Role Definition: Fristine AI Pre-Sales Architect (Proposal Intelligence Layer)
@@ -383,6 +431,7 @@ Generate proposals matching "Fristine DNA": boardroom-ready, highly structured, 
 - **Mapping**: Convert pain points to specific Zoho cures.
 - **Limits**: Add concrete limits to scope (layouts, approvals, automated rules).
 - **Architecture**: Smartly include CAPA, SLA/TAT tracking, and DOP approval logic for CCMS/Enterprise.
+- **Implementation Transparency**: Always separate software licensing costs from implementation services. Explicitly state typical timelines, integration requirements, and what is included in the 30-day Hypercare support.
 - **Commercials**: Include workshops, solution design, QA, and 30-day Hypercare.`;
 
 let isAppInitialized = false;
@@ -415,7 +464,7 @@ async function checkAiHealth() {
         try {
             const res = await voice.getStatus();
             if (res.status === 'ok') {
-                voiceEnabled = true;
+                voiceServiceAvailable = true;
                 voiceBadge.style.borderColor = 'var(--green)';
                 voiceBadge.style.color = 'var(--green)';
                 voiceBadge.innerHTML = `<span class="phase-dot" style="background:var(--green)"></span> Voice Online`;
@@ -1130,10 +1179,10 @@ async function makeCall(phone, company, clientId = null) {
     // Proceed immediately to call initiation for better UX and reliability
     console.log(`[Call] Initiating request to backend for ${phone}...`);
     
-    showLdr(`Dialing ${company}…`);
+    showLdr(`Dialing ${company} via LiveKit…`);
     try {
         await voice.call(phone, clientId);
-        showToast('Call initiated successfully! Expect a ring shortly.', 'success');
+        showToast('LiveKit Call initiated! AI Agent is joining room.', 'success');
     } catch (err) {
         console.error('[Call Error]', err);
         let msg = err.message || "Call failed.";
@@ -1219,18 +1268,19 @@ async function triggerOutboundCall(clientId) {
         const res = await voice.call(targetPhone, clientId);
         
         if (res.success) {
-            const msg = res.is_demo ? '[Demo Mode] Outbound call simulated successfully!' : 'Outbound call successful. Connecting to AI bot…';
+            const msg = res.is_demo ? '[Demo Mode] LiveKit Call simulated!' : 'LiveKit Call Dispatched. Agent is dialing…';
             showToast(msg, res.is_demo ? 'info' : 'success');
-            await tracking.logEvent(clientId, 'outbound_call_initiated', `SID: ${res.call_sid || 'DEMO'}`);
+            await tracking.logEvent(clientId, 'outbound_call_initiated', `Room: ${res.room || 'DEMO'}`);
             renderClientTable('', false); 
         }
     } catch (err) {
-        console.error('[Call] Failed:', err);
-        const code = err.response?.data?.detail?.code;
-        if (code === 21219) {
-            showToast('Twilio Restriction: Phone number not verified in trial console.', 'error', 6000);
-        } else {
-            showToast('Failed to initiate call. Check Twilio config/Ngrok.', 'error');
+        console.error('[Call] Full Error Object:', err);
+        const serverError = err.data?.detail || err.message || "Connection refused/Timeout";
+        showToast(`Call Failed: ${serverError}`, 'error', 10000);
+        
+        // Fallback for extreme cases
+        if (serverError.toLowerCase().includes("failed") || serverError.toLowerCase().includes("unauthorized")) {
+            console.warn("[Diagnostic] High-priority error detected. Check backend terminal.");
         }
     }
 }
@@ -1366,9 +1416,30 @@ async function openTracking(clientId) {
         ps.style.display = 'none';
     }
 
+    // KPIs — simple status logic
+    const clicks = evts.filter(e => e.event === 'bot_accessed').length;
+    document.getElementById('met-clicks').textContent = clicks;
+    const prC = evts.filter(e => e.event === 'proposal_generated').length;
+    document.getElementById('met-proposals').textContent = prC;
+    const calls = evts.filter(e => e.event === 'outbound_call_initiated').length;
+    const elCalls = document.getElementById('met-calls');
+    if (elCalls) elCalls.textContent = calls;
+    const elStatus = document.getElementById('met-status');
+    if (elStatus) {
+        elStatus.textContent = calls > 0 ? "Called" : "Not Contacted";
+        elStatus.style.color = calls > 0 ? "var(--green)" : "var(--dim)";
+    }
+
     renderClientFiles(clientId);
 
     document.getElementById('resendBotBtn').onclick = () => sendBotEmail(clientId);
+    
+    // Wire up "Make Call (Agent)" button in tracking view
+    const mkCallBtn = document.getElementById('mkCallBtn');
+    if (mkCallBtn) {
+        mkCallBtn.onclick = () => triggerOutboundCall(clientId);
+    }
+    
     document.getElementById('copyLinkBtn').onclick = () => {
         const url = `${window.location.origin}/?client=${encodeURIComponent(clientId)}`;
         
@@ -1450,6 +1521,10 @@ function renderEventLog(evts) {
         'proposal_generated':   '<svg viewBox="0 0 18 18" width="16" height="16" fill="none"><rect x="4" y="2" width="10" height="14" rx="2" stroke="#7C3AED" stroke-width="1.5"/><path d="M7 6h4M7 9h4M7 12h2" stroke="#7C3AED" stroke-width="1.3" stroke-linecap="round"/></svg>',
         'proposal_submitted':   '<svg viewBox="0 0 18 18" width="16" height="16" fill="none"><circle cx="9" cy="9" r="7" stroke="var(--green)" stroke-width="1.5"/><path d="M6 9l2.5 2.5L12.5 7" stroke="var(--green)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
         'proposal_sent':        '<svg viewBox="0 0 18 18" width="16" height="16" fill="none"><path d="M2 5l7 4 7-4M2 5h14v9H2V5z" stroke="var(--green)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 12l2 2 3-4" stroke="var(--green)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+        'voice_agent_enabled':  '<svg viewBox="0 0 24 24" fill="none" width="16" height="16" stroke="var(--purple)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/><path d="M8 22h8"/></svg>',
+        'outbound_call_initiated': '<svg viewBox="0 0 24 24" fill="none" width="16" height="16" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>',
+        'call_completed':          '<svg viewBox="0 0 18 18" width="16" height="16" fill="none"><circle cx="9" cy="9" r="7" stroke="var(--green)" stroke-width="1.5"/><path d="M6 9l2.5 2.5L12.5 7" stroke="var(--green)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+        'voice_call_started':      '<svg viewBox="0 0 18 18" width="16" height="16" fill="none"><path d="M9 2a3 3 0 0 0-3 3v4a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" stroke="var(--orange)" stroke-width="1.5"/><path d="M14 9v1a5 5 0 0 1-10 0V9" stroke="var(--orange)" stroke-width="1.5" stroke-linecap="round"/></svg>',
     };
     const evtLabels = {
         'bot_sent':              'Bot link sent to client',
@@ -1458,17 +1533,27 @@ function renderEventLog(evts) {
         'proposal_generated':    'Proposal generated',
         'proposal_submitted':    'Proposal submitted to agent',
         'proposal_sent':         'Proposal sent to client',
+        'voice_agent_enabled':   'Voice agent activated',
+        'outbound_call_initiated': 'Outbound call initiated',
+        'call_completed':          'Call completed successfully',
+        'voice_call_started':      'Voice session started',
     };
     if (!evts.length) {
         log.innerHTML = '<div class="event-empty">No activity recorded yet.</div>';
         return;
     }
-    log.innerHTML = [...evts].reverse().map(e => `
-        <div class="event-row anim-row">
-            <div class="event-icon">${evtIcons[e.event] || '<svg viewBox="0 0 18 18" width="16" height="16" fill="none"><circle cx="9" cy="9" r="7" stroke="var(--dim)" stroke-width="1.5"/></svg>'}</div>
-            <div class="event-desc">${evtLabels[e.event] || e.event}</div>
-            <div class="event-time">${formatTime(e.timestamp)}</div>
-        </div>`).join('');
+    log.innerHTML = [...evts].reverse().map(e => {
+        const note = (e.metadata && (e.metadata.note || e.metadata.details)) ? `<div class="event-note">${e.metadata.note || e.metadata.details}</div>` : '';
+        return `
+            <div class="event-row anim-row">
+                <div class="event-icon">${evtIcons[e.event] || '<svg viewBox="0 0 18 18" width="16" height="16" fill="none"><circle cx="9" cy="9" r="7" stroke="var(--dim)" stroke-width="1.5"/></svg>'}</div>
+                <div class="event-content">
+                    <div class="event-desc">${evtLabels[e.event] || e.event}</div>
+                    ${note}
+                </div>
+                <div class="event-time">${formatTime(e.timestamp)}</div>
+            </div>`;
+    }).join('');
     animateRows('.anim-row');
 }
 
@@ -1505,7 +1590,7 @@ async function startSession() {
             showReqSummary();
         } else {
             setStg(2, 'act'); setPhase('Discovery Phase');
-            addAg(`Welcome back! I remember our conversation. Where were we — shall we continue?`);
+            addAg(`Welcome back! What would you like to discuss today?`);
         }
         return;
     }
@@ -1569,12 +1654,12 @@ async function beginGather() {
     const isRestored = convo.length > 0;
     
     if (isOpen) {
-        const greet = "Hi! I’m your Fristine Infotech Presales Assistant. We help businesses solve complex problems through bespoke Zoho consultation and implementation. To help me draft a budgetary proposal for you, could you tell me which Zoho applications or business processes (Sales, CCMS, Marketing, or Support) you are looking to digitize today?";
+        const greet = "Hello! How can I help you today?";
         addAg(greet);
         convo.push({ role: 'assistant', content: greet });
     } else if (isRestored) {
         // Rule 2: State-Aware Resumption
-        const welcome = "Glad to see you again! Let's pick up where we left off.";
+        const welcome = "Welcome back! What would you like to discuss today?";
         addAg(welcome);
         convo.push({ role: 'assistant', content: welcome });
     }
@@ -1668,8 +1753,9 @@ async function nextQ(isOpen = false) {
                 return `Fristine Infotech (founded in 2014) is a Tier-1 Zoho Premium Partner with a track record of 500+ global deployments. We specialize in complex Zoho CRM, Books, and Creator transformations. My role today is to help architect your solution. Coming back to our discovery... what is the primary operational challenge you'd like to solve first?`;
             }
 
-            turnPrompt = `Current Phase: ${curPhase}. Conduct discovery for ${cli.company}. 
-            PROTOCOL RULES:
+            turnPrompt = `Current Phase: ${curPhase}. Conduct discovery for ${cli.company}.
+            CRITICAL RULE 1: Analyze the user's latest message. If they greeted you, asked a question, or expressed confusion, YOU MUST respond naturally to their specific input FIRST before doing anything else!
+            CRITICAL RULE 2: If the user is proceeding normally, follow these PROTOCOL RULES:
             1. For CCMS/Manufacturing: Ask about SAP S/4HANA, CAPA, and DOP approval needs.
             2. For Healthcare/Retail: Ask about SalesIQ, WhatsApp/Telephony, and pipelines.
             3. Mandatory Disclosure: Weave in License, 60/40 payment, or Hypercare info if it's the right time.
